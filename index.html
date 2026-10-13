@@ -349,13 +349,180 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
       margin-top: 10px;
       font-size: 13px;
       font-weight: 700;
       color: var(--primary);
-      padding: 8px 12px;
+      padding: 9px 12px;
       background: var(--primary-light);
+      border-radius: 8px;
+      border: 1px solid #bae6fd;
+    }
+
+    .complex-action-btns {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn-sub-act {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 5px 9px;
       border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.15s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+
+    .btn-sub-act:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+
+    .btn-sub-act.sel {
+      color: #0284c7;
+      border-color: #38bdf8;
+      background: #f0f9ff;
+    }
+    .btn-sub-act.sel:hover {
+      background: #e0f2fe;
+    }
+
+    .btn-sub-act.del {
+      color: #475569;
+      border-color: #cbd5e1;
+      background: #f8fafc;
+    }
+    .btn-sub-act.del:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-sub-act.reset {
+      color: #dc2626;
+      border-color: #fca5a5;
+      background: #fef2f2;
+    }
+    .btn-sub-act.reset:hover {
+      background: #fee2e2;
+    }
+
+    /* 선택된 단지 모아보기 칩(태그) 박스 */
+    .selected-chips-box {
+      margin-top: 10px;
+      padding: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+
+    .selected-chips-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .selected-chips-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-height: 140px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .selected-chips-list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .selected-chips-list::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    .selected-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .selected-chip:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #b91c1c;
+    }
+
+    .selected-chip .chip-dong {
+      font-size: 10.5px;
+      color: #0284c7;
+      background: #ffffff;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    .selected-chip:hover .chip-dong {
+      color: #b91c1c;
+    }
+
+    .selected-chip .chip-x {
+      font-size: 11px;
+      font-weight: 900;
+      opacity: 0.7;
+    }
+
+    .selected-chip:hover .chip-x {
+      opacity: 1;
+    }
+
+    .selected-chip.custom {
+      background: #fef3c7;
+      border-color: #fde68a;
+      color: #b45309;
+    }
+
+    .selected-chip.custom .chip-dong {
+      background: #ffffff;
+      color: #b45309;
+    }
+
+    .empty-chips-msg {
+      font-size: 12px;
+      color: #94a3b8;
+      padding: 4px 0;
+    }
+
+    .dist-tab.tab-selected-only {
+      color: #0284c7;
+      border-color: #38bdf8;
+      background: #f0f9ff;
+      font-weight: 800;
+    }
+    .dist-tab.tab-selected-only.active {
+      background: #0284c7;
+      color: #ffffff;
     }
 
     /* 단지 직접 추가 카드 */
@@ -685,16 +852,37 @@
         <span class="num">1</span>
         <span>공인중개사 기본 정보 입력</span>
       </div>
+
+      <!-- 자격 구분 라디오 -->
+      <div style="margin-bottom:14px; background:#f8fafc; padding:10px 14px; border-radius:8px; border:1px solid #e2e8f0;">
+        <label class="form-label" style="margin-bottom:6px;">자격 구분 선택 <span class="req">*</span></label>
+        <div style="display:flex; gap:18px; align-items:center;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:13.5px; font-weight:700; color:#0f172a; cursor:pointer;">
+            <input type="radio" name="userTypeRadio" id="userTypeOwner" value="대표" checked onchange="toggleClientUserType()" style="accent-color:#0284c7; cursor:pointer;">
+            👑 개업공인중개사 (대표)
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:13.5px; font-weight:700; color:#4338ca; cursor:pointer;">
+            <input type="radio" name="userTypeRadio" id="userTypeAgent" value="소속공인중개사" onchange="toggleClientUserType()" style="accent-color:#4338ca; cursor:pointer;">
+            👤 소속공인중개사 (소공)
+          </label>
+        </div>
+      </div>
+
       <div class="form-group">
-        <label class="form-label" for="officeName">부동산 상호명 <span class="req">*</span></label>
-        <input type="text" id="officeName" class="form-input" placeholder="예: 태화강아이파크공인중개사사무소" required>
+        <label class="form-label" for="officeName">공인중개사사무소명 (상호명) <span class="req">*</span></label>
+        <input type="text" id="officeName" class="form-input" placeholder="예: 문수로트럼프공인중개사사무소" required>
       </div>
       <div class="form-group">
         <label class="form-label" for="ownerName">대표자 성함 <span class="req">*</span></label>
-        <input type="text" id="ownerName" class="form-input" placeholder="예: 홍길동 소장님" required>
+        <input type="text" id="ownerName" class="form-input" placeholder="예: 차호인" required>
+      </div>
+      <div class="form-group" id="agentNameGroup" style="display:none; background:#eef2ff; padding:10px 12px; border-radius:8px; border:1px solid #c7d2fe;">
+        <label class="form-label" for="agentName" style="color:#3730a3;">소속공인중개사 성함 (본인) <span class="req">*</span></label>
+        <input type="text" id="agentName" class="form-input" placeholder="예: 소속공인중개사 성함 입력">
+        <p style="font-size:11.5px; color:#4338ca; margin-top:4px;">※ 소속공인중개사님의 성함을 정확히 입력해 주세요.</p>
       </div>
       <div class="form-group">
-        <label class="form-label" for="phone">연락처 (휴대폰 번호) <span class="req">*</span></label>
+        <label class="form-label" for="phone" id="lblClientPhone">연락처 (휴대폰 번호) <span class="req">*</span></label>
         <input type="tel" id="phone" class="form-input" placeholder="예: 010-1234-5678" required>
       </div>
     </section>
@@ -722,6 +910,7 @@
         <button type="button" class="dist-tab" onclick="filterDistrict('동구')">동구 (<span id="cntDonggu">352</span>)</button>
         <button type="button" class="dist-tab" onclick="filterDistrict('북구')">북구 (<span id="cntBukgu">192</span>)</button>
         <button type="button" class="dist-tab" onclick="filterDistrict('울주군')">울주군 (<span id="cntUlju">292</span>)</button>
+        <button type="button" class="dist-tab tab-selected-only" id="tabSelectedOnly" onclick="filterDistrict('선택단지')">⭐ 선택단지 (<span id="cntSelectedOnly">0</span>)</button>
       </div>
 
       <!-- 단지 목록 스크롤 박스 -->
@@ -729,10 +918,28 @@
         <!-- JS로 동적 렌더링 -->
       </div>
 
-      <!-- 선택 요약 바 -->
+      <!-- 선택 요약 및 액션 조작 바 -->
       <div class="complex-count-info">
-        <span id="selectedSummary">선택된 단지: 0개</span>
-        <button type="button" onclick="selectAllFiltered(true)" style="background:none; border:none; color:var(--primary); font-size:12px; font-weight:700; cursor:pointer;">현재목록 전체선택</button>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span id="selectedSummary">선택된 단지: 0개</span>
+          <span style="font-size:11px; color:#64748b; font-weight:normal;">(남구·중구 등 전지역 합산)</span>
+        </div>
+        <div class="complex-action-btns">
+          <button type="button" class="btn-sub-act sel" onclick="selectAllFiltered(true)" title="현재 화면에 표시된 단지를 모두 선택합니다">✅ 현재목록 전체선택</button>
+          <button type="button" class="btn-sub-act del" onclick="selectAllFiltered(false)" title="현재 화면에 표시된 단지의 선택을 해제합니다">⬜ 현재목록 해제</button>
+          <button type="button" class="btn-sub-act reset" onclick="resetAllSelections()" title="남구, 중구 등 모든 구/군에서 선택된 단지를 전체 초기화합니다">🔄 전체 초기화</button>
+        </div>
+      </div>
+
+      <!-- 내가 선택한 단지 목록 실시간 확인 (남구, 중구 등 분산 선택 시 한눈에 확인 & 삭제) -->
+      <div class="selected-chips-box" id="selectedChipsBox">
+        <div class="selected-chips-header">
+          <span>📌 내가 선택한 단지 목록 (<span id="selectedChipsCount">0</span>개)</span>
+          <span style="font-size:11px; color:#64748b; font-weight:normal;">단지를 클릭하면 즉시 선택에서 제외됩니다</span>
+        </div>
+        <div class="selected-chips-list" id="selectedChipsList">
+          <div class="empty-chips-msg">선택된 단지가 없습니다. 위 목록에서 아파트/오피스텔을 체크해 주세요.</div>
+        </div>
       </div>
 
       <!-- 목록에 없는 단지 직접 추가 -->
@@ -903,7 +1110,7 @@
 
       const digits = rawPhone.replace(/\D/g, "");
       const mid = "sub_" + digits;
-      const apiUrl = `https://script.google.com/macros/s/AKfycbxndlEGVojoZeQemFt0ovLNp9PW7w2VvlZQOXUCix84LfogjG98COsmgQbYMqInFAuxww/exec?action=check&mid=${encodeURIComponent(mid)}`;
+      const apiUrl = `https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec?action=check&mid=${encodeURIComponent(mid)}`;
 
       msgEl.style.display = 'block';
       msgEl.style.color = '#0284c7';
@@ -932,18 +1139,29 @@
       }
     }
 
+    let complexMap = new Map();
+
     function initComplexes() {
       if (typeof ULSAN_COMPLEXES === 'undefined' || !ULSAN_COMPLEXES) {
         console.warn("complexes_data.js not loaded");
         return;
       }
+      complexMap.clear();
+      ULSAN_COMPLEXES.forEach(c => {
+        complexMap.set(String(c.no), c);
+      });
       filterDistrict('전체');
+      renderSelectedChips();
     }
 
     function filterDistrict(district) {
       currentDistrict = district;
       document.querySelectorAll('.dist-tab').forEach(tab => {
-        tab.classList.toggle('active', tab.textContent.includes(district));
+        if (district === '선택단지') {
+          tab.classList.toggle('active', tab.id === 'tabSelectedOnly');
+        } else {
+          tab.classList.toggle('active', tab.textContent.startsWith(district) && tab.id !== 'tabSelectedOnly');
+        }
       });
       applySearchAndFilter();
     }
@@ -965,9 +1183,14 @@
       const q = document.getElementById('searchInput').value.trim().toLowerCase();
 
       filteredList = ULSAN_COMPLEXES.filter(c => {
-        const matchDist = (currentDistrict === '전체' || c.district === currentDistrict);
-        const matchQ = (!q || (c.name && c.name.toLowerCase().includes(q)) || (c.dong && c.dong.toLowerCase().includes(q)) || String(c.no).includes(q));
-        return matchDist && matchQ;
+        const cno = String(c.no);
+        if (currentDistrict === '선택단지') {
+          if (!selectedComplexNos.has(cno)) return false;
+        } else if (currentDistrict !== '전체') {
+          if (c.district !== currentDistrict) return false;
+        }
+        const matchQ = (!q || (c.name && c.name.toLowerCase().includes(q)) || (c.dong && c.dong.toLowerCase().includes(q)) || cno.includes(q));
+        return matchQ;
       });
 
       renderComplexList();
@@ -978,12 +1201,16 @@
       container.innerHTML = '';
 
       if (filteredList.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:30px 10px; color:#94a3b8; font-size:13px;">일치하는 단지가 없습니다. 아래에서 직접 추가해 주세요.</div>';
+        if (currentDistrict === '선택단지') {
+          container.innerHTML = '<div style="text-align:center; padding:32px 10px; color:#94a3b8; font-size:13px;">현재 선택된 단지가 없습니다.<br>다른 구/군(남구, 중구 등) 탭에서 단지를 먼저 체크해 주세요.</div>';
+        } else {
+          container.innerHTML = '<div style="text-align:center; padding:30px 10px; color:#94a3b8; font-size:13px;">일치하는 단지가 없습니다. 아래에서 직접 추가해 주세요.</div>';
+        }
         return;
       }
 
-      // 성능을 위해 최대 150개 우선 렌더링
-      const sliceList = filteredList.slice(0, 150);
+      // 성능을 위해 최대 200개 우선 렌더링
+      const sliceList = filteredList.slice(0, 200);
       const frag = document.createDocumentFragment();
 
       sliceList.forEach(c => {
@@ -1015,27 +1242,110 @@
     function toggleComplex(cno, checked, el) {
       if (checked) {
         selectedComplexNos.add(cno);
-        el.classList.add('selected');
+        if (el) el.classList.add('selected');
       } else {
         selectedComplexNos.delete(cno);
-        el.classList.remove('selected');
+        if (el) el.classList.remove('selected');
       }
       updateSummary();
+      if (currentDistrict === '선택단지' && !checked) {
+        applySearchAndFilter();
+      }
     }
 
+    // 현재 목록 전체 선택 또는 현재 목록 전체 해제
     function selectAllFiltered(state) {
+      if (filteredList.length === 0) return;
       filteredList.forEach(c => {
         const cno = String(c.no);
         if (state) selectedComplexNos.add(cno);
         else selectedComplexNos.delete(cno);
       });
-      renderComplexList();
       updateSummary();
+      applySearchAndFilter();
+    }
+
+    // 남구, 중구 등 모든 구/군에서 선택된 전체 단지 초기화 (모두 해제)
+    function resetAllSelections() {
+      const total = selectedComplexNos.size + customComplexes.length;
+      if (total === 0) {
+        alert("현재 선택된 단지가 없습니다.");
+        return;
+      }
+      if (confirm(`현재 선택된 단지 총 ${total}개를 모두 해제(초기화)하시겠습니까?\n\n(남구, 중구 등 모든 지역에서 선택하신 단지가 전체 취소됩니다)`)) {
+        selectedComplexNos.clear();
+        customComplexes = [];
+        renderCustomTags();
+        updateSummary();
+        applySearchAndFilter();
+      }
+    }
+
+    // 선택된 단지 개별 태그 클릭 시 단일 해제
+    function removeSingleSelection(cno) {
+      selectedComplexNos.delete(String(cno));
+      updateSummary();
+      applySearchAndFilter();
+    }
+
+    // 선택된 단지 태그(칩) 목록 실시간 렌더링
+    function renderSelectedChips() {
+      const box = document.getElementById('selectedChipsList');
+      if (!box) return;
+      box.innerHTML = '';
+
+      const totalCount = selectedComplexNos.size + customComplexes.length;
+      const countEl = document.getElementById('selectedChipsCount');
+      if (countEl) countEl.textContent = totalCount;
+      const selOnlyBadge = document.getElementById('cntSelectedOnly');
+      if (selOnlyBadge) selOnlyBadge.textContent = selectedComplexNos.size;
+
+      if (totalCount === 0) {
+        box.innerHTML = '<div class="empty-chips-msg">선택된 단지가 없습니다. 위 목록에서 아파트/오피스텔을 체크해 주세요.</div>';
+        return;
+      }
+
+      const frag = document.createDocumentFragment();
+
+      // 등록 단지 칩 (남구, 중구 등)
+      selectedComplexNos.forEach(cno => {
+        const c = complexMap.get(String(cno));
+        const chip = document.createElement('span');
+        chip.className = 'selected-chip';
+        chip.title = '클릭하면 선택이 해제됩니다';
+        const distStr = c ? `${c.district} ${c.dong || ''}`.trim() : '단지 ' + cno;
+        const nameStr = c ? c.name : cno;
+        chip.innerHTML = `
+          <span class="chip-dong">${distStr}</span>
+          <span class="chip-name">${nameStr}</span>
+          <span class="chip-x">✕</span>
+        `;
+        chip.onclick = () => removeSingleSelection(cno);
+        frag.appendChild(chip);
+      });
+
+      // 직접 추가 단지 칩
+      customComplexes.forEach(name => {
+        const chip = document.createElement('span');
+        chip.className = 'selected-chip custom';
+        chip.title = '클릭하면 직접 추가 단지에서 제외됩니다';
+        chip.innerHTML = `
+          <span class="chip-dong">직접추가</span>
+          <span class="chip-name">${name}</span>
+          <span class="chip-x">✕</span>
+        `;
+        chip.onclick = () => removeCustom(name);
+        frag.appendChild(chip);
+      });
+
+      box.appendChild(frag);
     }
 
     function updateSummary() {
       const cnt = selectedComplexNos.size + customComplexes.length;
-      document.getElementById('selectedSummary').textContent = `선택된 단지: ${cnt}개`;
+      const sumEl = document.getElementById('selectedSummary');
+      if (sumEl) sumEl.textContent = `선택된 단지: ${cnt}개`;
+      renderSelectedChips();
     }
 
     function addCustomComplex() {
@@ -1067,14 +1377,37 @@
       });
     }
 
+    function toggleClientUserType() {
+      const isAgent = document.getElementById('userTypeAgent')?.checked;
+      const group = document.getElementById('agentNameGroup');
+      const phoneLbl = document.getElementById('lblClientPhone');
+      if (group) {
+        group.style.display = isAgent ? 'block' : 'none';
+        if (isAgent) setTimeout(() => document.getElementById('agentName')?.focus(), 50);
+      }
+      if (phoneLbl) {
+        phoneLbl.innerHTML = isAgent 
+          ? '소속공인 연락처 (휴대폰 번호) <span class="req">*</span>' 
+          : '연락처 (휴대폰 번호) <span class="req">*</span>';
+      }
+    }
+
     async function submitSubscription() {
+      const isAgent = document.getElementById('userTypeAgent')?.checked;
+      const userType = isAgent ? "소속공인중개사" : "대표";
       const office = document.getElementById('officeName').value.trim();
       const owner = document.getElementById('ownerName').value.trim();
+      const agent = isAgent ? (document.getElementById('agentName')?.value.trim() || "-") : "-";
       const phone = document.getElementById('phone').value.trim();
       let rawCode = document.getElementById('authCodeInput').value.trim();
 
-      if (!office) { alert("부동산 상호명을 입력해 주세요."); return; }
+      if (!office) { alert("공인중개사사무소명을 입력해 주세요."); return; }
       if (!owner) { alert("대표자 성함을 입력해 주세요."); return; }
+      if (isAgent && (!agent || agent === "-")) {
+        alert("소속공인중개사 성함(본인)을 입력해 주세요.");
+        document.getElementById('agentName')?.focus();
+        return;
+      }
       if (!phone) { alert("연락처를 입력해 주세요."); return; }
       if (!rawCode) { alert("카카오 인증 주소를 입력해 주세요.\n먼저 [카카오 로그인 연동]을 진행하세요."); return; }
 
@@ -1090,8 +1423,10 @@
       const payload = {
         action: "register_subscriber",
         plan: currentPlan,
+        user_type: userType,
         office_name: office,
         owner_name: owner,
+        agent_name: agent,
         phone: phone,
         auth_code: authCode,
         complex_nos: selectedList,
@@ -1099,19 +1434,22 @@
         submitted_at: new Date().toISOString()
       };
 
-      // 구글 시트 라이선스 서버 URL로 전송
-      const googleScriptUrl = "https://script.google.com/macros/s/AKfycbxndlEGVojoZeQemFt0ovLNp9PW7w2VvlZQOXUCix84LfogjG98COsmgQbYMqInFAuxww/exec";
+      // 구글 시트 라이선스 서버 URL로 전송 (소장님 구글 시트 100% 실시간 연동!)
+      const googleScriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
 
       try {
-        // 비동기 전송 (CORS 대응 mode: no-cors 또는 GET 파라미터)
+        const digits = phone.replace(/[^0-9]/g, "");
+        const allComplexesList = selectedList.concat(customComplexes);
         const params = new URLSearchParams({
-          action: "register",
+          action: "request",
           plan: currentPlan,
-          mid: "sub_" + phone.replace(/[^0-9]/g, ""),
-          office: office,
-          owner: owner,
+          mid: "SUB_" + digits,
+          user_type: userType,
+          office_name: office,
+          owner_name: owner,
+          agent_name: agent,
           phone: phone,
-          complexes: selectedList.join(",")
+          req_complexes: allComplexesList.join(", ")
         });
 
         fetch(googleScriptUrl + "?" + params.toString(), { mode: 'no-cors' }).catch(()=>{});

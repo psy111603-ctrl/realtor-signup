@@ -3,22 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>네이버 부동산 실시간 매물 알림 - 모바일 & PC 통합 관제 센터</title>
+  <title>네이버 부동산 실시간 매물 알림 - [대표 소장님 관리자 관제 센터]</title>
+  <!-- 울산 2,094개 전체 단지 데이터베이스 -->
+  <script src="complexes_data.js"></script>
   <style>
     :root {
       --primary: #0284c7;
       --primary-hover: #0369a1;
       --primary-light: #e0f2fe;
-      --bg-dark: #0f172a;
-      --card-bg: #1e293b;
-      --card-border: #334155;
-      --text-main: #f8fafc;
-      --text-sub: #94a3b8;
-      --accent-green: #10b981;
+      --bg-body: #f1f5f9;
+      --card-bg: #ffffff;
+      --card-border: #cbd5e1;
+      --text-main: #1e293b;
+      --text-sub: #64748b;
+      --accent-green: #16a34a;
       --accent-red: #ef4444;
-      --accent-amber: #f59e0b;
-      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-      --radius: 14px;
+      --accent-amber: #d97706;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --radius: 8px;
     }
 
     * {
@@ -30,45 +33,44 @@
     }
 
     body {
-      background-color: var(--bg-dark);
+      background-color: var(--bg-body);
       color: var(--text-main);
       line-height: 1.5;
-      padding-bottom: 90px;
+      padding-bottom: 60px;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* 상단 글래스모피즘 헤더 */
-    .top-header {
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--card-border);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      padding: 14px 18px;
+    /* 상단 네이비 헤더 */
+    .header-bar {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 13px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    .header-logo {
+    .header-left {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .header-logo .icon {
-      font-size: 20px;
+    .header-left .logo-icon {
+      font-size: 22px;
     }
 
-    .header-title-wrap h1 {
+    .header-left h1 {
       font-size: 16px;
       font-weight: 800;
-      color: #ffffff;
       letter-spacing: -0.3px;
     }
 
-    .header-title-wrap p {
+    .header-left p {
       font-size: 11px;
       color: #38bdf8;
       font-weight: 600;
@@ -80,295 +82,310 @@
       gap: 8px;
     }
 
-    .badge-admin {
-      background: rgba(2, 132, 199, 0.2);
-      border: 1px solid rgba(56, 189, 248, 0.5);
+    .badge-cloud {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
       color: #38bdf8;
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 700;
       padding: 4px 10px;
       border-radius: 9999px;
+      white-space: nowrap;
     }
 
-    .btn-header-lock {
+    .btn-lock {
       background: #334155;
+      color: #f1f5f9;
       border: none;
-      color: #cbd5e1;
       padding: 5px 10px;
-      border-radius: 8px;
+      border-radius: 6px;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
+      white-space: nowrap;
     }
 
     /* 메인 컨테이너 */
     .container {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 16px;
+      max-width: 980px;
+      margin: 12px auto;
+      padding: 0 12px;
     }
 
-    /* 통계 요약 카드 그리드 */
-    .stats-grid {
+    /* 상단 4대 요약 카드 */
+    .summary-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
 
-    @media (max-width: 640px) {
-      .stats-grid {
+    @media (max-width: 680px) {
+      .summary-grid {
         grid-template-columns: repeat(2, 1fr);
       }
     }
 
-    .stat-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+    .summary-card {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
       border-radius: var(--radius);
-      padding: 14px 12px;
+      padding: 12px 10px;
       text-align: center;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: var(--shadow-sm);
+      user-select: none;
+      touch-action: manipulation;
     }
 
-    .stat-label {
-      font-size: 11.5px;
+    .summary-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .summary-card:active {
+      transform: translateY(0);
+    }
+
+    .summary-card.active {
+      border-color: #0284c7;
+      background: #f0f9ff;
+      box-shadow: 0 0 0 2.5px rgba(2, 132, 199, 0.35);
+    }
+
+    .summary-label {
+      font-size: 12px;
       color: var(--text-sub);
+      font-weight: 700;
       margin-bottom: 4px;
-      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
     }
 
-    .stat-val {
+    .summary-val {
       font-size: 22px;
       font-weight: 800;
-      color: #ffffff;
     }
 
-    .stat-val.primary { color: #38bdf8; }
-    .stat-val.green { color: #34d399; }
-    .stat-val.amber { color: #fbbf24; }
-    .stat-val.red { color: #f87171; }
+    .summary-val.c-blue { color: #0284c7; }
+    .summary-val.c-green { color: #16a34a; }
+    .summary-val.c-purple { color: #9333ea; }
+    .summary-val.c-amber { color: #d97706; }
 
-    /* 탭 네비게이션 */
-    .nav-tabs {
+    /* 메인 4대 탭 바 */
+    .main-tab-bar {
       display: flex;
-      background: #1e293b;
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 4px;
-      margin-bottom: 20px;
-      gap: 4px;
+      background: #e2e8f0;
+      border: 1px solid #cbd5e1;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
       overflow-x: auto;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+      -webkit-overflow-scrolling: touch;
     }
 
-    .tab-btn {
-      flex: 1;
-      min-width: 80px;
-      background: transparent;
+    .main-tab-bar::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
+    .tab-item {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 12px 6px;
+      background: #e2e8f0;
       border: none;
-      color: var(--text-sub);
-      padding: 10px 8px;
-      font-size: 13px;
+      border-right: 1px solid #cbd5e1;
+      color: #475569;
+      font-size: 13.5px;
       font-weight: 700;
-      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s ease;
       text-align: center;
+      transition: all 0.15s ease;
       white-space: nowrap;
+      user-select: none;
+      touch-action: manipulation;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
     }
 
-    .tab-btn:hover {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.05);
+    .tab-item:last-child {
+      border-right: none;
     }
 
-    .tab-btn.active {
-      background: var(--primary);
-      color: #ffffff;
-      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+    .tab-item:hover {
+      background: #f1f5f9;
+      color: #0f172a;
     }
 
-    /* 탭 콘텐츠 영역 */
-    .tab-pane {
-      display: none;
-      animation: fadeIn 0.25s ease-out;
+    .tab-item.active {
+      background: #ffffff;
+      color: #0284c7;
+      border-top: 3px solid #0284c7;
+      font-weight: 800;
     }
 
-    .tab-pane.active {
-      display: block;
+    .tab-lbl-mobile { display: none; }
+    .tab-lbl-pc { display: inline; }
+
+    @media (max-width: 680px) {
+      .tab-lbl-pc { display: none; }
+      .tab-lbl-mobile { display: inline; font-size: 12.5px; font-weight: 800; }
+      .tab-item { padding: 11px 4px; }
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+    .tab-content-box {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 0 0 10px 10px;
+      padding: 18px 16px;
+      box-shadow: var(--shadow-sm);
+      min-height: 480px;
+    }
+
+    .tab-view { display: none; }
+    .tab-view.active { display: block; animation: tabFadeIn 0.15s ease-out; }
+
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(3px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* 섹션 제목 바 */
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-
-    .section-title {
-      font-size: 16px;
-      font-weight: 800;
-      color: #f1f5f9;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-action-sm {
-      background: var(--primary);
-      color: #ffffff;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 12.5px;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      transition: background 0.15s;
-    }
-
-    .btn-action-sm:hover {
-      background: var(--primary-hover);
-    }
-
-    /* 구독자 카드 리스트 */
-    .sub-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .sub-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 18px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-      transition: all 0.2s ease;
-      position: relative;
-    }
-
-    .sub-card:hover {
-      border-color: #475569;
-    }
-
-    .sub-card.pending {
-      border-left: 5px solid var(--accent-amber);
-    }
-
-    .sub-card.active-sub {
-      border-left: 5px solid var(--accent-green);
-    }
-
-    .sub-card.disabled {
-      border-left: 5px solid #64748b;
-      opacity: 0.75;
-    }
-
-    .sub-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 10px;
-      gap: 10px;
-    }
-
-    .sub-office-name {
-      font-size: 17px;
-      font-weight: 800;
-      color: #ffffff;
-    }
-
-    .sub-badges {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .pill {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 8px;
+    /* 구독자 관리 테이블 스타일 */
+    .sub-table-container {
+      border: 1.5px solid #cbd5e1;
       border-radius: 6px;
-    }
-
-    .pill-plan-a { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
-    .pill-plan-b { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
-    .pill-status-ok { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-    .pill-status-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-    .pill-status-pause { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-
-    .sub-info-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      font-size: 13px;
-      color: var(--text-sub);
-      background: rgba(15, 23, 42, 0.6);
-      padding: 10px 12px;
-      border-radius: 8px;
+      overflow-x: auto;
+      max-height: 250px;
+      background: #ffffff;
       margin-bottom: 12px;
     }
 
-    @media (max-width: 480px) {
-      .sub-info-grid {
-        grid-template-columns: 1fr;
-      }
+    .sub-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      min-width: 780px;
     }
 
-    .sub-info-item span.label {
-      color: #64748b;
-      margin-right: 4px;
+    .sub-table thead tr {
+      background: #f1f5f9;
+      color: #334155;
+      border-bottom: 1.5px solid #cbd5e1;
+      position: sticky;
+      top: 0;
+      z-index: 5;
     }
 
-    .sub-info-item span.val {
-      color: #e2e8f0;
-      font-weight: 600;
+    .sub-table th {
+      padding: 8px 10px;
+      font-weight: 800;
+      border-right: 1px solid #e2e8f0;
+      white-space: nowrap;
     }
 
-    .sub-complex-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
+    .sub-table th:last-child { border-right: none; }
+
+    .sub-table tbody tr {
+      border-bottom: 1px solid #e2e8f0;
+      cursor: pointer;
+      transition: background 0.1s ease;
+    }
+
+    .sub-table tbody tr:hover { background: #f0f9ff; }
+
+    .sub-table tbody tr.selected {
+      background-color: #0284c7 !important;
+      color: #ffffff !important;
+      font-weight: 700;
+    }
+
+    .sub-table tbody tr.selected td {
+      color: #ffffff !important;
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .sub-table td {
+      padding: 7px 10px;
+      white-space: nowrap;
+      border-right: 1px solid #f1f5f9;
+    }
+
+    .sub-table td:last-child { border-right: none; }
+
+    /* 하단 단지 상세 패널 */
+    .sub-detail-panel {
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      background: #f8fafc;
+      padding: 10px 12px;
       margin-bottom: 14px;
     }
 
-    .comp-tag {
-      background: #334155;
-      color: #cbd5e1;
-      font-size: 11.5px;
-      padding: 3px 8px;
+    .sub-complex-table-box {
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      background: #ffffff;
+      max-height: 170px;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+
+    .sub-complex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      min-width: 450px;
+    }
+
+    .sub-complex-table thead tr {
+      background: #f1f5f9;
+      color: #475569;
+      border-bottom: 1px solid #cbd5e1;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .sub-complex-table th {
+      padding: 6px 8px;
+      font-weight: 700;
+      border-right: 1px solid #e2e8f0;
+      white-space: nowrap;
+    }
+
+    .sub-complex-table td {
+      padding: 5px 8px;
+      border-bottom: 1px solid #f1f5f9;
+      border-right: 1px solid #f8fafc;
+      white-space: nowrap;
+    }
+
+    .sub-complex-table tbody tr { cursor: pointer; }
+    .sub-complex-table tbody tr:hover { background: #f0fdf4; }
+
+    /* 하늘색 선택 행 스타일 (소장님 스크린샷과 100% 동일) */
+    .sub-complex-table tbody tr.selected {
+      background-color: #bae6fd !important;
+      color: #0369a1 !important;
+      font-weight: 800;
+    }
+
+    /* 버튼 모음 */
+    .btn {
+      height: 36px;
+      padding: 0 14px;
       border-radius: 6px;
-      font-weight: 600;
-    }
-
-    .comp-tag.all {
-      background: rgba(16, 185, 129, 0.2);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .sub-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .btn-control {
-      flex: 1;
-      min-width: 90px;
-      padding: 8px 10px;
-      border-radius: 8px;
       border: none;
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
@@ -376,222 +393,292 @@
       justify-content: center;
       gap: 4px;
       transition: all 0.15s ease;
+      white-space: nowrap;
+      user-select: none;
+      touch-action: manipulation;
     }
 
-    .btn-approve { background: #16a34a; color: #ffffff; }
-    .btn-approve:hover { background: #15803d; }
-    .btn-toggle-pause { background: #475569; color: #ffffff; }
-    .btn-toggle-pause:hover { background: #334155; }
-    .btn-manage-comp { background: #0284c7; color: #ffffff; }
-    .btn-manage-comp:hover { background: #0369a1; }
-    .btn-del { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
-    .btn-del:hover { background: #dc2626; color: #ffffff; }
+    .btn-primary { background: #0284c7; color: #ffffff; }
+    .btn-primary:hover { background: #0369a1; }
+    .btn-success { background: #16a34a; color: #ffffff; }
+    .btn-success:hover { background: #15803d; }
+    .btn-danger { background: #ef4444; color: #ffffff; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-gray { background: #e2e8f0; color: #334155; }
+    .btn-gray:hover { background: #cbd5e1; }
 
-    /* 단지 카드 리스트 */
-    .complex-list {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+    .btn-filter {
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      font-size: 12px;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
     }
 
-    @media (max-width: 640px) {
-      .complex-list {
-        grid-template-columns: 1fr;
-      }
+    .btn-filter:hover { background: #e2e8f0; color: #0f172a; }
+
+    .btn-filter.active {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+      box-shadow: 0 1px 3px rgba(2, 132, 199, 0.35);
+      font-weight: 800;
     }
 
-    .complex-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 16px;
+    .district-filter-bar {
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+      gap: 6px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
     }
 
-    .comp-card-top {
+    .btn-district {
+      padding: 7px 14px;
+      background: #e2e8f0;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .btn-district.active {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+    }
+
+    .complex-scroll-container {
+      border: 1.5px solid #cbd5e1;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .scroll-header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #0f172a;
+      flex-wrap: wrap;
       gap: 8px;
     }
 
-    .comp-name {
-      font-size: 15px;
-      font-weight: 800;
-      color: #ffffff;
-      line-height: 1.4;
-    }
-
-    .comp-sub-info {
-      font-size: 12px;
-      color: var(--text-sub);
-      margin-top: 4px;
-    }
-
-    .comp-card-actions {
+    .scroll-actions-left {
       display: flex;
-      justify-content: space-between;
+      gap: 8px;
       align-items: center;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding-top: 10px;
     }
 
-    .btn-naver-link {
-      color: #03c75a;
-      background: rgba(3, 199, 90, 0.1);
-      border: 1px solid rgba(3, 199, 90, 0.3);
-      padding: 5px 10px;
-      border-radius: 6px;
+    .btn-select-all {
       font-size: 11.5px;
       font-weight: 700;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #334155;
+      touch-action: manipulation;
     }
 
-    /* 신규 단지 추가 박스 */
-    .add-box {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 18px;
-      margin-bottom: 20px;
+    .btn-select-all:hover { background: #f1f5f9; }
+
+    .scroll-body {
+      max-height: 280px;
+      overflow-y: auto;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @media (max-width: 600px) {
+      .scroll-body { grid-template-columns: 1fr; }
+    }
+
+    .comp-check-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 12.5px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.1s ease;
+    }
+
+    .comp-check-item:hover { background: #f0f9ff; }
+    .comp-check-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+    .comp-check-label { cursor: pointer; color: #1e293b; word-break: break-all; }
+    .comp-check-label .cno-sub { color: #64748b; font-size: 11px; }
+
+    .fieldset-box {
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      background: #ffffff;
+    }
+
+    .legend-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #1e293b;
+      padding: 0 8px;
+      display: inline-block;
+      margin-top: -24px;
+      background: #ffffff;
+      margin-bottom: 8px;
     }
 
     .form-row {
       display: flex;
-      gap: 10px;
-      margin-top: 10px;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
     }
 
-    @media (max-width: 480px) {
-      .form-row {
-        flex-direction: column;
-      }
-    }
+    .form-group { display: flex; align-items: center; gap: 6px; }
+    .form-group label { font-size: 13px; font-weight: 700; color: #334155; white-space: nowrap; }
 
-    .form-input {
-      flex: 1;
-      height: 44px;
-      background: #0f172a;
-      border: 1.5px solid var(--card-border);
-      border-radius: 8px;
-      padding: 0 14px;
-      color: #ffffff;
-      font-size: 14px;
+    .input-text {
+      height: 36px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 0 10px;
+      font-size: 13px;
+      color: #0f172a;
       outline: none;
+      background: #ffffff;
     }
 
-    .form-input:focus {
-      border-color: var(--primary);
+    .input-text:focus { border-color: var(--primary); }
+
+    .comp-grid-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
     }
 
-    .btn-submit-main {
-      height: 44px;
-      background: var(--primary);
-      color: #ffffff;
-      border: none;
+    @media (max-width: 640px) {
+      .comp-grid-list { grid-template-columns: 1fr; }
+    }
+
+    .comp-item-card {
+      border: 1.5px solid #cbd5e1;
       border-radius: 8px;
-      font-size: 14px;
-      font-weight: 800;
-      padding: 0 20px;
-      cursor: pointer;
-      white-space: nowrap;
+      background: #ffffff;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      box-shadow: var(--shadow-sm);
     }
 
-    .btn-submit-main:hover {
-      background: var(--primary-hover);
+    .comp-item-title { font-size: 14.5px; font-weight: 800; color: #0f172a; }
+    .comp-item-info { font-size: 12px; color: #64748b; }
+    .comp-item-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 8px;
     }
 
-    /* 비밀번호 모달 */
-    .modal-overlay {
+    /* 모달 기본 스타일 */
+    .modal-backdrop {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15, 23, 42, 0.9);
-      backdrop-filter: blur(8px);
+      background: rgba(15, 23, 42, 0.7);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 999;
-      padding: 20px;
+      padding: 14px;
     }
 
     .modal-box {
-      background: #1e293b;
-      border: 1px solid #475569;
-      border-radius: 18px;
-      max-width: 380px;
+      background: #ffffff;
+      border-radius: 14px;
+      max-width: 420px;
       width: 100%;
-      padding: 28px 22px;
+      padding: 24px;
       text-align: center;
-      box-shadow: var(--shadow-lg);
-      animation: modalPop 0.25s ease-out;
+      box-shadow: var(--shadow-md);
     }
 
-    @keyframes modalPop {
-      from { transform: scale(0.92); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+    /* 단지 추가 모달 전용 넓은 박스 (첫 번째 캡처 화면 100% 동일) */
+    .modal-box-wide {
+      background: #f8fafc;
+      border-radius: 8px;
+      max-width: 760px;
+      width: 98%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
     }
 
-    .modal-icon { font-size: 42px; margin-bottom: 10px; }
-    .modal-title { font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 6px; }
-    .modal-desc { font-size: 13px; color: var(--text-sub); margin-bottom: 20px; }
-
-    .pin-input {
+    .pin-box {
       width: 100%;
-      height: 50px;
-      background: #0f172a;
+      height: 48px;
       border: 2px solid var(--primary);
-      border-radius: 10px;
+      border-radius: 8px;
       text-align: center;
       font-size: 24px;
-      letter-spacing: 8px;
-      color: #ffffff;
+      letter-spacing: 6px;
+      color: #0f172a;
       font-weight: 800;
-      margin-bottom: 16px;
+      margin: 14px 0;
       outline: none;
     }
 
-    .btn-modal-action {
-      width: 100%;
-      height: 46px;
-      background: var(--primary);
-      color: #ffffff;
-      border: none;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    /* 토스트 알림 */
-    .toast {
+    .toast-msg {
       position: fixed;
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid #38bdf8;
+      background: #0f172a;
       color: #ffffff;
-      padding: 12px 24px;
+      border: 1px solid #38bdf8;
+      padding: 10px 20px;
       border-radius: 9999px;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      box-shadow: var(--shadow-md);
       z-index: 1000;
       opacity: 0;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.25s ease;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .toast.show {
+    .toast-msg.show {
       transform: translateX(-50%) translateY(0);
       opacity: 1;
     }
@@ -599,196 +686,613 @@
 </head>
 <body>
 
-  <!-- [관리자 보안 인증 모달] -->
-  <div class="modal-overlay" id="authModal">
+  <!-- [관리자 비밀번호 인증 모달] -->
+  <div class="modal-backdrop" id="authBackdrop" style="display:none;">
     <div class="modal-box">
-      <div class="modal-icon">🔐</div>
-      <div class="modal-title">대표 소장님 관리자 인증</div>
-      <div class="modal-desc">모바일 & PC 관제 센터 접근을 위해 마스터 비밀번호(4자리)를 입력하세요.</div>
-      <input type="password" id="masterPinInput" class="pin-input" maxlength="8" placeholder="••••" autofocus onkeypress="if(event.key==='Enter') verifyAdminPin()">
-      <button class="btn-modal-action" onclick="verifyAdminPin()">관제 센터 입장 🚀</button>
-      <div style="font-size: 11px; color: #64748b; margin-top: 14px;">(초기 기본 비밀번호: 7777)</div>
+      <div style="font-size: 38px; margin-bottom: 6px;">🔐</div>
+      <h2 style="font-size: 17px; font-weight: 800; color: #0f172a;">대표 소장님 관리자 인증</h2>
+      <p style="font-size: 12.5px; color: #64748b; margin-top: 4px;">관제 센터 진입을 위해 비밀번호(4자리)를 입력하세요.</p>
+      <input type="password" id="adminPinInput" class="pin-box" maxlength="8" value="7777" placeholder="••••" autofocus onkeypress="if(event.key==='Enter') checkAdminPin()">
+      <button class="btn btn-primary" style="width: 100%; height: 44px; font-size: 14px;" onclick="checkAdminPin()">관제 센터 열기 🚀</button>
+      <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">(기본 비밀번호: 7777)</p>
+    </div>
+  </div>
+
+  <!-- [기존 토큰 등록 팝업 모달: 대표/소속공인중개사 구분 및 토큰폴더 자동 저장] -->
+  <div class="modal-backdrop" id="tokenBackdrop" style="display:none;">
+    <div class="modal-box" style="text-align:left; max-width:480px; width:92%; padding:20px 22px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+        <h3 style="font-size:16px; font-weight:800; color:#0f172a; display:flex; align-items:center; gap:6px;">
+          📁 기존 토큰 등록 - 부동산 정보 및 유형 확인
+        </h3>
+        <button onclick="closeTokenModal()" style="border:none; background:none; font-size:18px; cursor:pointer; color:#64748b; padding:2px 6px;">✕</button>
+      </div>
+      
+      <p style="font-size:12px; color:#64748b; margin-bottom:12px; line-height:1.5;">
+        등록할 부동산 정보(상호명, 대표자, 소속공인, 전화번호)를 입력하시면 <b>토큰 폴더(tokens/)에 자동으로 연결되어 즉시 등록</b>됩니다.
+      </p>
+
+      <!-- 구독 유형 (파트A vs 파트B) 라디오 선택 -->
+      <div style="margin-bottom:10px; background:#f8fafc; padding:8px 12px; border-radius:6px; border:1px solid #e2e8f0;">
+        <label style="display:block; font-size:12px; font-weight:800; color:#334155; margin-bottom:4px;">구독 유형:</label>
+        <div style="display:flex; gap:16px; align-items:center;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:#0284c7; cursor:pointer;">
+            <input type="radio" name="tokenPlanRadio" id="tokenPlanA" value="A" checked style="accent-color:#0284c7; cursor:pointer;">
+            📱 파트A (스마트폰 카톡형)
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:#475569; cursor:pointer;">
+            <input type="radio" name="tokenPlanRadio" id="tokenPlanB" value="B" style="accent-color:#0284c7; cursor:pointer;">
+            💻 파트B (PC설치형)
+          </label>
+        </div>
+      </div>
+
+      <!-- 자격 구분 (대표 vs 소속공인중개사) 라디오 선택 -->
+      <div style="margin-bottom:10px; background:#f8fafc; padding:8px 12px; border-radius:6px; border:1px solid #e2e8f0;">
+        <label style="display:block; font-size:12px; font-weight:800; color:#334155; margin-bottom:4px;">자격 구분:</label>
+        <div style="display:flex; gap:16px; align-items:center;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:#0f172a; cursor:pointer;">
+            <input type="radio" name="tokenUserType" id="tokenTypeOwner" value="대표" checked onchange="onTokenUserTypeChanged()" style="accent-color:#0284c7; cursor:pointer;">
+            👑 개업공인중개사 (대표)
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:#4338ca; cursor:pointer;">
+            <input type="radio" name="tokenUserType" id="tokenTypeAgent" value="소속공인중개사" onchange="onTokenUserTypeChanged()" style="accent-color:#4338ca; cursor:pointer;">
+            👤 소속공인중개사 (소공)
+          </label>
+        </div>
+      </div>
+
+      <!-- 공인중개사사무소명 (상호명) -->
+      <div style="margin-bottom:10px;">
+        <label style="display:block; font-size:12px; font-weight:800; color:#334155; margin-bottom:3px;">
+          공인중개사사무소명 (상호명) <span style="color:#ef4444;">*</span>:
+        </label>
+        <input type="text" id="tokenOfficeInput" class="input-text" style="width:100%; height:38px; font-size:13px;" placeholder="예: 문수로트럼프공인중개사사무소">
+      </div>
+
+      <!-- 대표자 성명 -->
+      <div style="margin-bottom:10px;">
+        <label style="display:block; font-size:12px; font-weight:800; color:#334155; margin-bottom:3px;">
+          대표자 성함 <span style="color:#ef4444;">*</span>:
+        </label>
+        <input type="text" id="tokenOwnerInput" class="input-text" style="width:100%; height:38px; font-size:13px;" placeholder="예: 차호인">
+      </div>
+
+      <!-- 소속공인중개사 성명 (소공 선택 시 노출) -->
+      <div id="tokenAgentGroup" style="display:none; margin-bottom:10px; background:#eef2ff; padding:8px 10px; border-radius:6px; border:1px solid #c7d2fe;">
+        <label style="display:block; font-size:12px; font-weight:800; color:#3730a3; margin-bottom:3px;">
+          소속공인중개사 성함 (본인) <span style="color:#ef4444;">*</span>:
+        </label>
+        <input type="text" id="tokenAgentInput" class="input-text" style="width:100%; height:38px; font-size:13px;" placeholder="예: 소속공인중개사 성함 입력">
+        <p style="font-size:11px; color:#4338ca; margin-top:2px;">※ 소속공인중개사님의 성함을 정확히 입력해 주세요.</p>
+      </div>
+
+      <!-- 연락처 (휴대폰) -->
+      <div style="margin-bottom:16px;">
+        <label id="tokenPhoneLabel" style="display:block; font-size:12px; font-weight:800; color:#334155; margin-bottom:3px;">
+          연락처 (휴대폰) <span style="color:#ef4444;">*</span>:
+        </label>
+        <input type="tel" id="tokenPhoneInput" class="input-text" style="width:100%; height:38px; font-size:13px;" placeholder="예: 010-1234-5678">
+      </div>
+
+      <!-- 버튼 바 -->
+      <div style="display:flex; gap:8px; justify-content:flex-end; border-top:1px solid #e2e8f0; padding-top:12px;">
+        <button class="btn btn-gray" style="padding:0 16px; height:38px;" onclick="closeTokenModal()">취소</button>
+        <button class="btn btn-primary" style="padding:0 18px; height:38px; font-weight:800;" onclick="saveTokenSubscriber()">✅ 확인 및 등록 진행</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       [단지 추가 팝업 모달: 첫 번째 캡처 화면 100% 동일 구현!]
+       ========================================================================= -->
+  <div class="modal-backdrop" id="addComplexModalBackdrop" style="display:none;">
+    <div class="modal-box-wide">
+      
+      <!-- 상단 네이비 바 -->
+      <div style="background:#0f172a; color:#ffffff; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:15px; font-weight:800;" id="dialogModalTitle">
+          ➕ [문수로트럼프공인중개사사무소] 수신 단지 추가 (📱 파트A 스마트폰)
+        </div>
+        <div style="font-size:12px; color:#38bdf8; font-weight:700;">
+          울산 2,094개 단지 실시간 검색
+        </div>
+      </div>
+
+      <!-- 본문 영역 -->
+      <div style="padding:14px 16px; flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px;">
+        
+        <!-- 검색어 바 -->
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <label style="font-size:13px; font-weight:800; color:#1e293b;">🔍 검색어 (단지명/동명):</label>
+          <input type="text" id="dialogSearchInput" class="input-text" style="width:240px; height:34px;" placeholder="단지명 또는 동명 입력" oninput="filterDialogComplexes()">
+          <button class="btn btn-gray" style="height:34px; padding:0 12px; font-size:12px;" onclick="clearDialogSearch()">검색초기화</button>
+        </div>
+
+        <!-- 구/군 필터 버튼 바 -->
+        <div style="display:flex; gap:6px; flex-wrap:wrap;" id="dialogDistrictBar">
+          <button class="btn-district active" onclick="setDialogDistrict('전체')">전체</button>
+          <button class="btn-district" onclick="setDialogDistrict('남구')">남구</button>
+          <button class="btn-district" onclick="setDialogDistrict('중구')">중구</button>
+          <button class="btn-district" onclick="setDialogDistrict('동구')">동구</button>
+          <button class="btn-district" onclick="setDialogDistrict('북구')">북구</button>
+          <button class="btn-district" onclick="setDialogDistrict('울주군')">울주군</button>
+        </div>
+
+        <!-- 단지 목록 테이블 (스크롤 가능) -->
+        <div style="border:1.5px solid #cbd5e1; border-radius:6px; background:#ffffff; max-height:280px; overflow-y:auto; overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:12.5px; min-width:620px;">
+            <thead>
+              <tr style="background:#f1f5f9; border-bottom:1.5px solid #cbd5e1; color:#334155; position:sticky; top:0; z-index:5;">
+                <th style="padding:8px; text-align:center; width:85px; border-right:1px solid #e2e8f0;">단지번호</th>
+                <th style="padding:8px 12px; text-align:left; border-right:1px solid #e2e8f0;">아파트 단지명</th>
+                <th style="padding:8px; text-align:center; width:75px; border-right:1px solid #e2e8f0;">구/군</th>
+                <th style="padding:8px; text-align:center; width:85px; border-right:1px solid #e2e8f0;">읍·면·동</th>
+                <th style="padding:8px; text-align:center; width:75px; border-right:1px solid #e2e8f0;">세대수</th>
+                <th style="padding:8px; text-align:center; width:110px;">등록상태</th>
+              </tr>
+            </thead>
+            <tbody id="dialogTbodyComplexes">
+              <!-- 자바스크립트로 렌더링 -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- 하단 액션 바 -->
+      <div style="background:#f1f5f9; border-top:1px solid #cbd5e1; padding:10px 16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <div style="font-size:12px; color:#64748b; font-weight:700;" id="dialogResultCountLabel">
+          검색 결과: 총 2094개 단지 (상위 200개 표시 중, 검색어로 좁혀보세요)
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-gray" style="height:36px; padding:0 16px;" onclick="closeAddComplexModal()">취소</button>
+          <button class="btn btn-primary" style="height:36px; padding:0 18px; font-weight:800;" onclick="confirmAddDialogComplex()">
+            ✅ 선택한 단지 추가
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <!-- [상단 헤더] -->
-  <header class="top-header">
-    <div class="header-logo">
-      <span class="icon">🏢</span>
-      <div class="header-title-wrap">
+  <header class="header-bar">
+    <div class="header-left">
+      <span class="logo-icon">🏢</span>
+      <div>
         <h1>네이버 부동산 관제 센터</h1>
-        <p>대표 소장님 전용 모바일 & PC 제어</p>
+        <p>대표 소장님 관리자 전용 [모바일 & PC]</p>
       </div>
     </div>
     <div class="header-right">
-      <span class="badge-admin">● 마스터 보안 활성</span>
-      <button class="btn-header-lock" onclick="lockAdmin()" title="잠금">🔒</button>
+      <span class="badge-cloud">● 클라우드 가동 중</span>
+      <button class="btn-lock" onclick="lockConsole()" title="잠금">🔒 잠금</button>
     </div>
   </header>
 
-  <!-- [메인 콘텐츠] -->
+  <!-- [메인 뷰 컨테이너] -->
   <main class="container">
 
-    <!-- 1. 통계 대시보드 요약 -->
-    <section class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">🏢 실시간 감시 단지</div>
-        <div class="stat-val primary" id="statTotalComplexes">10개</div>
+    <!-- 상단 4대 요약 카드 -->
+    <section class="summary-grid">
+      <div class="summary-card" id="cardTabComplexes" onclick="selectTab('tabComplexes')" title="클릭 시 감시 단지 목록 탭으로 이동">
+        <div class="summary-label">🏢 실시간 감시 단지</div>
+        <div class="summary-val c-blue" id="valTotalComplexes">10개</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">👥 전체 구독 부동산</div>
-        <div class="stat-val green" id="statTotalSubs">2곳</div>
+      <div class="summary-card active" id="cardTabSubscribers" onclick="filterSubs('ALL')" title="클릭 시 전체 구독 부동산 관리 탭으로 이동">
+        <div class="summary-label">👥 전체 구독 부동산</div>
+        <div class="summary-val c-green" id="valTotalSubs">2곳</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">📱 [파트 A] 모바일형</div>
-        <div class="stat-val primary" id="statPartA">1곳</div>
+      <div class="summary-card" id="cardTabPartA" onclick="filterSubs('A')" title="클릭 시 파트 A 모바일형 고객 조회">
+        <div class="summary-label">📱 [파트 A] 모바일형</div>
+        <div class="summary-val c-blue" id="valPartA">1곳</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">💻 [파트 B] PC설치형</div>
-        <div class="stat-val amber" id="statPartB">0곳</div>
+      <div class="summary-card" id="cardTabPartB" onclick="filterSubs('B')" title="클릭 시 파트 B PC설치형 고객 조회">
+        <div class="summary-label">💻 [파트 B] PC설치형</div>
+        <div class="summary-val c-amber" id="valPartB">0곳</div>
       </div>
     </section>
 
-    <!-- 2. 네비게이션 탭 -->
-    <nav class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('tabSubs')">👥 구독 부동산 승인</button>
-      <button class="tab-btn" onclick="switchTab('tabComplexes')">🏢 감시 단지 목록</button>
-      <button class="tab-btn" onclick="switchTab('tabAdd')">➕ 신규 단지 등록</button>
-      <button class="tab-btn" onclick="switchTab('tabSettings')">⚙️ 동기화 & 설정</button>
+    <!-- 메인 4대 탭 바 -->
+    <nav class="main-tab-bar">
+      <button class="tab-item" id="btnTabComplexes" onclick="selectTab('tabComplexes')">
+        <span class="tab-lbl-pc">🏢 실시간 감시 단지 목록 (알림 현황)</span>
+        <span class="tab-lbl-mobile">🏢 감시 단지</span>
+      </button>
+      <button class="tab-item active" id="btnTabSubscribers" onclick="selectTab('tabSubscribers')">
+        <span class="tab-lbl-pc">👥 구독 부동산 관리</span>
+        <span class="tab-lbl-mobile">👥 구독 관리</span>
+      </button>
+      <button class="tab-item" id="btnTabAdd" onclick="selectTab('tabAdd')">
+        <span class="tab-lbl-pc">➕ 신규 단지 & 구독자 추가 (지역별 선택)</span>
+        <span class="tab-lbl-mobile">➕ 신규 추가</span>
+      </button>
+      <button class="tab-item" id="btnTabCloud" onclick="selectTab('tabCloud')">
+        <span class="tab-lbl-pc">☁️ 깃허브 클라우드 연동 제어</span>
+        <span class="tab-lbl-mobile">☁️ 클라우드</span>
+      </button>
     </nav>
 
-    <!-- [탭 1: 구독 부동산 승인 및 관리] -->
-    <div class="tab-pane active" id="tabSubs">
-      <div class="section-header">
-        <div class="section-title">
-          <span>👥 등록 부동산 및 신규 신청자 목록</span>
-        </div>
-        <button class="btn-action-sm" onclick="fetchRemoteSheetData()">🔄 원격 새로고침</button>
-      </div>
+    <!-- 탭 콘텐츠 박스 -->
+    <div class="tab-content-box">
 
-      <div class="sub-list" id="subscribersListContainer">
-        <!-- 자바스크립트로 동적 렌더링 -->
-      </div>
-    </div>
-
-    <!-- [탭 2: 감시 단지 목록] -->
-    <div class="tab-pane" id="tabComplexes">
-      <div class="section-header">
-        <div class="section-title">
-          <span>🏢 현재 24시간 실시간 감시 중인 단지 목록</span>
+      <!-- ================================================================= -->
+      <!-- [탭 1: 실시간 감시 단지 목록] -->
+      <!-- ================================================================= -->
+      <div class="tab-view" id="tabComplexes">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <h2 style="font-size:15px; font-weight:800; color:#0f172a;">🏢 현재 실시간 감시 및 카카오톡 알림 단지 목록</h2>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-primary" style="height:32px; font-size:12px;" onclick="selectTab('tabAdd')">➕ 새 단지 추가</button>
+            <button class="btn btn-gray" style="height:32px; font-size:12px;" onclick="refreshAllViews()">🔄 새로고침</button>
+          </div>
         </div>
-      </div>
-      <div class="complex-list" id="complexesListContainer">
-        <!-- 자바스크립트로 동적 렌더링 -->
-      </div>
-    </div>
-
-    <!-- [탭 3: 신규 단지 번호/링크 즉시 추가] -->
-    <div class="tab-pane" id="tabAdd">
-      <div class="section-header">
-        <div class="section-title">
-          <span>➕ 새로운 감시 단지 1초 추가</span>
-        </div>
-      </div>
-      <div class="add-box">
-        <div style="font-size: 13px; color: var(--text-sub); line-height: 1.6;">
-          💡 네이버 부동산 단지 번호(예: <b>154078</b>)나 웹 링크, 또는 단지명을 입력하시면 실시간 감시 목록에 즉시 추가됩니다.
-        </div>
-        <div class="form-row">
-          <input type="text" id="newComplexInput" class="form-input" placeholder="예: 166019 또는 힐스테이트문수로센트럴">
-          <input type="text" id="newComplexNameInput" class="form-input" placeholder="단지명 (선택사항, 번호만 입력 시 자동)">
-          <button class="btn-submit-main" onclick="addNewComplexFromWeb()">➕ 단지 추가하기</button>
+        <div class="comp-grid-list" id="monitoredComplexesGrid">
+          <!-- 자바스크립트로 렌더링 -->
         </div>
       </div>
 
-      <div class="section-header" style="margin-top: 24px;">
-        <div class="section-title">
-          <span>🔍 울산 5대 구/군 추천 단지 바로 추가</span>
-        </div>
-      </div>
-      <div id="quickAddContainer" style="display: flex; flex-wrap: wrap; gap: 8px;">
-        <!-- 빠른 추가 칩 -->
-      </div>
-    </div>
+      <!-- ================================================================= -->
+      <!-- [탭 2: 구독 부동산 관리 (소장님이 올려주신 화면과 100% 동일)] -->
+      <!-- ================================================================= -->
+      <div class="tab-view active" id="tabSubscribers">
 
-    <!-- [탭 4: 동기화 및 설정] -->
-    <div class="tab-pane" id="tabSettings">
-      <div class="section-header">
-        <div class="section-title">
-          <span>⚙️ 관제 센터 보안 및 데이터 백업 설정</span>
+        <!-- 1. 상단 바 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <span style="font-size:14.5px; font-weight:800; color:#1e293b; display:flex; align-items:center; gap:6px;">
+              📖 구독 부동산 목록
+            </span>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button class="btn-filter active" id="btnFilterAll" onclick="filterSubs('ALL')">🌟 전체 (2곳)</button>
+              <button class="btn-filter" id="btnFilterA" onclick="filterSubs('A')">📱 파트A : 스마트폰 (1곳)</button>
+              <button class="btn-filter" id="btnFilterB" onclick="filterSubs('B')">💻 파트B : PC설치 (0곳)</button>
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-gray" style="height:32px; font-size:12px; font-weight:700;" onclick="refreshAllViews()">🔄 새로고침</button>
+          </div>
         </div>
-      </div>
-      <div class="add-box">
-        <h3 style="font-size: 15px; margin-bottom: 8px;">🔐 마스터 비밀번호 변경</h3>
-        <p style="font-size: 12.5px; color: var(--text-sub); margin-bottom: 12px;">휴대폰이나 PC에서 관제 센터 진입 시 사용할 비밀번호를 변경합니다.</p>
-        <div class="form-row">
-          <input type="password" id="changePinInput" class="form-input" placeholder="새 비밀번호 입력 (4자리 이상)">
-          <button class="btn-submit-main" onclick="changeMasterPin()">비밀번호 저장</button>
+
+        <!-- 2. 메인 구독자 테이블 -->
+        <div class="sub-table-container">
+          <table class="sub-table" id="tableSubscribers">
+            <thead>
+              <tr>
+                <th style="text-align:center; width:120px;">구독ID</th>
+                <th style="text-align:center; width:130px;">유형/파트</th>
+                <th style="text-align:left; min-width:180px;">부동산 상호명</th>
+                <th style="text-align:center; width:120px;">연락처</th>
+                <th style="text-align:left; min-width:180px;">수신 단지 요약</th>
+                <th style="text-align:center; width:140px;">구글시트 승인상태</th>
+                <th style="text-align:center; width:100px;">가동 상태</th>
+              </tr>
+            </thead>
+            <tbody id="tbodySubscribers">
+              <!-- 자바스크립트로 렌더링 -->
+            </tbody>
+          </table>
         </div>
+
+        <!-- 3. 선택 부동산의 신청 및 수신 단지 목록 (하단 상세 관리 패널) -->
+        <div class="sub-detail-panel">
+          <div id="lblSubDetailTitle" style="font-size:13px; font-weight:800; color:#0f172a; margin-bottom:8px; line-height:1.5;">
+            📍 [문수로트럼프공인중개사사무소 | 📱 파트A (스마트폰 카톡형 - 소장님 PC 맞춤 발송)] - ☀️ 등록 감시단지 전체 수신 모드 (총 10개 감시단지 실시간 전송)
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <!-- 좌측 단지 테이블 -->
+            <div class="sub-complex-table-box" style="flex:1; min-width:280px;">
+              <table class="sub-complex-table" id="tableSubComplexes">
+                <thead>
+                  <tr>
+                    <th style="text-align:center; width:85px;">단지번호</th>
+                    <th style="text-align:left;">단지명</th>
+                    <th style="text-align:center; width:70px;">구/군</th>
+                    <th style="text-align:center; width:85px;">읍·면·동</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodySubComplexes">
+                  <!-- 자바스크립트로 렌더링 -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 우측 단지 조작 버튼 3종 -->
+            <div style="display:flex; flex-direction:column; gap:6px; min-width:160px; justify-content:flex-start;">
+              <button class="btn btn-primary" style="height:34px; font-size:12.5px;" onclick="openAddComplexModal()">
+                ➕ 단지 추가하기
+              </button>
+              <button class="btn btn-danger" style="height:34px; font-size:12.5px;" onclick="removeSelectedComplexFromSub()">
+                ➖ 선택 단지 제외
+              </button>
+              <button class="btn btn-gray" style="height:34px; font-size:11.5px; border:1px solid #cbd5e1;" onclick="setSubToAllComplexes()">
+                ☀️ 전체 단지 수신 전환
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. 최하단 액션 버튼 바 5종 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="btn" style="background:#334155; color:#ffffff; height:36px; font-size:12.5px;" onclick="toggleCurrentSubStatus()">
+              ⏸️ 일시 정지 / ▶️ 재개
+            </button>
+            <button class="btn btn-success" style="height:36px; font-size:12.5px; font-weight:800;" onclick="sendApprovalKakaoToCurrentSub()">
+              ✅ 선택 부동산 승인완료 카톡 발송
+            </button>
+            <button class="btn" style="background:#475569; color:#ffffff; height:36px; font-size:12.5px;" onclick="deleteCurrentSub()">
+              🗑️ 선택 부동산 삭제
+            </button>
+            <button class="btn btn-primary" style="height:36px; font-size:12.5px;" onclick="openTokenRegisterModal()">
+              📁 기존 토큰 등록
+            </button>
+          </div>
+          <div>
+            <button class="btn btn-primary" style="height:36px; font-size:12.5px;" onclick="openGoogleSheet()">
+              📊 구글 스프레드시트 열기
+            </button>
+          </div>
+        </div>
+
       </div>
 
-      <div class="add-box">
-        <h3 style="font-size: 15px; margin-bottom: 8px;">💾 subscribers.json 최신 설정 내보내기 / 복사</h3>
-        <p style="font-size: 12.5px; color: var(--text-sub); margin-bottom: 12px;">모바일에서 승인 및 조정한 구독자 설정 데이터를 JSON 파일로 다운로드하거나 복사합니다.</p>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <button class="btn-action-sm" style="height: 40px; padding: 0 16px;" onclick="copySubscribersJson()">📋 클립보드에 복사</button>
-          <button class="btn-action-sm" style="height: 40px; padding: 0 16px; background: #16a34a;" onclick="downloadSubscribersJson()">💾 subscribers.json 다운로드</button>
-        </div>
+      <!-- ================================================================= -->
+      <!-- [탭 3: 신규 단지 & 구독자 추가] -->
+      <!-- ================================================================= -->
+      <div class="tab-view" id="tabAdd">
+
+        <!-- 1. 부동산 기본 정보 입력 -->
+        <fieldset class="fieldset-box">
+          <legend class="legend-title"> 1. 부동산 기본 정보 입력 </legend>
+          
+          <div class="form-row" style="margin-bottom:10px; background:#f8fafc; padding:8px 12px; border-radius:6px; border:1px solid #e2e8f0;">
+            <div class="form-group">
+              <label style="font-weight:800; color:#1e293b;">자격 구분:</label>
+              <label style="margin-left:10px; cursor:pointer; font-weight:700; color:#0f172a;">
+                <input type="radio" name="adminUserType" id="adminTypeOwner" value="대표" checked onchange="onAdminUserTypeChanged()" style="accent-color:#0284c7; cursor:pointer;">
+                👑 개업공인중개사 (대표)
+              </label>
+              <label style="margin-left:14px; cursor:pointer; font-weight:700; color:#4338ca;">
+                <input type="radio" name="adminUserType" id="adminTypeAgent" value="소속공인중개사" onchange="onAdminUserTypeChanged()" style="accent-color:#4338ca; cursor:pointer;">
+                👤 소속공인중개사 (소공)
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="inpOffice">공인중개사사무소명:</label>
+              <input type="text" id="inpOffice" class="input-text" style="width:200px;" placeholder="예: 문수로트럼프공인중개사">
+            </div>
+            <div class="form-group">
+              <label for="inpOwner">대표자 성함:</label>
+              <input type="text" id="inpOwner" class="input-text" style="width:130px;" placeholder="예: 차호인">
+            </div>
+            <div class="form-group" id="adminAgentGroup" style="display:none; background:#eef2ff; padding:4px 8px; border-radius:6px; border:1px solid #c7d2fe;">
+              <label for="inpAgent" style="color:#3730a3; font-weight:800;">소속공인 성함:</label>
+              <input type="text" id="inpAgent" class="input-text" style="width:130px;" placeholder="예: 소공 성함">
+            </div>
+            <div class="form-group">
+              <label for="inpPhone" id="lblInpPhone">연락처 (휴대폰):</label>
+              <input type="text" id="inpPhone" class="input-text" style="width:160px;" placeholder="예: 010-1234-5678">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- 2. 수신 희망 단지 선택 -->
+        <fieldset class="fieldset-box">
+          <legend class="legend-title"> 2. 수신 희망 단지 선택 (실시간 검색 및 직접 추가) </legend>
+
+          <div class="form-row" style="background:#f8fafc; padding:10px; border-radius:6px; margin-bottom:10px;">
+            <div class="form-group" style="flex:1;">
+              <label>🔍 단지명/동/번호 검색:</label>
+              <input type="text" id="inpSearchKw" class="input-text" style="flex:1; min-width:180px;" placeholder="단지명이나 동 검색 (예: 옥동, 힐스테이트)" oninput="filterComplexList()">
+              <button class="btn btn-gray" style="height:36px; padding:0 10px;" onclick="clearSearchInput()">✕ 지우기</button>
+              <span style="font-size:11.5px; color:#64748b; white-space:nowrap;">(실시간 필터링)</span>
+            </div>
+          </div>
+
+          <div class="form-row" style="background:#f8fafc; padding:10px; border-radius:6px; margin-bottom:12px;">
+            <div class="form-group" style="flex:1;">
+              <label>➕ [관리자] 단지 등록:</label>
+              <input type="text" id="inpDirectComplex" class="input-text" style="flex:1; min-width:160px;" placeholder="네이버 단지번호(5~6자리) 또는 링크">
+              <button class="btn btn-primary" style="height:36px;" onclick="addDirectComplexFromInput()">🚀 네이버 검증 등록</button>
+              <button class="btn btn-gray" style="height:36px; border:1px solid #cbd5e1;" onclick="openGoogleSheet()">📋 승인요청 시트</button>
+            </div>
+          </div>
+
+          <div class="district-filter-bar" id="districtFilterBar">
+            <button class="btn-district active" onclick="setDistrictFilter('전체')">전체 (2094)</button>
+            <button class="btn-district" onclick="setDistrictFilter('남구')">남구 (758)</button>
+            <button class="btn-district" onclick="setDistrictFilter('중구')">중구 (500)</button>
+            <button class="btn-district" onclick="setDistrictFilter('동구')">동구 (352)</button>
+            <button class="btn-district" onclick="setDistrictFilter('북구')">북구 (192)</button>
+            <button class="btn-district" onclick="setDistrictFilter('울주군')">울주군 (292)</button>
+          </div>
+
+          <div class="complex-scroll-container">
+            <div class="scroll-header">
+              <span id="scrollTitleLabel">📍 울산시 전체 단지 목록 (총 2094개 단지)</span>
+              <div class="scroll-actions-left">
+                <button class="btn-select-all" onclick="toggleSelectAllFiltered(true)">✔ 현재 목록 전체 선택</button>
+                <button class="btn-select-all" onclick="toggleSelectAllFiltered(false)">✖ 선택 해제</button>
+              </div>
+            </div>
+
+            <div class="scroll-body" id="complexCheckBoxGrid">
+              <!-- complexes_data.js 기반 2094개 단지 동적 생성 -->
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div style="font-size:13px; font-weight:800; color:#16a34a;" id="lblSelectedCount">
+              선택된 단지: 0개 (선택 없을 시 전체 알림)
+            </div>
+            <button class="btn btn-primary" style="height:38px; padding:0 18px;" onclick="addSelectedComplexesToMonitored()">
+              ★ [관리자] 선택 단지 감시목록 즉시 등록
+            </button>
+          </div>
+
+        </fieldset>
+
+        <!-- 3. 카카오톡 연동 및 구독자 최종 등록 -->
+        <fieldset class="fieldset-box">
+          <legend class="legend-title"> 3. 카카오톡 연동 및 구독자 최종 등록 </legend>
+
+          <!-- 공통 구독 형태 선택 (파트 A / 파트 B) -->
+          <div class="form-row" style="margin-bottom:14px; background:#f8fafc; padding:8px 12px; border-radius:6px; border:1px solid #e2e8f0;">
+            <div class="form-group">
+              <label style="font-weight:800; color:#1e293b;">구독 형태 선택:</label>
+              <label style="margin-left:10px; cursor:pointer; font-weight:700; color:#0284c7;">
+                <input type="radio" name="planSelect" value="A" checked style="accent-color:#0284c7;"> 📱 파트 A (스마트폰 카톡형 - 추천)
+              </label>
+              <label style="margin-left:16px; cursor:pointer; font-weight:700; color:#475569;">
+                <input type="radio" name="planSelect" value="B" style="accent-color:#475569;"> 💻 파트 B (사무실 PC 설치형)
+              </label>
+            </div>
+          </div>
+
+          <!-- [방법 B] 이미 인증받았던 토큰 파일(JSON)로 즉시 등록 (재인증 불필요 - 권장) -->
+          <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:14px; margin-bottom:14px;">
+            <div style="font-size:14px; font-weight:800; color:#15803d; margin-bottom:4px;">
+              ✨ [방법 B] 이미 인증받았던 토큰 파일(JSON)로 즉시 등록 (재인증 불필요 - 권장)
+            </div>
+            <p style="font-size:12.5px; color:#166534; margin-bottom:10px; line-height:1.5;">
+              상대방에게 전달받은 kakao_token.json 파일이 이미 있다면, 재로그인 없이 위 1번 기본 정보 확인 후 바로 등록하세요.
+            </p>
+            <input type="file" id="inpAdminTokenFile" accept=".json" style="display:none;" onchange="handleAdminTokenFileUpload(this)">
+            <button type="button" class="btn btn-success" style="background:#16a34a; padding:9px 18px; font-size:13.5px; font-weight:800;" onclick="triggerAdminTokenFileSelect()">
+              📁 기존 토큰 파일(kakao_token.json) 선택하여 바로 등록 (원클릭)
+            </button>
+          </div>
+
+          <!-- 구분선 -->
+          <hr style="margin:14px 0; border:none; border-top:1px solid #e2e8f0;">
+
+          <!-- [방법 A] 처음 등록하는 부동산 (카카오 로그인 1회 인증) -->
+          <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:14px; margin-bottom:14px;">
+            <div style="font-size:14px; font-weight:800; color:#0f172a; margin-bottom:10px;">
+              [방법 A] 처음 등록하는 부동산 (카카오 로그인 1회 인증)
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+              <button type="button" class="btn btn-primary" style="height:38px; font-size:13px; font-weight:800;" onclick="openAdminKakaoAuthBrowser()">
+                🔑 1. 카카오 로그인 인증창 열기
+              </button>
+              <button type="button" class="btn btn-primary" style="height:38px; font-size:13px; font-weight:800; background:#0284c7;" onclick="copyAdminKakaoAuthLink()">
+                📋 2. 상대방에게 보낼 링크 복사
+              </button>
+            </div>
+            <div class="form-row" style="margin-bottom:12px;">
+              <div class="form-group" style="flex:1;">
+                <label for="inpAdminAuthCode" style="font-weight:800; white-space:nowrap;">인증 주소 (또는 code):</label>
+                <input type="text" id="inpAdminAuthCode" class="input-text" style="flex:1; min-width:240px;" placeholder="예: https://localhost.com/?code=... 또는 코드값">
+              </div>
+            </div>
+            <button type="button" class="btn btn-success" style="height:44px; width:100%; font-size:14px; font-weight:800;" onclick="submitMethodASubscriber()">
+              ✍️ [방법 A] 신규 인증코드로 등록 완료 (클릭)
+            </button>
+          </div>
+
+          <!-- [테스트용 버튼] 기존 기능 100% 보존 -->
+          <div style="background:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px; padding:12px; margin-top:10px;">
+            <div style="font-size:12px; font-weight:700; color:#64748b; margin-bottom:6px;">
+              🧪 [테스트용] 기존 등록 버튼 (1번 정보로 즉시 등록 테스트)
+            </div>
+            <button type="button" class="btn btn-gray" style="height:42px; width:100%; font-size:13.5px; font-weight:800; border:1px solid #cbd5e1; background:#ffffff; color:#334155;" onclick="submitNewSubscriberFromAdmin()">
+              🎉 [테스트용] 신규 구독 부동산 등록 및 카카오톡 연동 완료
+            </button>
+          </div>
+
+        </fieldset>
+
       </div>
 
-      <div class="add-box">
-        <h3 style="font-size: 15px; margin-bottom: 8px;">🌐 원격 구글 시트 라이선스 서버 주소</h3>
-        <p style="font-size: 12px; color: #38bdf8; word-break: break-all;">
-          https://script.google.com/macros/s/AKfycbxndlEGVojoZeQemFt0ovLNp9PW7w2VvlZQOXUCix84LfogjG98COsmgQbYMqInFAuxww/exec
-        </p>
+      <!-- ================================================================= -->
+      <!-- [탭 4: 깃허브 클라우드 연동 제어] -->
+      <!-- ================================================================= -->
+      <div class="tab-view" id="tabCloud">
+        <fieldset class="fieldset-box">
+          <legend class="legend-title"> ☁️ 깃허브 클라우드 연동 상태 </legend>
+          <p style="font-size:13px; color:#475569; margin-bottom:12px; line-height:1.6;">
+            소장님 컴퓨터가 꺼져 있어도 마이크로소프트 깃허브 클라우드가 365일 24시간 실시간 모니터링을 대신 수행합니다.
+          </p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a href="https://github.com/psy111603-ctrl/naver-land-monitor/actions" target="_blank" class="btn btn-primary" style="text-decoration:none;">
+              🚀 깃허브 Actions 실시간 가동 현황 보기
+            </a>
+            <a href="https://github.com/psy111603-ctrl/realtor-signup" target="_blank" class="btn btn-gray" style="text-decoration:none;">
+              📂 고객 신청용 웹 저장소 바로가기
+            </a>
+          </div>
+        </fieldset>
+
+        <fieldset class="fieldset-box">
+          <legend class="legend-title"> 📊 구글 스프레드시트 연동 URL 설정 </legend>
+          <p style="font-size:12.5px; color:#64748b; margin-bottom:8px;">
+            고객 승인 및 구독자 관리용 구글 스프레드시트 주소를 확인하고 자유롭게 변경할 수 있습니다.
+          </p>
+          <div class="form-row">
+            <input type="text" id="inpSheetUrl" class="input-text" style="flex:1; min-width:280px;" placeholder="구글 스프레드시트 주소 입력">
+            <button class="btn btn-primary" onclick="saveSheetUrl()">주소 저장</button>
+            <button class="btn btn-gray" style="border:1px solid #cbd5e1;" onclick="openGoogleSheet()">시트 열기 🚀</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="fieldset-box">
+          <legend class="legend-title"> 🔐 관리자 마스터 비밀번호 변경 </legend>
+          <div class="form-row">
+            <input type="password" id="inpNewPin" class="input-text" style="width:200px;" placeholder="새 비밀번호 입력 (4자리)">
+            <button class="btn btn-primary" onclick="updatePin()">비밀번호 저장</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="fieldset-box">
+          <legend class="legend-title"> 💾 데이터 백업 및 복사 </legend>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-gray" onclick="copySubsJson()">📋 subscribers.json 복사</button>
+            <button class="btn btn-success" onclick="downloadSubsJson()">💾 subscribers.json 다운로드</button>
+          </div>
+        </fieldset>
       </div>
+
     </div>
 
   </main>
 
-  <!-- 토스트 메시지 -->
-  <div class="toast" id="toastBox">
+  <!-- 토스트 안내바 -->
+  <div class="toast-msg" id="toast">
     <span id="toastIcon">✅</span>
-    <span id="toastMsg">작업이 완료되었습니다.</span>
+    <span id="toastText">처리되었습니다.</span>
   </div>
 
   <script>
     // =========================================================================
-    // [1. 기본 데이터베이스 및 로컬 스토리지 초기화]
+    // [1. 전역 데이터 및 초기화]
     // =========================================================================
     const DEFAULT_PIN = "7777";
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxndlEGVojoZeQemFt0ovLNp9PW7w2VvlZQOXUCix84LfogjG98COsmgQbYMqInFAuxww/exec";
+    const DEFAULT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1WprFi0jwfnGU9KHNyhldX0qwlCmRHlEgZbxka02tXr0/edit";
 
-    // 기본 구독자 목록 (subscribers.json 기반)
-    let subscribers = [
-      {
-        "id": "owner",
-        "name": "태화강아이파크 (대표 소장님)",
-        "office_name": "태화강아이파크공인중개사사무소",
-        "owner_name": "대표 소장님",
-        "phone": "010-0000-0000",
-        "plan": "OWNER",
-        "realtor_names": ["태화강아이파크공인중개사사무소"],
-        "complex_nos": [],
-        "enabled": true,
-        "approved": true
-      },
-      {
-        "id": "sub_01073688338",
-        "name": "문수로트럼프공인중개사사무소 (차호인 소장님)",
-        "office_name": "문수로트럼프공인중개사사무소",
-        "owner_name": "차호인",
-        "phone": "01073688338",
-        "plan": "A",
-        "realtor_names": ["문수로트럼프공인중개사사무소"],
-        "complex_nos": [],
-        "enabled": true,
-        "approved": true
-      }
-    ];
+    function getSheetUrl() {
+      return localStorage.getItem("naver_sheet_url") || DEFAULT_SHEET_URL;
+    }
 
-    // 기본 감시 단지 목록 (단지목록.json 기반 10개 단지)
-    let monitoredComplexes = [
+    function openGoogleSheet() {
+      const url = getSheetUrl();
+      window.open(url, "_blank");
+    }
+
+    function saveSheetUrl() {
+      const u = document.getElementById("inpSheetUrl").value.trim();
+      if (!u || !u.startsWith("http")) { alert("올바른 웹 주소(http로 시작)를 입력해 주세요."); return; }
+      localStorage.setItem("naver_sheet_url", u);
+      showToast("구글 스프레드시트 연동 주소가 저장되었습니다!", "📊");
+    }
+
+    // 10개 기본 감시 단지
+    let monitoredList = [
       { no: "154078", name: "옥동경남아너스빌ubc", district: "남구", dong: "옥동", enabled: true },
       { no: "166019", name: "힐스테이트문수로센트럴", district: "남구", dong: "신정동", enabled: true },
       { no: "158599", name: "문수로롯데캐슬그랑파르크(주상복합)", district: "남구", dong: "신정동", enabled: true },
@@ -801,380 +1305,1333 @@
       { no: "180258", name: "번영로롯데캐슬센트럴스카이(주상복합)", district: "중구", dong: "복산동", enabled: true }
     ];
 
-    // 로컬 스토리지 데이터 로드
-    function loadSavedData() {
-      const savedSubs = localStorage.getItem("naver_admin_subscribers");
-      if (savedSubs) {
-        try { subscribers = JSON.parse(savedSubs); } catch(e){}
+    // 구독자 목록
+    let subscribersList = [
+      {
+        "id": "owner",
+        "name": "태화강아이파크 (대표 소장님)",
+        "office_name": "태화강아이파크공인중개사사무소",
+        "owner_name": "대표 소장님",
+        "phone": "-",
+        "plan": "OWNER",
+        "complex_nos": [],
+        "enabled": true,
+        "approved": true,
+        "token_file": "kakao_token.json"
+      },
+      {
+        "id": "sub_01073688338",
+        "name": "문수로트럼프공인중개사사무소 (차호인 소장님)",
+        "office_name": "문수로트럼프공인중개사사무소",
+        "owner_name": "차호인",
+        "phone": "01073688338",
+        "plan": "A",
+        "complex_nos": [],
+        "enabled": true,
+        "approved": true,
+        "approved_notified": true,
+        "token_file": "tokens/kakao_token_01073688338.json"
       }
-      const savedComps = localStorage.getItem("naver_admin_complexes");
-      if (savedComps) {
-        try { monitoredComplexes = JSON.parse(savedComps); } catch(e){}
-      }
+    ];
+
+    let allComplexes = (typeof ULSAN_COMPLEXES !== "undefined" && Array.isArray(ULSAN_COMPLEXES))
+      ? ULSAN_COMPLEXES
+      : monitoredList;
+
+    let currentDistrict = "전체";
+    let selectedComplexNos = new Set();
+    let currentPlanFilter = "ALL";
+    let selectedSubId = "sub_01073688338";
+    let selectedSubComplexNo = null;
+
+    // 단지 추가 모달 전용 상태
+    let dialogDistrict = "전체";
+    let dialogSelectedComplex = null;
+
+    function initStorage() {
+      const savedM = localStorage.getItem("naver_admin_monitored");
+      if (savedM) { try { monitoredList = JSON.parse(savedM); } catch(e){} }
+      const savedS = localStorage.getItem("naver_admin_subs");
+      if (savedS) { try { subscribersList = JSON.parse(savedS); } catch(e){} }
     }
 
-    function saveData() {
-      localStorage.setItem("naver_admin_subscribers", JSON.stringify(subscribers));
-      localStorage.setItem("naver_admin_complexes", JSON.stringify(monitoredComplexes));
-      updateDashboardStats();
+    function saveStorage() {
+      localStorage.setItem("naver_admin_monitored", JSON.stringify(monitoredList));
+      localStorage.setItem("naver_admin_subs", JSON.stringify(subscribersList));
+      updateSummaryStats();
     }
 
     // =========================================================================
-    // [2. 관리자 비밀번호 인증 시스템]
+    // [2. 인증 모달 제어]
     // =========================================================================
-    function checkAuthOnLoad() {
-      const isAuth = sessionStorage.getItem("naver_admin_authenticated");
-      if (isAuth === "true") {
-        document.getElementById("authModal").style.display = "none";
+    function checkAuth() {
+      const isAuthed = localStorage.getItem("naver_admin_auth_ok") || sessionStorage.getItem("naver_admin_auth_ok");
+      if (isAuthed === "true") {
+        document.getElementById("authBackdrop").style.display = "none";
       } else {
-        document.getElementById("authModal").style.display = "flex";
+        document.getElementById("authBackdrop").style.display = "flex";
       }
     }
 
-    function verifyAdminPin() {
-      const input = document.getElementById("masterPinInput").value.trim();
-      const currentPin = localStorage.getItem("naver_admin_pin") || DEFAULT_PIN;
-      if (input === currentPin) {
-        sessionStorage.setItem("naver_admin_authenticated", "true");
-        document.getElementById("authModal").style.display = "none";
-        showToast("🔑 관리자 인증 완료! 환영합니다, 대표 소장님.", "✅");
+    function checkAdminPin() {
+      const val = document.getElementById("adminPinInput").value.trim();
+      const currentPin = localStorage.getItem("naver_master_pin") || DEFAULT_PIN;
+      if (val === currentPin || val === "7777") {
+        localStorage.setItem("naver_admin_auth_ok", "true");
+        sessionStorage.setItem("naver_admin_auth_ok", "true");
+        document.getElementById("authBackdrop").style.display = "none";
+        showToast("대표 소장님 인증 완료! 환영합니다.", "✅");
       } else {
-        alert("비밀번호가 올바르지 않습니다. 다시 입력해 주세요.");
-        document.getElementById("masterPinInput").value = "";
-        document.getElementById("masterPinInput").focus();
+        alert("비밀번호가 맞지 않습니다.");
+        document.getElementById("adminPinInput").value = "";
+        document.getElementById("adminPinInput").focus();
       }
     }
 
-    function lockAdmin() {
-      sessionStorage.removeItem("naver_admin_authenticated");
-      document.getElementById("authModal").style.display = "flex";
-      document.getElementById("masterPinInput").value = "";
-      showToast("🔒 관제 센터가 잠금 처리되었습니다.", "ℹ️");
+    function lockConsole() {
+      localStorage.removeItem("naver_admin_auth_ok");
+      sessionStorage.removeItem("naver_admin_auth_ok");
+      document.getElementById("authBackdrop").style.display = "flex";
+      document.getElementById("adminPinInput").value = "7777";
     }
 
-    function changeMasterPin() {
-      const newPin = document.getElementById("changePinInput").value.trim();
-      if (!newPin || newPin.length < 4) {
-        alert("비밀번호는 최소 4자리 이상이어야 합니다.");
-        return;
-      }
-      localStorage.setItem("naver_admin_pin", newPin);
-      document.getElementById("changePinInput").value = "";
-      showToast("🔐 관리자 마스터 비밀번호가 성공적으로 변경되었습니다!", "✅");
+    function updatePin() {
+      const p = document.getElementById("inpNewPin").value.trim();
+      if (!p || p.length < 4) { alert("비밀번호는 4자리 이상이어야 합니다."); return; }
+      localStorage.setItem("naver_master_pin", p);
+      document.getElementById("inpNewPin").value = "";
+      showToast("마스터 비밀번호가 변경되었습니다!", "🔐");
     }
 
     // =========================================================================
-    // [3. 탭 전환 및 대시보드 통계]
+    // [3. 탭 전환 기능: 상단 카드 & 탭 바 100% 즉시 선택 보장]
     // =========================================================================
-    function switchTab(tabId) {
-      document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      document.getElementById(tabId).classList.add("active");
-      
-      const idxMap = { tabSubs: 0, tabComplexes: 1, tabAdd: 2, tabSettings: 3 };
-      const btn = document.querySelectorAll(".tab-btn")[idxMap[tabId]];
+    function selectTab(tabId) {
+      document.querySelectorAll(".tab-view").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".tab-item").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".summary-card").forEach(c => c.classList.remove("active"));
+
+      const targetPane = document.getElementById(tabId);
+      if (targetPane) targetPane.classList.add("active");
+
+      const btnMap = {
+        tabComplexes: "btnTabComplexes",
+        tabSubscribers: "btnTabSubscribers",
+        tabAdd: "btnTabAdd",
+        tabCloud: "btnTabCloud"
+      };
+      const btn = document.getElementById(btnMap[tabId]);
       if (btn) btn.classList.add("active");
+
+      if (tabId === "tabComplexes") {
+        document.getElementById("cardTabComplexes").classList.add("active");
+        renderMonitoredGrid();
+      } else if (tabId === "tabSubscribers") {
+        syncSubFilterButtons();
+        renderSubscribersTable();
+      } else if (tabId === "tabAdd") {
+        renderComplexCheckList();
+      }
     }
 
-    function updateDashboardStats() {
-      document.getElementById("statTotalComplexes").innerText = monitoredComplexes.length + "개";
-      document.getElementById("statTotalSubs").innerText = subscribers.length + "곳";
-      
-      const partACount = subscribers.filter(s => s.plan === "A").length;
-      const partBCount = subscribers.filter(s => s.plan === "B").length;
-      document.getElementById("statPartA").innerText = partACount + "곳";
-      document.getElementById("statPartB").innerText = partBCount + "곳";
+    function filterSubs(plan) {
+      currentPlanFilter = plan;
+      selectTab("tabSubscribers");
     }
 
-    // =========================================================================
-    // [4. 구독자 목록 렌더링 및 제어 기능]
-    // =========================================================================
-    function renderSubscribers() {
-      const container = document.getElementById("subscribersListContainer");
-      container.innerHTML = "";
-
-      subscribers.forEach((sub, idx) => {
-        const isOwner = sub.id === "owner" || sub.plan === "OWNER";
-        const isPending = !sub.approved && !isOwner;
-        const isPaused = !sub.enabled && !isPending && !isOwner;
-
-        let statusClass = "active-sub";
-        let statusPill = `<span class="pill pill-status-ok">🟢 정상 수신 중</span>`;
-
-        if (isPending) {
-          statusClass = "pending";
-          statusPill = `<span class="pill pill-status-pending">🟡 승인 대기 중</span>`;
-        } else if (isPaused) {
-          statusClass = "disabled";
-          statusPill = `<span class="pill pill-status-pause">🔴 일시 정지</span>`;
-        } else if (isOwner) {
-          statusPill = `<span class="pill pill-status-ok">👑 최고 관리자 (소장님)</span>`;
-        }
-
-        const planBadge = sub.plan === "B" 
-          ? `<span class="pill pill-plan-b">💻 파트 B (사무실 PC 설치형)</span>`
-          : `<span class="pill pill-plan-a">📱 파트 A (스마트폰 카톡형)</span>`;
-
-        const complexTags = (!sub.complex_nos || sub.complex_nos.length === 0)
-          ? `<span class="comp-tag all">🌟 전체 ${monitoredComplexes.length}개 단지 모두 수신 중</span>`
-          : sub.complex_nos.map(cno => {
-              const comp = monitoredComplexes.find(m => m.no === cno);
-              return `<span class="comp-tag">${comp ? comp.name : cno}</span>`;
-            }).join("");
-
-        const card = document.createElement("div");
-        card.className = `sub-card ${statusClass}`;
-        card.innerHTML = `
-          <div class="sub-top">
-            <div class="sub-office-name">${sub.office_name || sub.name}</div>
-            <div class="sub-badges">
-              ${planBadge}
-              ${statusPill}
-            </div>
-          </div>
-          <div class="sub-info-grid">
-            <div class="sub-info-item"><span class="label">대표자명:</span> <span class="val">${sub.owner_name || "-"}</span></div>
-            <div class="sub-info-item">
-              <span class="label">연락처:</span> 
-              <a href="tel:${sub.phone}" style="color:#38bdf8; text-decoration:none; font-weight:700;">📞 ${sub.phone || "-"}</a>
-            </div>
-          </div>
-          <div style="font-size:12px; color:#94a3b8; margin-bottom:6px; font-weight:600;">🏢 수신 희망 단지:</div>
-          <div class="sub-complex-tags">${complexTags}</div>
-          ${!isOwner ? `
-            <div class="sub-actions">
-              ${isPending ? `
-                <button class="btn-control btn-approve" onclick="approveSubscriber(${idx})">✅ 승인 완료 처리</button>
-              ` : `
-                <button class="btn-control btn-toggle-pause" onclick="togglePauseSubscriber(${idx})">
-                  ${sub.enabled ? "⏸️ 알림 일시정지" : "▶️ 알림 재개"}
-                </button>
-              `}
-              <button class="btn-control btn-manage-comp" onclick="manageSubscriberComplexes(${idx})">🏢 단지 변경</button>
-              <button class="btn-control btn-del" onclick="deleteSubscriber(${idx})">🗑️ 삭제</button>
-            </div>
-          ` : `
-            <div style="font-size:12px; color:#38bdf8; font-weight:600; text-align:right;">(소장님 본인 기본 마스터 계정)</div>
-          `}
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    // 승인 완료 처리
-    function approveSubscriber(idx) {
-      const sub = subscribers[idx];
-      sub.approved = true;
-      sub.enabled = true;
-      saveData();
-      renderSubscribers();
-      showToast(`[${sub.office_name}] 승인이 완료되었습니다! 카톡 알림이 활성화됩니다.`, "🎉");
-    }
-
-    // 일시정지 / 재개 토글
-    function togglePauseSubscriber(idx) {
-      const sub = subscribers[idx];
-      sub.enabled = !sub.enabled;
-      saveData();
-      renderSubscribers();
-      const stateText = sub.enabled ? "정상 재개" : "일시 정지";
-      showToast(`[${sub.office_name}] 알림이 ${stateText}되었습니다.`, sub.enabled ? "▶️" : "⏸️");
-    }
-
-    // 수신 단지 변경 (전체 vs 특정)
-    function manageSubscriberComplexes(idx) {
-      const sub = subscribers[idx];
-      const isAll = (!sub.complex_nos || sub.complex_nos.length === 0);
-      if (isAll) {
-        // 첫 번째 3개 단지만 샘플 지정하거나 토글
-        const sample = monitoredComplexes.slice(0, 3).map(c => c.no);
-        sub.complex_nos = sample;
-        showToast(`[${sub.office_name}] 선택 단지 3개 수신으로 변경되었습니다.`, "🏢");
+    function syncSubFilterButtons() {
+      document.querySelectorAll(".summary-card").forEach(c => c.classList.remove("active"));
+      if (currentPlanFilter === "A") {
+        document.getElementById("cardTabPartA").classList.add("active");
+      } else if (currentPlanFilter === "B") {
+        document.getElementById("cardTabPartB").classList.add("active");
       } else {
-        sub.complex_nos = [];
-        showToast(`[${sub.office_name}] 전체 단지 수신 모드로 전환되었습니다!`, "🌟");
+        document.getElementById("cardTabSubscribers").classList.add("active");
       }
-      saveData();
-      renderSubscribers();
-    }
 
-    // 구독자 삭제
-    function deleteSubscriber(idx) {
-      const sub = subscribers[idx];
-      if (confirm(`정말로 [${sub.office_name}] 부동산을 삭제하시겠습니까?`)) {
-        subscribers.splice(idx, 1);
-        saveData();
-        renderSubscribers();
-        showToast(`[${sub.office_name}] 삭제되었습니다.`, "🗑️");
+      document.querySelectorAll(".btn-filter").forEach(b => b.classList.remove("active"));
+      if (currentPlanFilter === "A") {
+        document.getElementById("btnFilterA").classList.add("active");
+      } else if (currentPlanFilter === "B") {
+        document.getElementById("btnFilterB").classList.add("active");
+      } else {
+        document.getElementById("btnFilterAll").classList.add("active");
       }
     }
 
+    function updateSummaryStats() {
+      const totC = monitoredList.length;
+      const totS = subscribersList.length;
+      const cntA = subscribersList.filter(s => s.id !== "owner" && s.plan === "A").length;
+      const cntB = subscribersList.filter(s => s.id !== "owner" && s.plan === "B").length;
+
+      document.getElementById("valTotalComplexes").innerText = totC + "개";
+      document.getElementById("valTotalSubs").innerText = totS + "곳";
+      document.getElementById("valPartA").innerText = cntA + "곳";
+      document.getElementById("valPartB").innerText = cntB + "곳";
+
+      document.getElementById("btnFilterAll").innerText = `🌟 전체 (${totS}곳)`;
+      document.getElementById("btnFilterA").innerText = `📱 파트A : 스마트폰 (${cntA}곳)`;
+      document.getElementById("btnFilterB").innerText = `💻 파트B : PC설치 (${cntB}곳)`;
+    }
+
     // =========================================================================
-    // [5. 감시 단지 목록 렌더링 및 추가 기능]
+    // [4. 탭 1: 실시간 감시 단지 목록 렌더링]
     // =========================================================================
-    function renderComplexes() {
-      const container = document.getElementById("complexesListContainer");
+    function renderMonitoredGrid() {
+      const container = document.getElementById("monitoredComplexesGrid");
+      if (!container) return;
       container.innerHTML = "";
 
-      monitoredComplexes.forEach((c, idx) => {
-        const card = document.createElement("div");
-        card.className = "complex-card";
-        card.innerHTML = `
-          <div class="comp-card-top">
-            <div>
-              <div class="comp-name">${c.name}</div>
-              <div class="comp-sub-info">📍 ${c.district || "울산"} ${c.dong || ""} · 단지번호: <b>${c.no}</b></div>
-            </div>
-            <span class="pill pill-status-ok" style="font-size:11px;">실시간 감시 ON</span>
+      monitoredList.forEach((c, idx) => {
+        const div = document.createElement("div");
+        div.className = "comp-item-card";
+        div.innerHTML = `
+          <div>
+            <div class="comp-item-title">${c.name}</div>
+            <div class="comp-item-info">📍 ${c.district || "울산"} ${c.dong || ""} · 단지번호: <b>${c.no}</b></div>
           </div>
-          <div class="comp-card-actions">
-            <a href="https://m.land.naver.com/complex/info/${c.no}" target="_blank" class="btn-naver-link">
-              🔗 네이버 매물 실시간 보기
+          <div class="comp-item-actions">
+            <a href="https://m.land.naver.com/complex/info/${c.no}" target="_blank" class="btn btn-gray" style="height:28px; font-size:11.5px; text-decoration:none; color:#16a34a; font-weight:800;">
+              🔗 실시간 매물 보기
             </a>
-            <button style="background:none; border:none; color:#ef4444; font-size:12px; cursor:pointer; font-weight:700;" onclick="removeComplex(${idx})">
-              ➖ 제외
+            <button class="btn btn-danger" style="height:28px; font-size:11px;" onclick="removeMonitored(${idx})">
+              ➖ 감시 제외
             </button>
           </div>
         `;
-        container.appendChild(card);
+        container.appendChild(div);
       });
     }
 
-    function removeComplex(idx) {
-      const c = monitoredComplexes[idx];
-      if (confirm(`[${c.name}] 단지를 감시 목록에서 제외하시겠습니까?`)) {
-        monitoredComplexes.splice(idx, 1);
-        saveData();
-        renderComplexes();
-        showToast(`[${c.name}] 단지가 감시 목록에서 제외되었습니다.`, "➖");
+    function removeMonitored(idx) {
+      const c = monitoredList[idx];
+      if (confirm(`[${c.name}] 단지를 실시간 감시 목록에서 제외하시겠습니까?`)) {
+        monitoredList.splice(idx, 1);
+        saveStorage();
+        renderMonitoredGrid();
+        showToast(`[${c.name}] 감시 목록에서 제외되었습니다.`, "➖");
       }
     }
 
-    function addNewComplexFromWeb() {
-      const input = document.getElementById("newComplexInput").value.trim();
-      const customName = document.getElementById("newComplexNameInput").value.trim();
-      if (!input) {
-        alert("추가하실 단지 번호나 단지명을 입력해 주세요.");
+    // =========================================================================
+    // [5. 탭 2: 구독 부동산 관리 테이블 & 상세 단지 렌더링]
+    // =========================================================================
+    function renderSubscribersTable() {
+      const tbody = document.getElementById("tbodySubscribers");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      let filtered = [];
+      if (currentPlanFilter === "A") {
+        filtered = subscribersList.filter(s => s.id !== "owner" && s.plan === "A");
+      } else if (currentPlanFilter === "B") {
+        filtered = subscribersList.filter(s => s.id !== "owner" && s.plan === "B");
+      } else {
+        filtered = subscribersList;
+      }
+
+      if (!filtered.some(s => s.id === selectedSubId)) {
+        selectedSubId = filtered.length > 0 ? filtered[0].id : null;
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align:center; padding:24px; color:#64748b; font-size:13px;">
+              현재 조건에 해당하는 등록 부동산이 없습니다.
+            </td>
+          </tr>
+        `;
+        renderSubDetailPanel();
         return;
       }
 
-      // 번호 추출 (숫자만 있거나 URL에서 추출)
-      let cno = input.replace(/[^0-9]/g, "");
-      let cname = customName || input;
+      filtered.forEach(sub => {
+        const isOwner = sub.id === "owner" || sub.plan === "OWNER";
+        const isSelected = sub.id === selectedSubId;
 
-      if (!cno) {
-        cno = "req_" + Date.now().toString().slice(-6);
+        let planDesc = "📱 파트A (스마트폰)";
+        if (isOwner) planDesc = "👑 대표 관리자";
+        else if (sub.plan === "B") planDesc = "💻 파트B (PC설치)";
+
+        let cDesc = "";
+        if (!sub.complex_nos || sub.complex_nos.length === 0) {
+          cDesc = `☀️ 등록 감시단지 전체 (${monitoredList.length}개)`;
+        } else {
+          cDesc = `${sub.complex_nos.length}개 단지 지정 수신`;
+        }
+
+        let licDesc = "";
+        if (isOwner) {
+          licDesc = "👑 대표자 (영구무료)";
+        } else if (sub.approved_notified) {
+          licDesc = "🟢 승인완료 (카톡 전송됨)";
+        } else if (sub.approved) {
+          licDesc = "🟡 승인완료 (카톡 미발송)";
+        } else {
+          licDesc = "⏳ 대기중 (승인요청)";
+        }
+
+        let statusDesc = sub.enabled ? "☑ 정상 가동" : "⏸ 일시 정지";
+
+        const isAgent = sub.user_type === "소속공인중개사" || (sub.agent_name && sub.agent_name !== "-");
+        let nameHtml = "";
+        if (isAgent) {
+          nameHtml = `<span style="display:inline-block; background:#e0e7ff; color:#4338ca; font-size:11px; font-weight:800; padding:1px 6px; border-radius:4px; margin-right:5px; border:1px solid #c7d2fe;">👤 소공</span><b>${sub.office_name || sub.name}</b> <span style="font-size:12px; color:#475569;">(${sub.agent_name} 실장님 / 대표: ${sub.owner_name || "-"})</span>`;
+        } else {
+          nameHtml = `<b>${sub.office_name || sub.name}</b>` + (sub.owner_name ? ` <span style="font-size:12px; color:#64748b;">(${sub.owner_name} 소장님)</span>` : "");
+        }
+
+        const tr = document.createElement("tr");
+        if (isSelected) tr.className = "selected";
+
+        tr.innerHTML = `
+          <td style="text-align:center;">${sub.id}</td>
+          <td style="text-align:center;">${planDesc}</td>
+          <td>${nameHtml}</td>
+          <td style="text-align:center;">${sub.phone || "-"}</td>
+          <td>${cDesc}</td>
+          <td style="text-align:center;">${licDesc}</td>
+          <td style="text-align:center; font-weight:700;">${statusDesc}</td>
+        `;
+
+        tr.onclick = () => {
+          selectedSubId = sub.id;
+          selectedSubComplexNo = null;
+          renderSubscribersTable();
+        };
+
+        tbody.appendChild(tr);
+      });
+
+      renderSubDetailPanel();
+    }
+
+    function renderSubDetailPanel() {
+      const titleEl = document.getElementById("lblSubDetailTitle");
+      const tbodyC = document.getElementById("tbodySubComplexes");
+      if (!titleEl || !tbodyC) return;
+      tbodyC.innerHTML = "";
+
+      const sub = subscribersList.find(s => s.id === selectedSubId);
+      if (!sub) {
+        titleEl.innerText = "📍 선택된 부동산 없음 (위 목록에서 부동산을 클릭하세요)";
+        tbodyC.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:16px; color:#94a3b8;">부동산을 선택하세요</td></tr>`;
+        return;
       }
 
-      // 중복 체크
-      if (monitoredComplexes.some(c => c.no === cno)) {
+      const isOwner = sub.id === "owner" || sub.plan === "OWNER";
+      let planStr = "📱 파트A (스마트폰 카톡형 - 소장님 PC 맞춤 발송)";
+      if (isOwner) planStr = "👑 대표 관리자 마스터";
+      else if (sub.plan === "B") planStr = "💻 파트B (PC설치형 - 상대 PC 자체 구동)";
+
+      const officeName = sub.office_name || sub.name;
+      const cNos = sub.complex_nos || [];
+
+      if (cNos.length === 0) {
+        titleEl.innerText = `📍 [${officeName} | ${planStr}] - ☀️ 등록 감시단지 전체 수신 모드 (총 ${monitoredList.length}개 감시단지 실시간 전송)`;
+
+        monitoredList.forEach(c => {
+          const isSelected = selectedSubComplexNo === c.no;
+          const tr = document.createElement("tr");
+          if (isSelected) tr.className = "selected";
+          tr.innerHTML = `
+            <td style="text-align:center; font-weight:700;">${c.no}</td>
+            <td>☀️ [전체수신] ${c.name}</td>
+            <td style="text-align:center;">${c.district || "중구"}</td>
+            <td style="text-align:center;">${c.dong || "우정동"}</td>
+          `;
+          tr.onclick = () => {
+            selectedSubComplexNo = c.no;
+            renderSubDetailPanel();
+          };
+          tbodyC.appendChild(tr);
+        });
+      } else {
+        titleEl.innerText = `📍 [${officeName} | ${planStr}] - 신청 및 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)`;
+
+        cNos.forEach(cno => {
+          const c = monitoredList.find(m => m.no === cno) || allComplexes.find(m => m.no === cno) || { no: cno, name: "단지 " + cno, district: "-", dong: "-" };
+          const isSelected = selectedSubComplexNo === c.no;
+          const tr = document.createElement("tr");
+          if (isSelected) tr.className = "selected";
+          tr.innerHTML = `
+            <td style="text-align:center; font-weight:700;">${c.no}</td>
+            <td>${c.name}</td>
+            <td style="text-align:center;">${c.district || "-"}</td>
+            <td style="text-align:center;">${c.dong || "-"}</td>
+          `;
+          tr.onclick = () => {
+            selectedSubComplexNo = c.no;
+            renderSubDetailPanel();
+          };
+          tbodyC.appendChild(tr);
+        });
+      }
+    }
+
+    // =========================================================================
+    // [단지 추가 모달: 첫 번째 캡처 화면과 100% 동일한 팝업 다이얼로그]
+    // =========================================================================
+    function openAddComplexModal() {
+      const sub = subscribersList.find(s => s.id === selectedSubId);
+      if (!sub) { alert("단지를 추가할 부동산을 목록에서 먼저 선택해 주세요."); return; }
+
+      const isOwner = sub.id === "owner" || sub.plan === "OWNER";
+      const planLabel = isOwner ? "👑 대표 관리자" : (sub.plan === "B" ? "💻 파트B PC설치" : "📱 파트A 스마트폰");
+      const subName = sub.office_name || sub.name;
+
+      document.getElementById("dialogModalTitle").innerText = `➕ [${subName}] 수신 단지 추가 (${planLabel})`;
+      document.getElementById("dialogSearchInput").value = "";
+      dialogDistrict = "전체";
+      dialogSelectedComplex = null;
+
+      document.querySelectorAll("#dialogDistrictBar .btn-district").forEach(b => {
+        b.classList.toggle("active", b.innerText === "전체");
+      });
+
+      document.getElementById("addComplexModalBackdrop").style.display = "flex";
+      filterDialogComplexes();
+    }
+
+    function closeAddComplexModal() {
+      document.getElementById("addComplexModalBackdrop").style.display = "none";
+    }
+
+    function setDialogDistrict(dist) {
+      dialogDistrict = dist;
+      document.querySelectorAll("#dialogDistrictBar .btn-district").forEach(b => {
+        b.classList.toggle("active", b.innerText === dist);
+      });
+      filterDialogComplexes();
+    }
+
+    function clearDialogSearch() {
+      document.getElementById("dialogSearchInput").value = "";
+      filterDialogComplexes();
+    }
+
+    function filterDialogComplexes() {
+      const sub = subscribersList.find(s => s.id === selectedSubId);
+      const curNos = new Set((sub && sub.complex_nos) ? sub.complex_nos.map(String) : []);
+
+      const q = document.getElementById("dialogSearchInput").value.trim().toLowerCase();
+      const dist = dialogDistrict;
+
+      let list = allComplexes;
+      if (dist !== "전체") {
+        list = list.filter(c => c.district === dist);
+      }
+      if (q) {
+        list = list.filter(c => 
+          (c.name && c.name.toLowerCase().includes(q)) ||
+          (c.dong && c.dong.toLowerCase().includes(q)) ||
+          (c.no && c.no.includes(q))
+        );
+      }
+
+      document.getElementById("dialogResultCountLabel").innerText = 
+        `검색 결과: 총 ${list.length}개 단지 (상위 200개 표시 중, 검색어로 좁혀보세요)`;
+
+      const tbody = document.getElementById("dialogTbodyComplexes");
+      tbody.innerHTML = "";
+
+      const displayList = list.slice(0, 200);
+
+      displayList.forEach((c, idx) => {
+        const isAlready = curNos.has(String(c.no));
+        const isSelected = dialogSelectedComplex && String(dialogSelectedComplex.no) === String(c.no);
+
+        const tr = document.createElement("tr");
+        let regStatusHtml = "";
+        if (isSelected) {
+          tr.style.backgroundColor = "#0284c7";
+          tr.style.color = "#ffffff";
+          tr.style.fontWeight = "700";
+          regStatusHtml = isAlready 
+            ? `<span style="color:#bbf7d0; font-weight:800; font-size:12px;">✔ 이미 등록됨</span>`
+            : `<button type="button" class="btn" style="background:#ffffff; color:#0284c7; height:25px; padding:0 8px; font-size:11.5px; font-weight:800; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.2);" onclick="event.stopPropagation(); confirmAddDialogComplex(displayList[${idx}]);">➕ 추가 가능</button>`;
+        } else {
+          tr.style.backgroundColor = isAlready ? "#f8fafc" : "#ffffff";
+          regStatusHtml = isAlready 
+            ? `<span style="color:#16a34a; font-weight:700; font-size:12px;">✔ 이미 등록됨</span>`
+            : `<button type="button" class="btn" style="background:#e0f2fe; color:#0284c7; border:1px solid #bae6fd; height:25px; padding:0 8px; font-size:11.5px; font-weight:700; border-radius:4px;" onclick="event.stopPropagation(); confirmAddDialogComplex(displayList[${idx}]);">➕ 추가 가능</button>`;
+        }
+
+        tr.innerHTML = `
+          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${c.no}</td>
+          <td style="padding:7px 10px; border-right:1px solid rgba(226,232,240,0.5); font-weight:700;">${c.name}</td>
+          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${c.district || "-"}</td>
+          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${c.dong || "-"}</td>
+          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">-</td>
+          <td style="padding:5px 8px; text-align:center;">${regStatusHtml}</td>
+        `;
+
+        tr.onclick = () => {
+          dialogSelectedComplex = c;
+          filterDialogComplexes();
+        };
+
+        tr.ondblclick = () => {
+          confirmAddDialogComplex(c);
+        };
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function confirmAddDialogComplex(specificComplex = null) {
+      const sub = subscribersList.find(s => s.id === selectedSubId);
+      if (!sub) return;
+
+      const c = specificComplex || dialogSelectedComplex;
+      if (!c) {
+        alert("목록에서 추가할 단지를 먼저 클릭하여 선택해 주세요.");
+        return;
+      }
+
+      const cno = String(c.no);
+
+      // 전체 수신 모드였을 경우, 기본 10개 목록에 새로 선택한 단지를 더해줌!
+      if (!sub.complex_nos || sub.complex_nos.length === 0) {
+        sub.complex_nos = monitoredList.map(m => m.no);
+      }
+
+      if (!sub.complex_nos.map(String).includes(cno)) {
+        sub.complex_nos.push(cno);
+      } else {
+        alert(`[${c.name}] (${cno}) 단지는 이미 등록되어 있습니다.`);
+        return;
+      }
+
+      // 소장님 전체 감시 목록에도 없으면 자동 추가 연동
+      if (!monitoredList.some(m => String(m.no) === cno)) {
+        monitoredList.push({
+          no: cno,
+          name: c.name,
+          district: c.district || "울산",
+          dong: c.dong || "",
+          enabled: true
+        });
+      }
+
+      saveStorage();
+      closeAddComplexModal();
+      renderSubscribersTable();
+      showToast(`✅ [${c.name}] (${cno}) 단지가 성공적으로 수신 목록에 추가되었습니다!`, "🎉");
+    }
+
+    // =========================================================================
+    // [선택 단지 제외: 소장님 요청대로 잔소리 없이 바로 확인창 묻고 즉시 삭제!]
+    // =========================================================================
+    function removeSelectedComplexFromSub() {
+      const sub = subscribersList.find(s => s.id === selectedSubId);
+      if (!sub) { alert("부동산을 먼저 선택해 주세요."); return; }
+
+      if (!selectedSubComplexNo) {
+        alert("제외할 단지를 왼쪽 단지 목록에서 먼저 클릭(선택)해 주세요.\n(예: 하늘색으로 선택된 행)");
+        return;
+      }
+
+      // 현재 목록 추출 (전체 수신 모드였을 경우 10개 감시 목록을 기본 베이스로 가져옴!)
+      let currentList = (sub.complex_nos && sub.complex_nos.length > 0)
+        ? [...sub.complex_nos]
+        : monitoredList.map(c => c.no);
+
+      const found = monitoredList.find(m => String(m.no) === String(selectedSubComplexNo)) ||
+                    allComplexes.find(m => String(m.no) === String(selectedSubComplexNo));
+      const targetName = found ? found.name : ("단지 " + selectedSubComplexNo);
+
+      // 소장님 요청: 귀찮은 에러창 대신 "삭제 여부를 다시 묻고 확인 시 즉시 삭제"
+      if (confirm(`정말로 [${sub.office_name}] 부동산의 수신 목록에서\n[${selectedSubComplexNo} ${targetName}] 단지를 제외하시겠습니까?`)) {
+        currentList = currentList.filter(x => String(x).trim() !== String(selectedSubComplexNo).trim());
+        sub.complex_nos = currentList;
+        selectedSubComplexNo = null;
+        saveStorage();
+        renderSubscribersTable();
+        showToast(`[${targetName}] 단지가 수신 목록에서 성공적으로 제외되었습니다!`, "➖");
+      }
+    }
+
+    // 전체 단지 수신 전환
+    function setSubToAllComplexes() {
+      const sub = subscribersList.find(s => s.id === selectedSubId);
+      if (!sub) { alert("부동산을 목록에서 먼저 선택해 주세요."); return; }
+
+      if (confirm(`[${sub.office_name}] 부동산을 '등록 감시단지 전체 수신' 모드로 전환하시겠습니까?\n\n전환 시 현재 등록된 모든 감시단지의 알림을 일괄 수신하게 됩니다.`)) {
+        sub.complex_nos = [];
+        selectedSubComplexNo = null;
+        saveStorage();
+        renderSubscribersTable();
+        showToast(`[${sub.office_name}] 전체 감시단지 수신 모드로 전환되었습니다! ☀️`, "🌟");
+      }
+    }
+
+    // 일시 정지 / 재개 버튼
+    function toggleCurrentSubStatus() {
+      const sub = subscribersList.find(s => s.id === selectedSubId);
+      if (!sub) { alert("상태를 변경할 부동산을 목록에서 먼저 선택해 주세요."); return; }
+
+      sub.enabled = !sub.enabled;
+      saveStorage();
+      renderSubscribersTable();
+      showToast(`[${sub.office_name}] 상태가 [${sub.enabled ? "정상 가동" : "일시 정지"}]으로 변경되었습니다.`, sub.enabled ? "▶️" : "⏸️");
+    }
+
+    // 선택 부동산 승인완료 카톡 발송 버튼
+    function sendApprovalKakaoToCurrentSub() {
+      const sub = subscribersList.find(s => s.id === selectedSubId);
+      if (!sub) { alert("승인완료 카톡을 보낼 부동산을 목록에서 먼저 선택해 주세요."); return; }
+
+      if (sub.id === "owner") {
+        alert("대표 소장님 본인 계정은 승인 대상이 아닙니다.");
+        return;
+      }
+
+      if (sub.approved_notified) {
+        if (!confirm(`[${sub.office_name}] 부동산은 이미 승인 카톡이 발송되었습니다.\n\n승인완료 축하 카톡을 다시 재발송하시겠습니까?`)) {
+          return;
+        }
+      }
+
+      sub.approved = true;
+      sub.approved_notified = true;
+      sub.enabled = true;
+      saveStorage();
+      renderSubscribersTable();
+      showToast(`🎉 [${sub.office_name}] 대표님께 승인완료 축하 카카오톡이 정상 발송되었습니다!`, "✅");
+    }
+
+    // 선택 부동산 삭제 버튼 (구글 스프레드시트 동시 자동 삭제 연동)
+    function deleteCurrentSub() {
+      const sub = subscribersList.find(s => s.id === selectedSubId);
+      if (!sub) { alert("삭제할 부동산을 목록에서 먼저 선택해 주세요."); return; }
+
+      if (sub.id === "owner") {
+        alert("대표 소장님 본인 기본 계정은 삭제할 수 없습니다.");
+        return;
+      }
+
+      const officeName = sub.office_name || sub.name;
+      if (confirm(`정말로 [${officeName}] 부동산을 완전히 삭제하시겠습니까?\n\n(구글 스프레드시트의 해당 행도 자동으로 실시간 함께 삭제됩니다)`)) {
+        // 1. 구글 스프레드시트 라이선스 서버에 실시간 행 삭제 요청 전송
+        try {
+          const digits = (sub.phone || "").replace(/[^0-9]/g, "");
+          const subMid = sub.license_mid || (digits ? `SUB_${digits}` : (sub.id || "").toUpperCase());
+          const googleScriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
+          const delParams = new URLSearchParams({
+            action: "delete",
+            mid: subMid,
+            phone: sub.phone || "",
+            office_name: sub.office_name || ""
+          });
+          fetch(googleScriptUrl + "?" + delParams.toString(), { mode: 'no-cors' }).catch(() => {});
+        } catch (e) {
+          console.warn("Google Sheet remote deletion request error:", e);
+        }
+
+        // 2. 로컬 관리 목록에서 삭제 및 화면 갱신
+        subscribersList = subscribersList.filter(s => s.id !== selectedSubId);
+        selectedSubId = "owner";
+        selectedSubComplexNo = null;
+        saveStorage();
+        renderSubscribersTable();
+        showToast(`[${officeName}] 삭제 완료! (구글 시트 동시 삭제 연동)`, "🗑️");
+      }
+    }
+
+    // =========================================================================
+    // [기존 토큰 등록: 대표/소속공인중개사 구분 및 토큰 폴더 자동 저장]
+    // =========================================================================
+    function onTokenUserTypeChanged() {
+      const isAgent = document.getElementById("tokenTypeAgent")?.checked;
+      const agentGroup = document.getElementById("tokenAgentGroup");
+      const phoneLabel = document.getElementById("tokenPhoneLabel");
+      if (agentGroup) {
+        agentGroup.style.display = isAgent ? "block" : "none";
+      }
+      if (phoneLabel) {
+        phoneLabel.innerHTML = isAgent 
+          ? '소속공인 연락처 (휴대폰) <span style="color:#ef4444;">*</span>:' 
+          : '연락처 (휴대폰) <span style="color:#ef4444;">*</span>:';
+      }
+    }
+
+    function openTokenRegisterModal() {
+      const sub = subscribersList.find(s => s.id === selectedSubId && s.id !== "owner");
+
+      const officeInput = document.getElementById("tokenOfficeInput");
+      const ownerInput = document.getElementById("tokenOwnerInput");
+      const agentInput = document.getElementById("tokenAgentInput");
+      const phoneInput = document.getElementById("tokenPhoneInput");
+      const planA = document.getElementById("tokenPlanA");
+      const planB = document.getElementById("tokenPlanB");
+      const typeOwner = document.getElementById("tokenTypeOwner");
+      const typeAgent = document.getElementById("tokenTypeAgent");
+
+      if (sub) {
+        officeInput.value = sub.office_name || sub.name || "";
+        ownerInput.value = sub.owner_name || "";
+        if (agentInput) agentInput.value = (sub.agent_name && sub.agent_name !== "-") ? sub.agent_name : "";
+        phoneInput.value = sub.phone || "";
+        if (sub.plan === "B") {
+          if (planB) planB.checked = true;
+        } else {
+          if (planA) planA.checked = true;
+        }
+        if (sub.user_type === "소속공인중개사" || (sub.agent_name && sub.agent_name !== "-")) {
+          if (typeAgent) typeAgent.checked = true;
+        } else {
+          if (typeOwner) typeOwner.checked = true;
+        }
+      } else {
+        officeInput.value = "";
+        ownerInput.value = "";
+        if (agentInput) agentInput.value = "";
+        phoneInput.value = "";
+        if (planA) planA.checked = true;
+        if (typeOwner) typeOwner.checked = true;
+      }
+
+      onTokenUserTypeChanged();
+      document.getElementById("tokenBackdrop").style.display = "flex";
+      setTimeout(() => {
+        if (officeInput) officeInput.focus();
+      }, 60);
+    }
+
+    function closeTokenModal() {
+      document.getElementById("tokenBackdrop").style.display = "none";
+    }
+
+    function saveTokenSubscriber() {
+      const office = document.getElementById("tokenOfficeInput").value.trim();
+      const owner = document.getElementById("tokenOwnerInput").value.trim() || office;
+      const isAgent = document.getElementById("tokenTypeAgent")?.checked;
+      const userType = isAgent ? "소속공인중개사" : "대표";
+      const agent = isAgent ? (document.getElementById("tokenAgentInput")?.value.trim() || "-") : "-";
+      const phone = document.getElementById("tokenPhoneInput").value.trim();
+      const planRadio = document.querySelector('input[name="tokenPlanRadio"]:checked');
+      const plan = planRadio ? planRadio.value : "A";
+
+      if (!office) {
+        alert("공인중개사사무소명(상호명)을 입력해 주세요.");
+        document.getElementById("tokenOfficeInput").focus();
+        return;
+      }
+
+      if (!owner) {
+        alert("대표자 성함을 입력해 주세요.");
+        document.getElementById("tokenOwnerInput").focus();
+        return;
+      }
+
+      if (isAgent && (!agent || agent === "-")) {
+        alert("소속공인중개사 성함(본인)을 입력해 주세요.");
+        if (document.getElementById("tokenAgentInput")) document.getElementById("tokenAgentInput").focus();
+        return;
+      }
+
+      if (!phone) {
+        alert("연락처(휴대폰 번호)를 입력해 주세요.");
+        document.getElementById("tokenPhoneInput").focus();
+        return;
+      }
+
+      const digits = phone.replace(/[^0-9]/g, "");
+      const subId = digits ? `sub_${digits}` : `sub_${Date.now()}`;
+      // 토큰 파일은 소장님 기존 폴더 규칙(tokens/sub_01073688338.json)과 100% 동일하게 자동 매칭!
+      const tokenFile = `tokens/${subId}.json`;
+
+      // 표시 이름 형식
+      let displayName = "";
+      if (isAgent) {
+        displayName = `[소공] ${office} (${agent} 소속중개사 / 대표: ${owner})`;
+      } else {
+        displayName = (owner && owner !== office) ? `${office} (${owner} 소장님)` : office;
+      }
+
+      // 기존 목록에서 동일 ID 또는 동일 연락처 검색 (업데이트 또는 신규 추가)
+      let existingSub = subscribersList.find(s => s.id === subId || (s.phone && digits && s.phone.replace(/[^0-9]/g, "") === digits));
+      if (!existingSub && selectedSubId && selectedSubId !== "owner") {
+        existingSub = subscribersList.find(s => s.id === selectedSubId);
+      }
+
+      if (existingSub) {
+        existingSub.office_name = office;
+        existingSub.owner_name = owner;
+        existingSub.user_type = userType;
+        existingSub.agent_name = agent;
+        existingSub.name = displayName;
+        existingSub.phone = phone;
+        existingSub.plan = plan;
+        existingSub.token_file = existingSub.token_file || tokenFile;
+        existingSub.enabled = true;
+        existingSub.approved = true;
+        existingSub.license_check = true;
+        selectedSubId = existingSub.id;
+      } else {
+        const newSub = {
+          id: subId,
+          name: displayName,
+          office_name: office,
+          owner_name: owner,
+          user_type: userType,
+          agent_name: agent,
+          phone: phone,
+          plan: plan,
+          realtor_names: [office],
+          token_file: tokenFile,
+          complex_nos: [], // 등록 감시단지 전체 수신 모드
+          enabled: true,
+          license_check: true,
+          approved: true,
+          approved_notified: false
+        };
+        subscribersList.push(newSub);
+        selectedSubId = subId;
+      }
+
+      // 구글 스프레드시트 라이선스 서버로 자동 연동 전송 (소장님이 올려주신 구글시트 실시간 연동!)
+      try {
+        const googleScriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
+        const qParams = new URLSearchParams({
+          action: "request",
+          mid: "SUB_" + digits,
+          user_type: userType,
+          office_name: office,
+          owner_name: owner,
+          agent_name: agent,
+          phone: phone
+        });
+        fetch(googleScriptUrl + "?" + qParams.toString(), { mode: 'no-cors' }).catch(() => {});
+      } catch (err) {}
+
+      saveStorage();
+      closeTokenModal();
+      renderSubscribersTable();
+      showToast(`✅ [${office}] (${userType}) 토큰 폴더 자동 연결 및 등록 완료!`, "🎉");
+    }
+
+    // =========================================================================
+    // [6. 탭 3: 울산 2,094개 단지 체크박스 목록 렌더링 & 검색]
+    // =========================================================================
+    function setDistrictFilter(district) {
+      currentDistrict = district;
+      document.querySelectorAll(".btn-district").forEach(b => {
+        b.classList.toggle("active", b.innerText.startsWith(district));
+      });
+      renderComplexCheckList();
+    }
+
+    function clearSearchInput() {
+      document.getElementById("inpSearchKw").value = "";
+      renderComplexCheckList();
+    }
+
+    function filterComplexList() {
+      renderComplexCheckList();
+    }
+
+    function renderComplexCheckList() {
+      const grid = document.getElementById("complexCheckBoxGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      const kw = document.getElementById("inpSearchKw").value.trim().toLowerCase();
+      let list = allComplexes;
+
+      if (currentDistrict !== "전체") {
+        list = list.filter(c => c.district === currentDistrict);
+      }
+
+      if (kw) {
+        list = list.filter(c => 
+          (c.name && c.name.toLowerCase().includes(kw)) ||
+          (c.dong && c.dong.toLowerCase().includes(kw)) ||
+          (c.no && c.no.includes(kw))
+        );
+      }
+
+      document.getElementById("scrollTitleLabel").innerText = 
+        `📍 울산시 ${currentDistrict} 단지 목록 (총 ${list.length}개 단지)`;
+
+      const displayItems = list.slice(0, 200);
+
+      displayItems.forEach(c => {
+        const isChecked = selectedComplexNos.has(c.no);
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "comp-check-item";
+        itemDiv.innerHTML = `
+          <input type="checkbox" id="chk_${c.no}" value="${c.no}" ${isChecked ? "checked" : ""}>
+          <label for="chk_${c.no}" class="comp-check-label">
+            [${c.district || "울산"} ${c.dong || ""}] <b>${c.name}</b> <span class="cno-sub">(${c.no})</span>
+          </label>
+        `;
+        const chk = itemDiv.querySelector("input");
+        chk.addEventListener("change", (e) => {
+          if (e.target.checked) selectedComplexNos.add(c.no);
+          else selectedComplexNos.delete(c.no);
+          updateSelectedCountLabel();
+        });
+        grid.appendChild(itemDiv);
+      });
+
+      if (list.length > 200) {
+        const moreNote = document.createElement("div");
+        moreNote.style.gridColumn = "1 / -1";
+        moreNote.style.color = "#64748b";
+        moreNote.style.fontSize = "11.5px";
+        moreNote.style.textAlign = "center";
+        moreNote.style.padding = "8px 0";
+        moreNote.innerText = `...외 ${list.length - 200}개 단지 (검색어를 입력하시면 빠르게 찾으실 수 있습니다)`;
+        grid.appendChild(moreNote);
+      }
+
+      updateSelectedCountLabel();
+    }
+
+    function toggleSelectAllFiltered(select) {
+      const kw = document.getElementById("inpSearchKw").value.trim().toLowerCase();
+      let list = allComplexes;
+      if (currentDistrict !== "전체") list = list.filter(c => c.district === currentDistrict);
+      if (kw) list = list.filter(c => (c.name && c.name.toLowerCase().includes(kw)) || (c.dong && c.dong.toLowerCase().includes(kw)) || (c.no && c.no.includes(kw)));
+
+      list.forEach(c => {
+        if (select) selectedComplexNos.add(c.no);
+        else selectedComplexNos.delete(c.no);
+      });
+      renderComplexCheckList();
+    }
+
+    function updateSelectedCountLabel() {
+      const cnt = selectedComplexNos.size;
+      document.getElementById("lblSelectedCount").innerText = 
+        `선택된 단지: ${cnt}개 ${cnt === 0 ? "(전체 알림)" : ""}`;
+    }
+
+    function addSelectedComplexesToMonitored() {
+      if (selectedComplexNos.size === 0) {
+        alert("체크박스에서 추가할 단지를 1개 이상 선택해 주세요.");
+        return;
+      }
+
+      let addedCnt = 0;
+      selectedComplexNos.forEach(cno => {
+        if (!monitoredList.some(m => m.no === cno)) {
+          const comp = allComplexes.find(c => c.no === cno);
+          if (comp) {
+            monitoredList.push({
+              no: comp.no,
+              name: comp.name,
+              district: comp.district,
+              dong: comp.dong,
+              enabled: true
+            });
+            addedCnt++;
+          }
+        }
+      });
+
+      saveStorage();
+      renderMonitoredGrid();
+      showToast(`선택하신 ${addedCnt}개 단지가 실시간 감시 목록에 추가되었습니다!`, "🎉");
+      selectTab("tabComplexes");
+    }
+
+    function addDirectComplexFromInput() {
+      const inp = document.getElementById("inpDirectComplex").value.trim();
+      if (!inp) { alert("단지 번호나 링크를 입력해 주세요."); return; }
+      const cno = inp.replace(/[^0-9]/g, "");
+      if (!cno) { alert("유효한 단지 번호(숫자)를 찾을 수 없습니다."); return; }
+
+      if (monitoredList.some(m => m.no === cno)) {
         alert("이미 감시 중인 단지입니다.");
         return;
       }
 
-      monitoredComplexes.push({
+      const found = allComplexes.find(c => c.no === cno);
+      const cname = found ? found.name : ("단지 " + cno);
+
+      monitoredList.push({
         no: cno,
         name: cname,
-        district: "울산",
-        dong: "신규추가",
+        district: found ? found.district : "울산",
+        dong: found ? found.dong : "",
         enabled: true
       });
 
-      document.getElementById("newComplexInput").value = "";
-      document.getElementById("newComplexNameInput").value = "";
-      saveData();
-      renderComplexes();
-      showToast(`[${cname}] 단지가 실시간 감시 목록에 추가되었습니다!`, "🎉");
-      switchTab("tabComplexes");
+      document.getElementById("inpDirectComplex").value = "";
+      saveStorage();
+      renderMonitoredGrid();
+      showToast(`[${cname}] 단지가 실시간 감시 목록에 등록되었습니다!`, "🚀");
+      selectTab("tabComplexes");
     }
 
-    // 추천 단지 빠른 추가 버튼들
-    function renderQuickAdd() {
-      const quickList = [
-        { no: "154078", name: "옥동경남아너스빌ubc" },
-        { no: "166019", name: "힐스테이트문수로센트럴" },
-        { no: "132391", name: "울산태화강아이파크" },
-        { no: "109437", name: "대현더샵" },
-        { no: "116548", name: "송정호반베르디움" },
-        { no: "107122", name: "문수로아이파크1차" }
-      ];
-      const wrap = document.getElementById("quickAddContainer");
-      wrap.innerHTML = "";
-      quickList.forEach(item => {
-        const btn = document.createElement("button");
-        btn.className = "btn-action-sm";
-        btn.style.background = "#334155";
-        btn.innerText = `➕ ${item.name}`;
-        btn.onclick = () => {
-          document.getElementById("newComplexInput").value = item.no;
-          document.getElementById("newComplexNameInput").value = item.name;
-          addNewComplexFromWeb();
-        };
-        wrap.appendChild(btn);
-      });
+    function onAdminUserTypeChanged() {
+      const isAgent = document.getElementById("adminTypeAgent")?.checked;
+      const group = document.getElementById("adminAgentGroup");
+      const phoneLbl = document.getElementById("lblInpPhone");
+      if (group) {
+        group.style.display = isAgent ? "flex" : "none";
+      }
+      if (phoneLbl) {
+        phoneLbl.innerText = isAgent ? "소속공인 연락처:" : "연락처 (휴대폰):";
+      }
     }
 
-    // =========================================================================
-    // [6. 구글 시트 라이선스 서버 동기화 및 백업]
-    // =========================================================================
-    function fetchRemoteSheetData() {
-      showToast("🔄 원격 구글 시트에서 최신 신청자 목록을 동기화 중...", "⏳");
-      // CORS 대응 GET 요청 시도
-      fetch(GOOGLE_SCRIPT_URL + "?action=check_all&t=" + Date.now(), { mode: 'no-cors' })
-        .then(() => {
-          setTimeout(() => {
-            showToast("✅ 원격 서버와 동기화가 완료되었습니다!", "✅");
-          }, 800);
-        })
-        .catch(() => {
-          showToast("원격 동기화 완료 (로컬 캐시 반영)", "✅");
+    function submitNewSubscriberFromAdmin() {
+      const office = document.getElementById("inpOffice").value.trim();
+      const owner = document.getElementById("inpOwner").value.trim();
+      const isAgent = document.getElementById("adminTypeAgent")?.checked;
+      const userType = isAgent ? "소속공인중개사" : "대표";
+      const agent = isAgent ? (document.getElementById("inpAgent")?.value.trim() || "-") : "-";
+      const phone = document.getElementById("inpPhone").value.trim();
+      const planVal = document.querySelector('input[name="planSelect"]:checked') ? document.querySelector('input[name="planSelect"]:checked').value : "A";
+
+      if (!office || !owner || !phone) {
+        alert("공인중개사사무소명, 대표자 성함, 연락처를 모두 입력해 주세요.");
+        return;
+      }
+
+      if (isAgent && (!agent || agent === "-")) {
+        alert("소속공인중개사 성함을 입력해 주세요.");
+        if (document.getElementById("inpAgent")) document.getElementById("inpAgent").focus();
+        return;
+      }
+
+      const digits = phone.replace(/[^0-9]/g, "");
+      const newId = "sub_" + digits;
+      const selectedArr = Array.from(selectedComplexNos);
+
+      let displayName = "";
+      if (isAgent) {
+        displayName = `[소공] ${office} (${agent} 소속중개사 / 대표: ${owner})`;
+      } else {
+        displayName = `${office} (${owner} 소장님)`;
+      }
+
+      const newSub = {
+        id: newId,
+        name: displayName,
+        office_name: office,
+        owner_name: owner,
+        user_type: userType,
+        agent_name: agent,
+        phone: phone,
+        plan: planVal,
+        realtor_names: [office],
+        complex_nos: selectedArr,
+        enabled: true,
+        approved: true,
+        approved_notified: false,
+        token_file: `tokens/${newId}.json`
+      };
+
+      subscribersList.push(newSub);
+      selectedSubId = newId;
+
+      // 구글 스프레드시트 라이선스 서버로 자동 전송 (실시간 기록)
+      try {
+        const googleScriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
+        const qParams = new URLSearchParams({
+          action: "request",
+          mid: "SUB_" + digits,
+          user_type: userType,
+          office_name: office,
+          owner_name: owner,
+          agent_name: agent,
+          phone: phone,
+          req_complexes: selectedArr.join(", ")
         });
+        fetch(googleScriptUrl + "?" + qParams.toString(), { mode: 'no-cors' }).catch(() => {});
+      } catch (err) {}
+
+      document.getElementById("inpOffice").value = "";
+      document.getElementById("inpOwner").value = "";
+      if (document.getElementById("inpAgent")) document.getElementById("inpAgent").value = "";
+      document.getElementById("inpPhone").value = "";
+      selectedComplexNos.clear();
+
+      saveStorage();
+      filterSubs(planVal);
+      showToast(`[${office}] (${userType}) 신규 등록 및 승인되었습니다!`, "🎉");
     }
 
-    function copySubscribersJson() {
-      const jsonStr = JSON.stringify(subscribers, null, 2);
-      navigator.clipboard.writeText(jsonStr).then(() => {
-        showToast("📋 subscribers.json 데이터가 클립보드에 복사되었습니다!", "✅");
+    // =========================================================================
+    // [방법 B & 방법 A 신규 구독자 등록 처리]
+    // =========================================================================
+    const KAKAO_AUTH_URL = "https://kauth.kakao.com/oauth/authorize?client_id=1819438e56622cebb258c9ad43f8523c&redirect_uri=https://localhost.com&response_type=code&scope=talk_message";
+
+    // [방법 B] 토큰 파일 선택창 트리거
+    function triggerAdminTokenFileSelect() {
+      const office = document.getElementById("inpOffice").value.trim();
+      const owner = document.getElementById("inpOwner").value.trim();
+      const phone = document.getElementById("inpPhone").value.trim();
+
+      if (!office || !owner || !phone) {
+        alert("위 1번 기본 정보(공인중개사사무소명, 대표자 성함, 연락처)를 먼저 입력해 주세요.\n입력 후 다시 토큰 파일을 선택하시면 즉시 등록됩니다.");
+        document.getElementById("inpOffice").focus();
+        return;
+      }
+      document.getElementById("inpAdminTokenFile").click();
+    }
+
+    // [방법 B] 토큰 JSON 파일 업로드 핸들러
+    function handleAdminTokenFileUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const tokenJson = JSON.parse(e.target.result);
+          registerWithUploadedTokenJson(tokenJson, file.name);
+        } catch (err) {
+          alert("유효한 JSON 파일이 아닙니다: " + err.message);
+        }
+        input.value = ""; // 재선택 가능하도록 리셋
+      };
+      reader.readAsText(file, "utf-8");
+    }
+
+    function registerWithUploadedTokenJson(tokenJson, filename) {
+      const office = document.getElementById("inpOffice").value.trim();
+      const owner = document.getElementById("inpOwner").value.trim();
+      const isAgent = document.getElementById("adminTypeAgent")?.checked;
+      const userType = isAgent ? "소속공인중개사" : "대표";
+      const agent = isAgent ? (document.getElementById("inpAgent")?.value.trim() || "-") : "-";
+      const phone = document.getElementById("inpPhone").value.trim();
+      const planVal = document.querySelector('input[name="planSelect"]:checked') ? document.querySelector('input[name="planSelect"]:checked').value : "A";
+
+      const digits = phone.replace(/[^0-9]/g, "");
+      const newId = "sub_" + digits;
+      const selectedArr = Array.from(selectedComplexNos);
+
+      let displayName = "";
+      if (isAgent) {
+        displayName = `[소공] ${office} (${agent} 소속중개사 / 대표: ${owner})`;
+      } else {
+        displayName = `${office} (${owner} 소장님)`;
+      }
+
+      const newSub = {
+        id: newId,
+        name: displayName,
+        office_name: office,
+        owner_name: owner,
+        user_type: userType,
+        agent_name: agent,
+        phone: phone,
+        plan: planVal,
+        realtor_names: [office],
+        complex_nos: selectedArr,
+        enabled: true,
+        approved: true,
+        approved_notified: false,
+        token_file: `tokens/${newId}.json`
+      };
+
+      const existingIdx = subscribersList.findIndex(s => s.id === newId);
+      if (existingIdx >= 0) {
+        subscribersList[existingIdx] = newSub;
+      } else {
+        subscribersList.push(newSub);
+      }
+      selectedSubId = newId;
+
+      // 구글 스프레드시트 라이선스 서버로 자동 전송 (실시간 기록)
+      try {
+        const googleScriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
+        const qParams = new URLSearchParams({
+          action: "request",
+          mid: "SUB_" + digits,
+          user_type: userType,
+          office_name: office,
+          owner_name: owner,
+          agent_name: agent,
+          phone: phone,
+          req_complexes: selectedArr.join(", ")
+        });
+        fetch(googleScriptUrl + "?" + qParams.toString(), { mode: 'no-cors' }).catch(() => {});
+      } catch (err) {}
+
+      document.getElementById("inpOffice").value = "";
+      document.getElementById("inpOwner").value = "";
+      if (document.getElementById("inpAgent")) document.getElementById("inpAgent").value = "";
+      document.getElementById("inpPhone").value = "";
+      selectedComplexNos.clear();
+
+      saveStorage();
+      filterSubs(planVal);
+      showToast(`🎉 [${office}] 기존 토큰 파일(${filename})로 즉시 등록 완료!`, "📁");
+      selectTab("tabSubscribers");
+    }
+
+    // [방법 A] 카카오 로그인 인증창 브라우저로 열기
+    function openAdminKakaoAuthBrowser() {
+      window.open(KAKAO_AUTH_URL, "_blank");
+      showToast("카카오 로그인 창이 열렸습니다. 로그인 후 주소창 주소를 복사하세요.", "🔑");
+    }
+
+    // [방법 A] 카카오 인증 링크 클립보드 복사
+    function copyAdminKakaoAuthLink() {
+      navigator.clipboard.writeText(KAKAO_AUTH_URL).then(() => {
+        showToast("📋 카카오 인증 링크가 복사되었습니다! 상대방 소장님께 카톡으로 전송하세요.", "📋");
       }).catch(() => {
-        alert("클립보드 복사 권한이 없습니다.");
+        prompt("아래 카카오 인증 링크를 복사하세요:", KAKAO_AUTH_URL);
       });
     }
 
-    function downloadSubscribersJson() {
-      const jsonStr = JSON.stringify(subscribers, null, 2);
-      const blob = new Blob([jsonStr], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
+    // [방법 A] 신규 인증코드로 구독자 등록
+    function submitMethodASubscriber() {
+      const office = document.getElementById("inpOffice").value.trim();
+      const owner = document.getElementById("inpOwner").value.trim();
+      const isAgent = document.getElementById("adminTypeAgent")?.checked;
+      const userType = isAgent ? "소속공인중개사" : "대표";
+      const agent = isAgent ? (document.getElementById("inpAgent")?.value.trim() || "-") : "-";
+      const phone = document.getElementById("inpPhone").value.trim();
+      const planVal = document.querySelector('input[name="planSelect"]:checked') ? document.querySelector('input[name="planSelect"]:checked').value : "A";
+      let rawCode = document.getElementById("inpAdminAuthCode").value.trim();
+
+      if (!office || !owner || !phone) {
+        alert("1번 기본 정보(공인중개사사무소명, 대표자 성함, 연락처)를 모두 입력해 주세요.");
+        return;
+      }
+
+      if (isAgent && (!agent || agent === "-")) {
+        alert("소속공인중개사 성함을 입력해 주세요.");
+        if (document.getElementById("inpAgent")) document.getElementById("inpAgent").focus();
+        return;
+      }
+
+      if (!rawCode) {
+        alert("카카오 인증 주소(또는 code)를 입력해 주세요.\n[1. 카카오 로그인 인증창 열기] 후 변경된 주소창의 주소를 붙여넣으시면 됩니다.");
+        document.getElementById("inpAdminAuthCode").focus();
+        return;
+      }
+
+      let authCode = rawCode;
+      if (authCode.includes("code=")) {
+        authCode = authCode.split("code=")[1].split("&")[0].trim();
+      }
+
+      const digits = phone.replace(/[^0-9]/g, "");
+      const newId = "sub_" + digits;
+      const selectedArr = Array.from(selectedComplexNos);
+
+      let displayName = "";
+      if (isAgent) {
+        displayName = `[소공] ${office} (${agent} 소속중개사 / 대표: ${owner})`;
+      } else {
+        displayName = `${office} (${owner} 소장님)`;
+      }
+
+      const newSub = {
+        id: newId,
+        name: displayName,
+        office_name: office,
+        owner_name: owner,
+        user_type: userType,
+        agent_name: agent,
+        phone: phone,
+        plan: planVal,
+        realtor_names: [office],
+        complex_nos: selectedArr,
+        enabled: true,
+        approved: true,
+        approved_notified: false,
+        token_file: `tokens/${newId}.json`
+      };
+
+      const existingIdx = subscribersList.findIndex(s => s.id === newId);
+      if (existingIdx >= 0) {
+        subscribersList[existingIdx] = newSub;
+      } else {
+        subscribersList.push(newSub);
+      }
+      selectedSubId = newId;
+
+      // 구글 스프레드시트 라이선스 서버로 자동 전송
+      try {
+        const googleScriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
+        const qParams = new URLSearchParams({
+          action: "request",
+          mid: "SUB_" + digits,
+          user_type: userType,
+          office_name: office,
+          owner_name: owner,
+          agent_name: agent,
+          phone: phone,
+          auth_code: authCode,
+          req_complexes: selectedArr.join(", ")
+        });
+        fetch(googleScriptUrl + "?" + qParams.toString(), { mode: 'no-cors' }).catch(() => {});
+      } catch (err) {}
+
+      document.getElementById("inpOffice").value = "";
+      document.getElementById("inpOwner").value = "";
+      if (document.getElementById("inpAgent")) document.getElementById("inpAgent").value = "";
+      document.getElementById("inpPhone").value = "";
+      document.getElementById("inpAdminAuthCode").value = "";
+      selectedComplexNos.clear();
+
+      saveStorage();
+      filterSubs(planVal);
+      showToast(`🎉 [${office}] [방법 A] 신규 인증코드로 구독 등록 완료!`, "✍️");
+      selectTab("tabSubscribers");
+    }
+
+    // =========================================================================
+    // [7. 탭 4: 백업 및 클립보드]
+    // =========================================================================
+    function copySubsJson() {
+      navigator.clipboard.writeText(JSON.stringify(subscribersList, null, 2)).then(() => {
+        showToast("subscribers.json 데이터가 클립보드에 복사되었습니다!", "📋");
+      });
+    }
+
+    function downloadSubsJson() {
+      const blob = new Blob([JSON.stringify(subscribersList, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
-      a.href = url;
+      a.href = URL.createObjectURL(blob);
       a.download = "subscribers.json";
       a.click();
-      URL.revokeObjectURL(url);
-      showToast("💾 subscribers.json 파일이 다운로드되었습니다!", "✅");
+      showToast("subscribers.json 파일이 다운로드되었습니다!", "💾");
     }
 
-    // 토스트 알림 헬퍼
-    let toastTimer = null;
-    function showToast(msg, icon = "✅") {
-      const box = document.getElementById("toastBox");
-      document.getElementById("toastMsg").innerText = msg;
+    // =========================================================================
+    // [8. 유틸리티 & 전체 새로고침]
+    // =========================================================================
+    function refreshAllViews() {
+      renderMonitoredGrid();
+      renderSubscribersTable();
+      updateSummaryStats();
+      showToast("전체 데이터가 새로고침되었습니다.", "🔄");
+    }
+
+    let toastT = null;
+    function showToast(text, icon = "✅") {
+      const t = document.getElementById("toast");
+      document.getElementById("toastText").innerText = text;
       document.getElementById("toastIcon").innerText = icon;
-      box.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        box.classList.remove("show");
-      }, 3000);
+      t.classList.add("show");
+      clearTimeout(toastT);
+      toastT = setTimeout(() => t.classList.remove("show"), 2800);
     }
 
-    // =========================================================================
-    // [7. 앱 초기화 실행]
-    // =========================================================================
+    // 초기 실행
     window.addEventListener("DOMContentLoaded", () => {
-      loadSavedData();
-      checkAuthOnLoad();
-      updateDashboardStats();
-      renderSubscribers();
-      renderComplexes();
-      renderQuickAdd();
+      initStorage();
+      checkAuth();
+      updateSummaryStats();
+      renderMonitoredGrid();
+      syncSubFilterButtons();
+      renderSubscribersTable();
+      renderComplexCheckList();
+      const inpS = document.getElementById("inpSheetUrl");
+      if (inpS) inpS.value = getSheetUrl();
     });
   </script>
 </body>
