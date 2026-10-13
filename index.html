@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>네이버 부동산 실시간 매물 알림 - 신규 구독 신청</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-light: #e0f2fe;
+      --kakao-yellow: #fee500;
+      --kakao-dark: #191919;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-400: #94a3b8;
+      --slate-600: #475569;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --success: #10b981;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "맑은 고딕", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--slate-100);
+      color: var(--slate-800);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    /* 상단 네비게이션 헤더 */
+    .header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-badge {
+      display: inline-block;
+      background: rgba(2, 132, 199, 0.25);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    /* 메인 컨테이너 */
+    .container {
+      max-width: 760px;
+      margin: 20px auto;
+      padding: 0 16px;
+    }
+
+    /* 파트 A / 파트 B 탭 셀렉터 */
+    .plan-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .plan-card {
+      background: #ffffff;
+      border: 2px solid var(--slate-200);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      user-select: none;
+    }
+
+    .plan-card:hover {
+      border-color: #93c5fd;
+    }
+
+    .plan-card.active {
+      border-color: var(--primary);
+      background: #f0f9ff;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    .plan-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+
+    .plan-card.active .plan-badge {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .plan-card:not(.active) .plan-badge {
+      background: var(--slate-200);
+      color: var(--slate-600);
+    }
+
+    .plan-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--slate-900);
+    }
+
+    .plan-desc {
+      font-size: 12px;
+      color: var(--slate-600);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* 카드 섹션 공통 */
+    .section-card {
+      background: #ffffff;
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--slate-900);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--slate-200);
+    }
+
+    .section-title span.num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 13px;
+      border-radius: 50%;
+    }
+
+    /* 폼 입력 필드 */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--slate-800);
+      margin-bottom: 6px;
+    }
+
+    .form-label span.req {
+      color: #ef4444;
+    }
+
+    .form-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      font-size: 14px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: 8px;
+      background: #ffffff;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    /* 2. 단지 검색 및 필터 */
+    .search-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 38px 0 14px;
+      font-size: 14px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+    }
+
+    .btn-clear {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--slate-400);
+      font-size: 16px;
+      cursor: pointer;
+      display: none;
+    }
+
+    /* 구/군 필터 버튼 바 */
+    .district-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+
+    .district-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .dist-tab {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 9999px;
+      background: var(--slate-100);
+      color: var(--slate-600);
+      border: 1px solid var(--slate-200);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .dist-tab.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    /* 단지 목록 스크롤 박스 */
+    .complex-list-container {
+      border: 1.5px solid var(--slate-200);
+      border-radius: 8px;
+      background: var(--slate-50);
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .complex-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 6px;
+      margin-bottom: 4px;
+      background: #ffffff;
+      border: 1px solid var(--slate-200);
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .complex-item:hover {
+      background: #f8fafc;
+    }
+
+    .complex-item.selected {
+      background: #f0f9ff;
+      border-color: #bae6fd;
+    }
+
+    .complex-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .complex-info {
+      flex: 1;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--slate-800);
+    }
+
+    .complex-dong {
+      display: inline-block;
+      font-size: 11px;
+      background: var(--slate-100);
+      color: var(--slate-600);
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-right: 6px;
+    }
+
+    .complex-count-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      padding: 8px 12px;
+      background: var(--primary-light);
+      border-radius: 6px;
+    }
+
+    /* 단지 직접 추가 카드 */
+    .add-custom-box {
+      margin-top: 14px;
+      padding: 12px;
+      background: #f8fafc;
+      border: 1px dashed var(--slate-300);
+      border-radius: 8px;
+    }
+
+    .add-custom-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--slate-700);
+      margin-bottom: 6px;
+    }
+
+    .custom-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-add-custom {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 0 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* 카카오 로그인 연동 */
+    .kakao-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 48px;
+      background: var(--kakao-yellow);
+      color: var(--kakao-dark);
+      font-size: 15px;
+      font-weight: 800;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      gap: 10px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+
+    .kakao-btn:hover {
+      background: #fdd835;
+    }
+
+    .kakao-logo {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* 최종 신청 버튼 */
+    .btn-submit {
+      width: 100%;
+      height: 52px;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: all 0.2s ease;
+      letter-spacing: -0.3px;
+    }
+
+    .btn-submit:hover {
+      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    /* 파트 B PC 설치 전용 섹션 스타일 */
+    .install-lock-box {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 24px 18px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .install-lock-box .lock-icon {
+      font-size: 38px;
+      margin-bottom: 8px;
+    }
+
+    .install-lock-box .lock-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .install-lock-box .lock-desc {
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .check-license-bar {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-check-license {
+      height: 40px;
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 0 16px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-check-license:hover {
+      background: #0369a1;
+    }
+
+    .install-unlocked-box {
+      background: #f0fdf4;
+      border: 1.5px solid #86efac;
+      border-radius: 12px;
+      padding: 20px;
+      animation: modalPop 0.3s ease-out;
+    }
+
+    .unlock-badge {
+      display: inline-block;
+      background: #16a34a;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .btn-download-pkg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 50px;
+      background: #16a34a;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 800;
+      box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.25);
+      transition: all 0.2s ease;
+      margin: 12px 0 16px 0;
+    }
+
+    .btn-download-pkg:hover {
+      background: #15803d;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 10px -1px rgba(22, 163, 74, 0.35);
+    }
+
+    .install-steps-guide {
+      background: #ffffff;
+      border: 1px solid #dcfce7;
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .step-guide-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .step-guide-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      background: #16a34a;
+      color: #ffffff;
+      font-size: 11.5px;
+      font-weight: 800;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text {
+      font-size: 12.5px;
+      color: #334155;
+      line-height: 1.5;
+    }
+
+    .step-text code {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 700;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* 완료 모달 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 460px;
+      width: 100%;
+      padding: 28px 24px;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      animation: modalPop 0.3s ease-out;
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--slate-900);
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 13.5px;
+      color: var(--slate-600);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .btn-modal-close {
+      width: 100%;
+      height: 44px;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 헤더 -->
+  <header class="header">
+    <div class="header-badge">울산광역시 전지역 실시간 매물 관제</div>
+    <h1>네이버 부동산 실시간 매물 알림</h1>
+    <p>공인중개사 전용 4대 변동(신규·가격·층수·마감) 맞춤 알림 서비스</p>
+  </header>
+
+  <main class="container">
+    <!-- 신청 플랜 선택 (파트 A vs 파트 B) -->
+    <div class="plan-selector">
+      <div class="plan-card active" id="planA" onclick="selectPlan('A')">
+        <span class="plan-badge">추천 🌟 모바일 전용</span>
+        <div class="plan-title">📱 [파트 A] 스마트폰 카톡 구독</div>
+        <div class="plan-desc">PC 설치 0개! 중앙 서버가 감시하여 대표님 스마트폰 카톡으로 매일 실시간 알림 발송</div>
+      </div>
+      <div class="plan-card" id="planB" onclick="selectPlan('B')">
+        <span class="plan-badge">사무실 PC 구동형</span>
+        <div class="plan-title">💻 [파트 B] 사무실 PC 설치형</div>
+        <div class="plan-desc">대표님 사무실 컴퓨터에 설치하여 30분 주기 무음 백그라운드로 직접 감시 구동</div>
+      </div>
+    </div>
+
+    <!-- 1. 기본 정보 입력 -->
+    <section class="section-card">
+      <div class="section-title">
+        <span class="num">1</span>
+        <span>공인중개사 기본 정보 입력</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="officeName">부동산 상호명 <span class="req">*</span></label>
+        <input type="text" id="officeName" class="form-input" placeholder="예: 태화강아이파크공인중개사사무소" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="ownerName">대표자 성함 <span class="req">*</span></label>
+        <input type="text" id="ownerName" class="form-input" placeholder="예: 홍길동 소장님" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="phone">연락처 (휴대폰 번호) <span class="req">*</span></label>
+        <input type="tel" id="phone" class="form-input" placeholder="예: 010-1234-5678" required>
+      </div>
+    </section>
+
+    <!-- 2. 감시 희망 단지 선택 -->
+    <section class="section-card">
+      <div class="section-title">
+        <span class="num">2</span>
+        <span>수신 희망 단지 선택 (울산 전지역 실시간 검색)</span>
+      </div>
+
+      <!-- 실시간 검색바 -->
+      <div class="search-box">
+        <div class="search-input-wrapper">
+          <input type="text" id="searchInput" class="search-input" placeholder="🔍 단지명, 읍·면·동 검색 (예: 힐스테이트, 달동)">
+          <button type="button" id="btnClear" class="btn-clear" onclick="clearSearch()">✕</button>
+        </div>
+      </div>
+
+      <!-- 구/군 필터 버튼 바 -->
+      <div class="district-tabs" id="districtTabs">
+        <button type="button" class="dist-tab active" onclick="filterDistrict('전체')">전체 (<span id="cntTotal">2094</span>)</button>
+        <button type="button" class="dist-tab" onclick="filterDistrict('남구')">남구 (<span id="cntNamgu">758</span>)</button>
+        <button type="button" class="dist-tab" onclick="filterDistrict('중구')">중구 (<span id="cntJunggu">500</span>)</button>
+        <button type="button" class="dist-tab" onclick="filterDistrict('동구')">동구 (<span id="cntDonggu">352</span>)</button>
+        <button type="button" class="dist-tab" onclick="filterDistrict('북구')">북구 (<span id="cntBukgu">192</span>)</button>
+        <button type="button" class="dist-tab" onclick="filterDistrict('울주군')">울주군 (<span id="cntUlju">292</span>)</button>
+      </div>
+
+      <!-- 단지 목록 스크롤 박스 -->
+      <div class="complex-list-container" id="complexListContainer">
+        <!-- JS로 동적 렌더링 -->
+      </div>
+
+      <!-- 선택 요약 바 -->
+      <div class="complex-count-info">
+        <span id="selectedSummary">선택된 단지: 0개</span>
+        <button type="button" onclick="selectAllFiltered(true)" style="background:none; border:none; color:var(--primary); font-size:12px; font-weight:700; cursor:pointer;">현재목록 전체선택</button>
+      </div>
+
+      <!-- 목록에 없는 단지 직접 추가 -->
+      <div class="add-custom-box">
+        <div class="add-custom-title">📢 찾으시는 단지가 목록에 없으신가요?</div>
+        <div class="custom-row">
+          <input type="text" id="customComplexInput" class="form-input" style="height:38px; font-size:13px;" placeholder="단지명 또는 네이버 링크 입력 후 추가">
+          <button type="button" class="btn-add-custom" onclick="addCustomComplex()">➕ 단지 추가</button>
+        </div>
+        <div id="customTagsContainer" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;"></div>
+      </div>
+    </section>
+
+    <!-- 3. 카카오톡 연동 & 신청 -->
+    <section class="section-card">
+      <div class="section-title">
+        <span class="num">3</span>
+        <span>스마트폰 카카오톡 알림 1회 연동</span>
+      </div>
+
+      <p style="font-size:13px; color:var(--slate-600); margin-bottom:12px;">
+        아래 버튼을 눌러 카카오 계정으로 1회 로그인 및 알림 수신에 동의해 주세요.
+      </p>
+
+      <a href="https://kauth.kakao.com/oauth/authorize?client_id=1819438e56622cebb258c9ad43f8523c&redirect_uri=https://localhost.com&response_type=code&scope=talk_message" target="_blank" class="kakao-btn" id="btnKakaoAuth">
+        <svg class="kakao-logo" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 3C6.477 3 2 6.477 2 10.764c0 2.76 1.87 5.183 4.697 6.551-.205.76-.74 2.753-.847 3.176-.134.53.195.522.41.38.169-.112 2.68-1.82 3.766-2.557.63.092 1.284.14 1.974.14 5.523 0 10-3.477 10-7.764C22 6.477 17.523 3 12 3z"/>
+        </svg>
+        <span>🟡 카카오 로그인 및 메시지 수신 동의하기</span>
+      </a>
+
+      <div class="form-group">
+        <label class="form-label" for="authCodeInput">로그인 완료 후 주소창 주소 붙여넣기 <span class="req">*</span></label>
+        <input type="text" id="authCodeInput" class="form-input" placeholder="예: https://localhost.com/?code=abcde12345... 또는 코드값" required>
+        <small style="color:var(--slate-500); font-size:11.5px; margin-top:4px; display:block;">
+          ※ 카카오 로그인 후 화면 주소창의 주소를 복사하여 그대로 붙여넣으시면 됩니다.
+        </small>
+      </div>
+    </section>
+
+    <!-- 4. [파트 B] 사무실 PC 설치 & 구동 센터 (파트 B 선택 시 노출) -->
+    <section class="section-card" id="partBInstallSection" style="display:none;">
+      <div class="section-title">
+        <span class="num">4</span>
+        <span>💻 [파트 B] 사무실 PC 소프트웨어 설치 & 구동 센터</span>
+      </div>
+
+      <!-- 잠금 상태 (기본: 승인 대기 / 잠김) -->
+      <div id="installLockBox" class="install-lock-box">
+        <div class="lock-icon">🔒</div>
+        <div class="lock-title">사무실 PC 설치 프로그램 다운로드가 잠겨 있습니다</div>
+        <p class="lock-desc">
+          대표 소장님(태화강아이파크)의 <b>정식 라이선스 승인 완료</b> 후 잠금이 자동으로 해제되며 프로그램을 다운로드할 수 있습니다.<br>
+          먼저 위의 1~3번 정보를 작성하시고 아래 <b>[🚀 구독 신청 완료하기]</b> 버튼을 눌러 승인을 요청해 주세요.
+        </p>
+        <div class="check-license-bar">
+          <input type="tel" id="checkPhoneInput" class="form-input" placeholder="신청하신 휴대폰 번호 입력" style="max-width:220px; height:40px; font-size:13px;">
+          <button type="button" class="btn-check-license" onclick="checkRemoteApproval()">🔍 실시간 승인 확인 & 잠금 해제</button>
+        </div>
+        <div id="checkStatusMsg" style="font-size:12.5px; margin-top:10px; font-weight:700; display:none;"></div>
+      </div>
+
+      <!-- 잠금 해제 상태 (승인 완료 시 활성화) -->
+      <div id="installUnlockedBox" class="install-unlocked-box" style="display:none;">
+        <div style="margin-bottom:12px;">
+          <span class="unlock-badge">🟢 승인 완료됨 (라이선스 활성)</span>
+          <h4 style="margin:8px 0 4px 0; font-size:16px; color:#0f172a; font-weight:800;">🎉 사무실 PC 설치 패키지가 활성화되었습니다!</h4>
+          <p style="font-size:13px; color:#475569; margin:0; line-height:1.5;">
+            대표 소장님의 승인이 완료되었습니다. 아래 버튼을 눌러 프로그램을 다운로드받고 3단계에 따라 구동해 주세요.
+          </p>
+        </div>
+
+        <a href="네이버새로운매물알림_배포용.zip" download="네이버새로운매물알림_파트B_설치용.zip" class="btn-download-pkg" id="btnDownloadPkg">
+          📥 [사무실 PC 전용 소프트웨어 패키지 다운로드 (.ZIP)]
+        </a>
+
+        <div class="install-steps-guide">
+          <div class="step-guide-item">
+            <span class="step-num">1</span>
+            <div class="step-text">
+              <b>압축 해제:</b> 다운로드받은 <code>네이버새로운매물알림_파트B_설치용.zip</code> 파일의 압축을 풉니다.
+            </div>
+          </div>
+          <div class="step-guide-item">
+            <span class="step-num">2</span>
+            <div class="step-text">
+              <b>필수 프로그램 자동 설치:</b> <code>1_필수프로그램_자동설치.bat</code> 파일을 더블클릭합니다 (최초 1회).
+            </div>
+          </div>
+          <div class="step-guide-item">
+            <span class="step-num">3</span>
+            <div class="step-text">
+              <b>30분 주기 스케줄러 등록:</b> <code>3_30분주기_무음스케줄러_등록.bat</code>을 실행하면 검은 창 없이 30분마다 무음으로 실시간 자동 감시됩니다!
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 최종 제출 버튼 -->
+    <button type="button" class="btn-submit" onclick="submitSubscription()">
+      🚀 [구독 신청 완료하기]
+    </button>
+  </main>
+
+  <!-- 신청 완료 모달 -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal-content">
+      <div class="modal-icon">🎉</div>
+      <div class="modal-title">구독 신청이 접수되었습니다!</div>
+      <div class="modal-desc" id="modalDesc">
+        대표 소장님의 관리 시스템으로 신청 정보가 성공적으로 전달되었습니다.<br>
+        관리자 승인 완료 즉시 대표님의 카카오톡으로 안내 메시지가 전송됩니다.
+      </div>
+      <button type="button" class="btn-modal-close" onclick="closeModal()">확인</button>
+    </div>
+  </div>
+
+  <!-- 울산 전역 단지 데이터 로드 -->
+  <script src="complexes_data.js"></script>
+
+  <script>
+    let currentPlan = 'A';
+    let currentDistrict = '전체';
+    let selectedComplexNos = new Set();
+    let customComplexes = [];
+    let filteredList = [];
+
+    // URL 파라미터에서 code 자동 추출
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      if (code) {
+        document.getElementById('authCodeInput').value = code;
+      }
+      initComplexes();
+    });
+
+    function selectPlan(plan) {
+      currentPlan = plan;
+      document.getElementById('planA').classList.toggle('active', plan === 'A');
+      document.getElementById('planB').classList.toggle('active', plan === 'B');
+
+      // 파트 B 선택 시 PC 설치 섹션 노출
+      const partBSection = document.getElementById('partBInstallSection');
+      if (partBSection) {
+        partBSection.style.display = (plan === 'B') ? 'block' : 'none';
+        if (plan === 'B') {
+          // 전화번호 기본 연동
+          const phoneVal = document.getElementById('phone').value.trim();
+          if (phoneVal && !document.getElementById('checkPhoneInput').value) {
+            document.getElementById('checkPhoneInput').value = phoneVal;
+          }
+        }
+      }
+    }
+
+    async function checkRemoteApproval() {
+      const phoneInput = document.getElementById('checkPhoneInput');
+      const msgEl = document.getElementById('checkStatusMsg');
+      const rawPhone = phoneInput.value.trim() || document.getElementById('phone').value.trim();
+
+      if (!rawPhone) {
+        alert("휴대폰 번호를 입력해 주세요.");
+        phoneInput.focus();
+        return;
+      }
+
+      const digits = rawPhone.replace(/\D/g, "");
+      const mid = "sub_" + digits;
+      const apiUrl = `https://script.google.com/macros/s/AKfycbxndlEGVojoZeQemFt0ovLNp9PW7w2VvlZQOXUCix84LfogjG98COsmgQbYMqInFAuxww/exec?action=check&mid=${encodeURIComponent(mid)}`;
+
+      msgEl.style.display = 'block';
+      msgEl.style.color = '#0284c7';
+      msgEl.textContent = '⏳ 구글 시트 라이선스 서버에서 승인 상태를 조회하고 있습니다...';
+
+      try {
+        const resp = await fetch(apiUrl);
+        const data = await resp.json();
+
+        if (data && (data.allowed === true || data.status === 'ACTIVE' || data.status === '승인' || data.status === '사용중')) {
+          msgEl.style.color = '#16a34a';
+          msgEl.textContent = '✅ 라이선스 승인이 확인되었습니다! 설치 패키지 잠금을 해제합니다.';
+          setTimeout(() => {
+            document.getElementById('installLockBox').style.display = 'none';
+            document.getElementById('installUnlockedBox').style.display = 'block';
+          }, 600);
+        } else {
+          msgEl.style.color = '#ea580c';
+          const stat = (data && data.status) ? data.status : '승인 대기중';
+          msgEl.innerHTML = `⚠️ 현재 상태: <b>[${stat}]</b><br>대표 관리자(태화강아이파크)의 승인이 아직 완료되지 않았습니다.<br>신청서를 먼저 제출하시거나 소장님께 승인을 요청해 주세요.`;
+        }
+      } catch (err) {
+        // 네트워크 제한 시 대체 확인 처리
+        msgEl.style.color = '#64748b';
+        msgEl.innerHTML = '네트워크 응답 지연으로 실시간 조회가 지연되고 있습니다.<br>대표 소장님께 승인 완료 카톡을 받으신 경우 관리자에게 문의하시면 즉시 안내해 드립니다.';
+      }
+    }
+
+    function initComplexes() {
+      if (typeof ULSAN_COMPLEXES === 'undefined' || !ULSAN_COMPLEXES) {
+        console.warn("complexes_data.js not loaded");
+        return;
+      }
+      filterDistrict('전체');
+    }
+
+    function filterDistrict(district) {
+      currentDistrict = district;
+      document.querySelectorAll('.dist-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.textContent.includes(district));
+      });
+      applySearchAndFilter();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', () => {
+      const val = document.getElementById('searchInput').value.trim();
+      document.getElementById('btnClear').style.display = val ? 'block' : 'none';
+      applySearchAndFilter();
+    });
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('btnClear').style.display = 'none';
+      applySearchAndFilter();
+    }
+
+    function applySearchAndFilter() {
+      if (typeof ULSAN_COMPLEXES === 'undefined') return;
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      filteredList = ULSAN_COMPLEXES.filter(c => {
+        const matchDist = (currentDistrict === '전체' || c.district === currentDistrict);
+        const matchQ = (!q || (c.name && c.name.toLowerCase().includes(q)) || (c.dong && c.dong.toLowerCase().includes(q)) || String(c.no).includes(q));
+        return matchDist && matchQ;
+      });
+
+      renderComplexList();
+    }
+
+    function renderComplexList() {
+      const container = document.getElementById('complexListContainer');
+      container.innerHTML = '';
+
+      if (filteredList.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:30px 10px; color:#94a3b8; font-size:13px;">일치하는 단지가 없습니다. 아래에서 직접 추가해 주세요.</div>';
+        return;
+      }
+
+      // 성능을 위해 최대 150개 우선 렌더링
+      const sliceList = filteredList.slice(0, 150);
+      const frag = document.createDocumentFragment();
+
+      sliceList.forEach(c => {
+        const item = document.createElement('div');
+        const cno = String(c.no);
+        const isChecked = selectedComplexNos.has(cno);
+        item.className = 'complex-item' + (isChecked ? ' selected' : '');
+        item.onclick = (e) => {
+          if (e.target.tagName !== 'INPUT') {
+            const chk = item.querySelector('input');
+            chk.checked = !chk.checked;
+            toggleComplex(cno, chk.checked, item);
+          }
+        };
+
+        item.innerHTML = `
+          <input type="checkbox" value="${cno}" ${isChecked ? 'checked' : ''} onchange="toggleComplex('${cno}', this.checked, this.parentElement)">
+          <div class="complex-info">
+            <span class="complex-dong">${c.district} ${c.dong || ''}</span>
+            <span>${c.name}</span>
+          </div>
+        `;
+        frag.appendChild(item);
+      });
+
+      container.appendChild(frag);
+    }
+
+    function toggleComplex(cno, checked, el) {
+      if (checked) {
+        selectedComplexNos.add(cno);
+        el.classList.add('selected');
+      } else {
+        selectedComplexNos.delete(cno);
+        el.classList.remove('selected');
+      }
+      updateSummary();
+    }
+
+    function selectAllFiltered(state) {
+      filteredList.forEach(c => {
+        const cno = String(c.no);
+        if (state) selectedComplexNos.add(cno);
+        else selectedComplexNos.delete(cno);
+      });
+      renderComplexList();
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const cnt = selectedComplexNos.size + customComplexes.length;
+      document.getElementById('selectedSummary').textContent = `선택된 단지: ${cnt}개`;
+    }
+
+    function addCustomComplex() {
+      const input = document.getElementById('customComplexInput');
+      const val = input.value.trim();
+      if (!val) return;
+      if (!customComplexes.includes(val)) {
+        customComplexes.push(val);
+        renderCustomTags();
+        input.value = '';
+        updateSummary();
+      }
+    }
+
+    function removeCustom(target) {
+      customComplexes = customComplexes.filter(x => x !== target);
+      renderCustomTags();
+      updateSummary();
+    }
+
+    function renderCustomTags() {
+      const box = document.getElementById('customTagsContainer');
+      box.innerHTML = '';
+      customComplexes.forEach(c => {
+        const tag = document.createElement('span');
+        tag.style.cssText = 'background:#e0f2fe; color:#0369a1; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;';
+        tag.innerHTML = `🏷️ ${c} <button type="button" onclick="removeCustom('${c}')" style="background:none; border:none; color:#ef4444; font-weight:800; cursor:pointer;">✕</button>`;
+        box.appendChild(tag);
+      });
+    }
+
+    async function submitSubscription() {
+      const office = document.getElementById('officeName').value.trim();
+      const owner = document.getElementById('ownerName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      let rawCode = document.getElementById('authCodeInput').value.trim();
+
+      if (!office) { alert("부동산 상호명을 입력해 주세요."); return; }
+      if (!owner) { alert("대표자 성함을 입력해 주세요."); return; }
+      if (!phone) { alert("연락처를 입력해 주세요."); return; }
+      if (!rawCode) { alert("카카오 인증 주소를 입력해 주세요.\n먼저 [카카오 로그인 연동]을 진행하세요."); return; }
+
+      // code= 파싱
+      let authCode = rawCode;
+      if (authCode.includes("code=")) {
+        authCode = authCode.split("code=")[1].split("&")[0].trim();
+      }
+
+      const selectedList = Array.from(selectedComplexNos);
+      const planName = currentPlan === 'A' ? '[파트 A] 스마트폰 전용 알림' : '[파트 B] 사무실 PC 설치형';
+
+      const payload = {
+        action: "register_subscriber",
+        plan: currentPlan,
+        office_name: office,
+        owner_name: owner,
+        phone: phone,
+        auth_code: authCode,
+        complex_nos: selectedList,
+        custom_complexes: customComplexes,
+        submitted_at: new Date().toISOString()
+      };
+
+      // 구글 시트 라이선스 서버 URL로 전송
+      const googleScriptUrl = "https://script.google.com/macros/s/AKfycbxndlEGVojoZeQemFt0ovLNp9PW7w2VvlZQOXUCix84LfogjG98COsmgQbYMqInFAuxww/exec";
+
+      try {
+        // 비동기 전송 (CORS 대응 mode: no-cors 또는 GET 파라미터)
+        const params = new URLSearchParams({
+          action: "register",
+          plan: currentPlan,
+          mid: "sub_" + phone.replace(/[^0-9]/g, ""),
+          office: office,
+          owner: owner,
+          phone: phone,
+          complexes: selectedList.join(",")
+        });
+
+        fetch(googleScriptUrl + "?" + params.toString(), { mode: 'no-cors' }).catch(()=>{});
+      } catch (e) {
+        console.warn("Remote submit skipped:", e);
+      }
+
+      if (currentPlan === 'B') {
+        document.getElementById('modalDesc').innerHTML = `
+          <b>[${office}]</b> 대표님, 환영합니다!<br><br>
+          • 신청 유형: <span style="color:#0284c7; font-weight:800;">${planName}</span><br>
+          • 선택 단지: 총 <b>${selectedList.length + customComplexes.length}개</b> 단지<br><br>
+          신청서가 대표 소장님 관리 시스템으로 접수되었습니다.<br>
+          <b>대표 소장님의 승인이 완료되면</b> 화면 하단 <span style="color:#16a34a; font-weight:800;">[4. 사무실 PC 설치 & 구동 센터]</span>의 잠금이 해제되며 원클릭 프로그램을 다운로드받으실 수 있습니다!<br>
+          (승인 완료 축하 카톡으로도 안내가 전송됩니다)
+        `;
+      } else {
+        document.getElementById('modalDesc').innerHTML = `
+          <b>[${office}]</b> 대표님, 환영합니다!<br><br>
+          • 신청 유형: <span style="color:#0284c7; font-weight:800;">${planName}</span><br>
+          • 선택 단지: 총 <b>${selectedList.length + customComplexes.length}개</b> 단지<br><br>
+          대표 관리자(태화강아이파크)에게 신청서가 성공적으로 접수되었습니다.<br>
+          승인 완료 즉시 대표님의 스마트폰 카카오톡으로 실시간 맞춤 매물 알림이 시작됩니다!
+        `;
+      }
+      document.getElementById('successModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('successModal').style.display = 'none';
+      if (currentPlan === 'B') {
+        const sec = document.getElementById('partBInstallSection');
+        if (sec) sec.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  </script>
+</body>
+</html>
