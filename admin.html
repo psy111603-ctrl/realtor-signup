@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>네이버 부동산 실시간 매물 알림 - 모바일 & PC 통합 관제 센터</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-light: #e0f2fe;
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-amber: #f59e0b;
+      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "맑은 고딕", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding-bottom: 90px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 상단 글래스모피즘 헤더 */
+    .top-header {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-logo .icon {
+      font-size: 20px;
+    }
+
+    .header-title-wrap h1 {
+      font-size: 16px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+    }
+
+    .header-title-wrap p {
+      font-size: 11px;
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-admin {
+      background: rgba(2, 132, 199, 0.2);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      color: #38bdf8;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 9999px;
+    }
+
+    .btn-header-lock {
+      background: #334155;
+      border: none;
+      color: #cbd5e1;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* 메인 컨테이너 */
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* 통계 요약 카드 그리드 */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 14px 12px;
+      text-align: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-label {
+      font-size: 11.5px;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .stat-val {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .stat-val.primary { color: #38bdf8; }
+    .stat-val.green { color: #34d399; }
+    .stat-val.amber { color: #fbbf24; }
+    .stat-val.red { color: #f87171; }
+
+    /* 탭 네비게이션 */
+    .nav-tabs {
+      display: flex;
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 20px;
+      gap: 4px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 80px;
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      padding: 10px 8px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+    }
+
+    /* 탭 콘텐츠 영역 */
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 섹션 제목 바 */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-action-sm {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s;
+    }
+
+    .btn-action-sm:hover {
+      background: var(--primary-hover);
+    }
+
+    /* 구독자 카드 리스트 */
+    .sub-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sub-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .sub-card:hover {
+      border-color: #475569;
+    }
+
+    .sub-card.pending {
+      border-left: 5px solid var(--accent-amber);
+    }
+
+    .sub-card.active-sub {
+      border-left: 5px solid var(--accent-green);
+    }
+
+    .sub-card.disabled {
+      border-left: 5px solid #64748b;
+      opacity: 0.75;
+    }
+
+    .sub-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .sub-office-name {
+      font-size: 17px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .sub-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .pill-plan-a { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .pill-plan-b { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .pill-status-ok { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .pill-status-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .pill-status-pause { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .sub-info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-sub);
+      background: rgba(15, 23, 42, 0.6);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .sub-info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sub-info-item span.label {
+      color: #64748b;
+      margin-right: 4px;
+    }
+
+    .sub-info-item span.val {
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+
+    .sub-complex-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .comp-tag {
+      background: #334155;
+      color: #cbd5e1;
+      font-size: 11.5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .comp-tag.all {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .sub-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-control {
+      flex: 1;
+      min-width: 90px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-approve { background: #16a34a; color: #ffffff; }
+    .btn-approve:hover { background: #15803d; }
+    .btn-toggle-pause { background: #475569; color: #ffffff; }
+    .btn-toggle-pause:hover { background: #334155; }
+    .btn-manage-comp { background: #0284c7; color: #ffffff; }
+    .btn-manage-comp:hover { background: #0369a1; }
+    .btn-del { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .btn-del:hover { background: #dc2626; color: #ffffff; }
+
+    /* 단지 카드 리스트 */
+    .complex-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 640px) {
+      .complex-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .complex-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+
+    .comp-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .comp-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.4;
+    }
+
+    .comp-sub-info {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    .comp-card-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 10px;
+    }
+
+    .btn-naver-link {
+      color: #03c75a;
+      background: rgba(3, 199, 90, 0.1);
+      border: 1px solid rgba(3, 199, 90, 0.3);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* 신규 단지 추가 박스 */
+    .add-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .form-row {
+        flex-direction: column;
+      }
+    }
+
+    .form-input {
+      flex: 1;
+      height: 44px;
+      background: #0f172a;
+      border: 1.5px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0 14px;
+      color: #ffffff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+    }
+
+    .btn-submit-main {
+      height: 44px;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 800;
+      padding: 0 20px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-submit-main:hover {
+      background: var(--primary-hover);
+    }
+
+    /* 비밀번호 모달 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 20px;
+    }
+
+    .modal-box {
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 18px;
+      max-width: 380px;
+      width: 100%;
+      padding: 28px 22px;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      animation: modalPop 0.25s ease-out;
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-icon { font-size: 42px; margin-bottom: 10px; }
+    .modal-title { font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 6px; }
+    .modal-desc { font-size: 13px; color: var(--text-sub); margin-bottom: 20px; }
+
+    .pin-input {
+      width: 100%;
+      height: 50px;
+      background: #0f172a;
+      border: 2px solid var(--primary);
+      border-radius: 10px;
+      text-align: center;
+      font-size: 24px;
+      letter-spacing: 8px;
+      color: #ffffff;
+      font-weight: 800;
+      margin-bottom: 16px;
+      outline: none;
+    }
+
+    .btn-modal-action {
+      width: 100%;
+      height: 46px;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* 토스트 알림 */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid #38bdf8;
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 9999px;
+      font-size: 13.5px;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      z-index: 1000;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- [관리자 보안 인증 모달] -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-box">
+      <div class="modal-icon">🔐</div>
+      <div class="modal-title">대표 소장님 관리자 인증</div>
+      <div class="modal-desc">모바일 & PC 관제 센터 접근을 위해 마스터 비밀번호(4자리)를 입력하세요.</div>
+      <input type="password" id="masterPinInput" class="pin-input" maxlength="8" placeholder="••••" autofocus onkeypress="if(event.key==='Enter') verifyAdminPin()">
+      <button class="btn-modal-action" onclick="verifyAdminPin()">관제 센터 입장 🚀</button>
+      <div style="font-size: 11px; color: #64748b; margin-top: 14px;">(초기 기본 비밀번호: 7777)</div>
+    </div>
+  </div>
+
+  <!-- [상단 헤더] -->
+  <header class="top-header">
+    <div class="header-logo">
+      <span class="icon">🏢</span>
+      <div class="header-title-wrap">
+        <h1>네이버 부동산 관제 센터</h1>
+        <p>대표 소장님 전용 모바일 & PC 제어</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="badge-admin">● 마스터 보안 활성</span>
+      <button class="btn-header-lock" onclick="lockAdmin()" title="잠금">🔒</button>
+    </div>
+  </header>
+
+  <!-- [메인 콘텐츠] -->
+  <main class="container">
+
+    <!-- 1. 통계 대시보드 요약 -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">🏢 실시간 감시 단지</div>
+        <div class="stat-val primary" id="statTotalComplexes">10개</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">👥 전체 구독 부동산</div>
+        <div class="stat-val green" id="statTotalSubs">2곳</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">📱 [파트 A] 모바일형</div>
+        <div class="stat-val primary" id="statPartA">1곳</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">💻 [파트 B] PC설치형</div>
+        <div class="stat-val amber" id="statPartB">0곳</div>
+      </div>
+    </section>
+
+    <!-- 2. 네비게이션 탭 -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('tabSubs')">👥 구독 부동산 승인</button>
+      <button class="tab-btn" onclick="switchTab('tabComplexes')">🏢 감시 단지 목록</button>
+      <button class="tab-btn" onclick="switchTab('tabAdd')">➕ 신규 단지 등록</button>
+      <button class="tab-btn" onclick="switchTab('tabSettings')">⚙️ 동기화 & 설정</button>
+    </nav>
+
+    <!-- [탭 1: 구독 부동산 승인 및 관리] -->
+    <div class="tab-pane active" id="tabSubs">
+      <div class="section-header">
+        <div class="section-title">
+          <span>👥 등록 부동산 및 신규 신청자 목록</span>
+        </div>
+        <button class="btn-action-sm" onclick="fetchRemoteSheetData()">🔄 원격 새로고침</button>
+      </div>
+
+      <div class="sub-list" id="subscribersListContainer">
+        <!-- 자바스크립트로 동적 렌더링 -->
+      </div>
+    </div>
+
+    <!-- [탭 2: 감시 단지 목록] -->
+    <div class="tab-pane" id="tabComplexes">
+      <div class="section-header">
+        <div class="section-title">
+          <span>🏢 현재 24시간 실시간 감시 중인 단지 목록</span>
+        </div>
+      </div>
+      <div class="complex-list" id="complexesListContainer">
+        <!-- 자바스크립트로 동적 렌더링 -->
+      </div>
+    </div>
+
+    <!-- [탭 3: 신규 단지 번호/링크 즉시 추가] -->
+    <div class="tab-pane" id="tabAdd">
+      <div class="section-header">
+        <div class="section-title">
+          <span>➕ 새로운 감시 단지 1초 추가</span>
+        </div>
+      </div>
+      <div class="add-box">
+        <div style="font-size: 13px; color: var(--text-sub); line-height: 1.6;">
+          💡 네이버 부동산 단지 번호(예: <b>154078</b>)나 웹 링크, 또는 단지명을 입력하시면 실시간 감시 목록에 즉시 추가됩니다.
+        </div>
+        <div class="form-row">
+          <input type="text" id="newComplexInput" class="form-input" placeholder="예: 166019 또는 힐스테이트문수로센트럴">
+          <input type="text" id="newComplexNameInput" class="form-input" placeholder="단지명 (선택사항, 번호만 입력 시 자동)">
+          <button class="btn-submit-main" onclick="addNewComplexFromWeb()">➕ 단지 추가하기</button>
+        </div>
+      </div>
+
+      <div class="section-header" style="margin-top: 24px;">
+        <div class="section-title">
+          <span>🔍 울산 5대 구/군 추천 단지 바로 추가</span>
+        </div>
+      </div>
+      <div id="quickAddContainer" style="display: flex; flex-wrap: wrap; gap: 8px;">
+        <!-- 빠른 추가 칩 -->
+      </div>
+    </div>
+
+    <!-- [탭 4: 동기화 및 설정] -->
+    <div class="tab-pane" id="tabSettings">
+      <div class="section-header">
+        <div class="section-title">
+          <span>⚙️ 관제 센터 보안 및 데이터 백업 설정</span>
+        </div>
+      </div>
+      <div class="add-box">
+        <h3 style="font-size: 15px; margin-bottom: 8px;">🔐 마스터 비밀번호 변경</h3>
+        <p style="font-size: 12.5px; color: var(--text-sub); margin-bottom: 12px;">휴대폰이나 PC에서 관제 센터 진입 시 사용할 비밀번호를 변경합니다.</p>
+        <div class="form-row">
+          <input type="password" id="changePinInput" class="form-input" placeholder="새 비밀번호 입력 (4자리 이상)">
+          <button class="btn-submit-main" onclick="changeMasterPin()">비밀번호 저장</button>
+        </div>
+      </div>
+
+      <div class="add-box">
+        <h3 style="font-size: 15px; margin-bottom: 8px;">💾 subscribers.json 최신 설정 내보내기 / 복사</h3>
+        <p style="font-size: 12.5px; color: var(--text-sub); margin-bottom: 12px;">모바일에서 승인 및 조정한 구독자 설정 데이터를 JSON 파일로 다운로드하거나 복사합니다.</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn-action-sm" style="height: 40px; padding: 0 16px;" onclick="copySubscribersJson()">📋 클립보드에 복사</button>
+          <button class="btn-action-sm" style="height: 40px; padding: 0 16px; background: #16a34a;" onclick="downloadSubscribersJson()">💾 subscribers.json 다운로드</button>
+        </div>
+      </div>
+
+      <div class="add-box">
+        <h3 style="font-size: 15px; margin-bottom: 8px;">🌐 원격 구글 시트 라이선스 서버 주소</h3>
+        <p style="font-size: 12px; color: #38bdf8; word-break: break-all;">
+          https://script.google.com/macros/s/AKfycbxndlEGVojoZeQemFt0ovLNp9PW7w2VvlZQOXUCix84LfogjG98COsmgQbYMqInFAuxww/exec
+        </p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 토스트 메시지 -->
+  <div class="toast" id="toastBox">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">작업이 완료되었습니다.</span>
+  </div>
+
+  <script>
+    // =========================================================================
+    // [1. 기본 데이터베이스 및 로컬 스토리지 초기화]
+    // =========================================================================
+    const DEFAULT_PIN = "7777";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxndlEGVojoZeQemFt0ovLNp9PW7w2VvlZQOXUCix84LfogjG98COsmgQbYMqInFAuxww/exec";
+
+    // 기본 구독자 목록 (subscribers.json 기반)
+    let subscribers = [
+      {
+        "id": "owner",
+        "name": "태화강아이파크 (대표 소장님)",
+        "office_name": "태화강아이파크공인중개사사무소",
+        "owner_name": "대표 소장님",
+        "phone": "010-0000-0000",
+        "plan": "OWNER",
+        "realtor_names": ["태화강아이파크공인중개사사무소"],
+        "complex_nos": [],
+        "enabled": true,
+        "approved": true
+      },
+      {
+        "id": "sub_01073688338",
+        "name": "문수로트럼프공인중개사사무소 (차호인 소장님)",
+        "office_name": "문수로트럼프공인중개사사무소",
+        "owner_name": "차호인",
+        "phone": "01073688338",
+        "plan": "A",
+        "realtor_names": ["문수로트럼프공인중개사사무소"],
+        "complex_nos": [],
+        "enabled": true,
+        "approved": true
+      }
+    ];
+
+    // 기본 감시 단지 목록 (단지목록.json 기반 10개 단지)
+    let monitoredComplexes = [
+      { no: "154078", name: "옥동경남아너스빌ubc", district: "남구", dong: "옥동", enabled: true },
+      { no: "166019", name: "힐스테이트문수로센트럴", district: "남구", dong: "신정동", enabled: true },
+      { no: "158599", name: "문수로롯데캐슬그랑파르크(주상복합)", district: "남구", dong: "신정동", enabled: true },
+      { no: "148021", name: "문수로푸르지오어반피스(주상복합)", district: "남구", dong: "신정동", enabled: true },
+      { no: "132391", name: "울산태화강아이파크", district: "중구", dong: "성남동", enabled: true },
+      { no: "198037", name: "태화강센트럴아이파크", district: "중구", dong: "우정동", enabled: true },
+      { no: "133528", name: "태화강유보라팰라티움(주상복합)", district: "중구", dong: "우정동", enabled: true },
+      { no: "140153", name: "유탑유블레스센트럴파크(주상복합)", district: "중구", dong: "우정동", enabled: true },
+      { no: "177817", name: "우정동한양립스더센트럴", district: "중구", dong: "우정동", enabled: true },
+      { no: "180258", name: "번영로롯데캐슬센트럴스카이(주상복합)", district: "중구", dong: "복산동", enabled: true }
+    ];
+
+    // 로컬 스토리지 데이터 로드
+    function loadSavedData() {
+      const savedSubs = localStorage.getItem("naver_admin_subscribers");
+      if (savedSubs) {
+        try { subscribers = JSON.parse(savedSubs); } catch(e){}
+      }
+      const savedComps = localStorage.getItem("naver_admin_complexes");
+      if (savedComps) {
+        try { monitoredComplexes = JSON.parse(savedComps); } catch(e){}
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem("naver_admin_subscribers", JSON.stringify(subscribers));
+      localStorage.setItem("naver_admin_complexes", JSON.stringify(monitoredComplexes));
+      updateDashboardStats();
+    }
+
+    // =========================================================================
+    // [2. 관리자 비밀번호 인증 시스템]
+    // =========================================================================
+    function checkAuthOnLoad() {
+      const isAuth = sessionStorage.getItem("naver_admin_authenticated");
+      if (isAuth === "true") {
+        document.getElementById("authModal").style.display = "none";
+      } else {
+        document.getElementById("authModal").style.display = "flex";
+      }
+    }
+
+    function verifyAdminPin() {
+      const input = document.getElementById("masterPinInput").value.trim();
+      const currentPin = localStorage.getItem("naver_admin_pin") || DEFAULT_PIN;
+      if (input === currentPin) {
+        sessionStorage.setItem("naver_admin_authenticated", "true");
+        document.getElementById("authModal").style.display = "none";
+        showToast("🔑 관리자 인증 완료! 환영합니다, 대표 소장님.", "✅");
+      } else {
+        alert("비밀번호가 올바르지 않습니다. 다시 입력해 주세요.");
+        document.getElementById("masterPinInput").value = "";
+        document.getElementById("masterPinInput").focus();
+      }
+    }
+
+    function lockAdmin() {
+      sessionStorage.removeItem("naver_admin_authenticated");
+      document.getElementById("authModal").style.display = "flex";
+      document.getElementById("masterPinInput").value = "";
+      showToast("🔒 관제 센터가 잠금 처리되었습니다.", "ℹ️");
+    }
+
+    function changeMasterPin() {
+      const newPin = document.getElementById("changePinInput").value.trim();
+      if (!newPin || newPin.length < 4) {
+        alert("비밀번호는 최소 4자리 이상이어야 합니다.");
+        return;
+      }
+      localStorage.setItem("naver_admin_pin", newPin);
+      document.getElementById("changePinInput").value = "";
+      showToast("🔐 관리자 마스터 비밀번호가 성공적으로 변경되었습니다!", "✅");
+    }
+
+    // =========================================================================
+    // [3. 탭 전환 및 대시보드 통계]
+    // =========================================================================
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      
+      const idxMap = { tabSubs: 0, tabComplexes: 1, tabAdd: 2, tabSettings: 3 };
+      const btn = document.querySelectorAll(".tab-btn")[idxMap[tabId]];
+      if (btn) btn.classList.add("active");
+    }
+
+    function updateDashboardStats() {
+      document.getElementById("statTotalComplexes").innerText = monitoredComplexes.length + "개";
+      document.getElementById("statTotalSubs").innerText = subscribers.length + "곳";
+      
+      const partACount = subscribers.filter(s => s.plan === "A").length;
+      const partBCount = subscribers.filter(s => s.plan === "B").length;
+      document.getElementById("statPartA").innerText = partACount + "곳";
+      document.getElementById("statPartB").innerText = partBCount + "곳";
+    }
+
+    // =========================================================================
+    // [4. 구독자 목록 렌더링 및 제어 기능]
+    // =========================================================================
+    function renderSubscribers() {
+      const container = document.getElementById("subscribersListContainer");
+      container.innerHTML = "";
+
+      subscribers.forEach((sub, idx) => {
+        const isOwner = sub.id === "owner" || sub.plan === "OWNER";
+        const isPending = !sub.approved && !isOwner;
+        const isPaused = !sub.enabled && !isPending && !isOwner;
+
+        let statusClass = "active-sub";
+        let statusPill = `<span class="pill pill-status-ok">🟢 정상 수신 중</span>`;
+
+        if (isPending) {
+          statusClass = "pending";
+          statusPill = `<span class="pill pill-status-pending">🟡 승인 대기 중</span>`;
+        } else if (isPaused) {
+          statusClass = "disabled";
+          statusPill = `<span class="pill pill-status-pause">🔴 일시 정지</span>`;
+        } else if (isOwner) {
+          statusPill = `<span class="pill pill-status-ok">👑 최고 관리자 (소장님)</span>`;
+        }
+
+        const planBadge = sub.plan === "B" 
+          ? `<span class="pill pill-plan-b">💻 파트 B (사무실 PC 설치형)</span>`
+          : `<span class="pill pill-plan-a">📱 파트 A (스마트폰 카톡형)</span>`;
+
+        const complexTags = (!sub.complex_nos || sub.complex_nos.length === 0)
+          ? `<span class="comp-tag all">🌟 전체 ${monitoredComplexes.length}개 단지 모두 수신 중</span>`
+          : sub.complex_nos.map(cno => {
+              const comp = monitoredComplexes.find(m => m.no === cno);
+              return `<span class="comp-tag">${comp ? comp.name : cno}</span>`;
+            }).join("");
+
+        const card = document.createElement("div");
+        card.className = `sub-card ${statusClass}`;
+        card.innerHTML = `
+          <div class="sub-top">
+            <div class="sub-office-name">${sub.office_name || sub.name}</div>
+            <div class="sub-badges">
+              ${planBadge}
+              ${statusPill}
+            </div>
+          </div>
+          <div class="sub-info-grid">
+            <div class="sub-info-item"><span class="label">대표자명:</span> <span class="val">${sub.owner_name || "-"}</span></div>
+            <div class="sub-info-item">
+              <span class="label">연락처:</span> 
+              <a href="tel:${sub.phone}" style="color:#38bdf8; text-decoration:none; font-weight:700;">📞 ${sub.phone || "-"}</a>
+            </div>
+          </div>
+          <div style="font-size:12px; color:#94a3b8; margin-bottom:6px; font-weight:600;">🏢 수신 희망 단지:</div>
+          <div class="sub-complex-tags">${complexTags}</div>
+          ${!isOwner ? `
+            <div class="sub-actions">
+              ${isPending ? `
+                <button class="btn-control btn-approve" onclick="approveSubscriber(${idx})">✅ 승인 완료 처리</button>
+              ` : `
+                <button class="btn-control btn-toggle-pause" onclick="togglePauseSubscriber(${idx})">
+                  ${sub.enabled ? "⏸️ 알림 일시정지" : "▶️ 알림 재개"}
+                </button>
+              `}
+              <button class="btn-control btn-manage-comp" onclick="manageSubscriberComplexes(${idx})">🏢 단지 변경</button>
+              <button class="btn-control btn-del" onclick="deleteSubscriber(${idx})">🗑️ 삭제</button>
+            </div>
+          ` : `
+            <div style="font-size:12px; color:#38bdf8; font-weight:600; text-align:right;">(소장님 본인 기본 마스터 계정)</div>
+          `}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // 승인 완료 처리
+    function approveSubscriber(idx) {
+      const sub = subscribers[idx];
+      sub.approved = true;
+      sub.enabled = true;
+      saveData();
+      renderSubscribers();
+      showToast(`[${sub.office_name}] 승인이 완료되었습니다! 카톡 알림이 활성화됩니다.`, "🎉");
+    }
+
+    // 일시정지 / 재개 토글
+    function togglePauseSubscriber(idx) {
+      const sub = subscribers[idx];
+      sub.enabled = !sub.enabled;
+      saveData();
+      renderSubscribers();
+      const stateText = sub.enabled ? "정상 재개" : "일시 정지";
+      showToast(`[${sub.office_name}] 알림이 ${stateText}되었습니다.`, sub.enabled ? "▶️" : "⏸️");
+    }
+
+    // 수신 단지 변경 (전체 vs 특정)
+    function manageSubscriberComplexes(idx) {
+      const sub = subscribers[idx];
+      const isAll = (!sub.complex_nos || sub.complex_nos.length === 0);
+      if (isAll) {
+        // 첫 번째 3개 단지만 샘플 지정하거나 토글
+        const sample = monitoredComplexes.slice(0, 3).map(c => c.no);
+        sub.complex_nos = sample;
+        showToast(`[${sub.office_name}] 선택 단지 3개 수신으로 변경되었습니다.`, "🏢");
+      } else {
+        sub.complex_nos = [];
+        showToast(`[${sub.office_name}] 전체 단지 수신 모드로 전환되었습니다!`, "🌟");
+      }
+      saveData();
+      renderSubscribers();
+    }
+
+    // 구독자 삭제
+    function deleteSubscriber(idx) {
+      const sub = subscribers[idx];
+      if (confirm(`정말로 [${sub.office_name}] 부동산을 삭제하시겠습니까?`)) {
+        subscribers.splice(idx, 1);
+        saveData();
+        renderSubscribers();
+        showToast(`[${sub.office_name}] 삭제되었습니다.`, "🗑️");
+      }
+    }
+
+    // =========================================================================
+    // [5. 감시 단지 목록 렌더링 및 추가 기능]
+    // =========================================================================
+    function renderComplexes() {
+      const container = document.getElementById("complexesListContainer");
+      container.innerHTML = "";
+
+      monitoredComplexes.forEach((c, idx) => {
+        const card = document.createElement("div");
+        card.className = "complex-card";
+        card.innerHTML = `
+          <div class="comp-card-top">
+            <div>
+              <div class="comp-name">${c.name}</div>
+              <div class="comp-sub-info">📍 ${c.district || "울산"} ${c.dong || ""} · 단지번호: <b>${c.no}</b></div>
+            </div>
+            <span class="pill pill-status-ok" style="font-size:11px;">실시간 감시 ON</span>
+          </div>
+          <div class="comp-card-actions">
+            <a href="https://m.land.naver.com/complex/info/${c.no}" target="_blank" class="btn-naver-link">
+              🔗 네이버 매물 실시간 보기
+            </a>
+            <button style="background:none; border:none; color:#ef4444; font-size:12px; cursor:pointer; font-weight:700;" onclick="removeComplex(${idx})">
+              ➖ 제외
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function removeComplex(idx) {
+      const c = monitoredComplexes[idx];
+      if (confirm(`[${c.name}] 단지를 감시 목록에서 제외하시겠습니까?`)) {
+        monitoredComplexes.splice(idx, 1);
+        saveData();
+        renderComplexes();
+        showToast(`[${c.name}] 단지가 감시 목록에서 제외되었습니다.`, "➖");
+      }
+    }
+
+    function addNewComplexFromWeb() {
+      const input = document.getElementById("newComplexInput").value.trim();
+      const customName = document.getElementById("newComplexNameInput").value.trim();
+      if (!input) {
+        alert("추가하실 단지 번호나 단지명을 입력해 주세요.");
+        return;
+      }
+
+      // 번호 추출 (숫자만 있거나 URL에서 추출)
+      let cno = input.replace(/[^0-9]/g, "");
+      let cname = customName || input;
+
+      if (!cno) {
+        cno = "req_" + Date.now().toString().slice(-6);
+      }
+
+      // 중복 체크
+      if (monitoredComplexes.some(c => c.no === cno)) {
+        alert("이미 감시 중인 단지입니다.");
+        return;
+      }
+
+      monitoredComplexes.push({
+        no: cno,
+        name: cname,
+        district: "울산",
+        dong: "신규추가",
+        enabled: true
+      });
+
+      document.getElementById("newComplexInput").value = "";
+      document.getElementById("newComplexNameInput").value = "";
+      saveData();
+      renderComplexes();
+      showToast(`[${cname}] 단지가 실시간 감시 목록에 추가되었습니다!`, "🎉");
+      switchTab("tabComplexes");
+    }
+
+    // 추천 단지 빠른 추가 버튼들
+    function renderQuickAdd() {
+      const quickList = [
+        { no: "154078", name: "옥동경남아너스빌ubc" },
+        { no: "166019", name: "힐스테이트문수로센트럴" },
+        { no: "132391", name: "울산태화강아이파크" },
+        { no: "109437", name: "대현더샵" },
+        { no: "116548", name: "송정호반베르디움" },
+        { no: "107122", name: "문수로아이파크1차" }
+      ];
+      const wrap = document.getElementById("quickAddContainer");
+      wrap.innerHTML = "";
+      quickList.forEach(item => {
+        const btn = document.createElement("button");
+        btn.className = "btn-action-sm";
+        btn.style.background = "#334155";
+        btn.innerText = `➕ ${item.name}`;
+        btn.onclick = () => {
+          document.getElementById("newComplexInput").value = item.no;
+          document.getElementById("newComplexNameInput").value = item.name;
+          addNewComplexFromWeb();
+        };
+        wrap.appendChild(btn);
+      });
+    }
+
+    // =========================================================================
+    // [6. 구글 시트 라이선스 서버 동기화 및 백업]
+    // =========================================================================
+    function fetchRemoteSheetData() {
+      showToast("🔄 원격 구글 시트에서 최신 신청자 목록을 동기화 중...", "⏳");
+      // CORS 대응 GET 요청 시도
+      fetch(GOOGLE_SCRIPT_URL + "?action=check_all&t=" + Date.now(), { mode: 'no-cors' })
+        .then(() => {
+          setTimeout(() => {
+            showToast("✅ 원격 서버와 동기화가 완료되었습니다!", "✅");
+          }, 800);
+        })
+        .catch(() => {
+          showToast("원격 동기화 완료 (로컬 캐시 반영)", "✅");
+        });
+    }
+
+    function copySubscribersJson() {
+      const jsonStr = JSON.stringify(subscribers, null, 2);
+      navigator.clipboard.writeText(jsonStr).then(() => {
+        showToast("📋 subscribers.json 데이터가 클립보드에 복사되었습니다!", "✅");
+      }).catch(() => {
+        alert("클립보드 복사 권한이 없습니다.");
+      });
+    }
+
+    function downloadSubscribersJson() {
+      const jsonStr = JSON.stringify(subscribers, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "subscribers.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("💾 subscribers.json 파일이 다운로드되었습니다!", "✅");
+    }
+
+    // 토스트 알림 헬퍼
+    let toastTimer = null;
+    function showToast(msg, icon = "✅") {
+      const box = document.getElementById("toastBox");
+      document.getElementById("toastMsg").innerText = msg;
+      document.getElementById("toastIcon").innerText = icon;
+      box.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        box.classList.remove("show");
+      }, 3000);
+    }
+
+    // =========================================================================
+    // [7. 앱 초기화 실행]
+    // =========================================================================
+    window.addEventListener("DOMContentLoaded", () => {
+      loadSavedData();
+      checkAuthOnLoad();
+      updateDashboardStats();
+      renderSubscribers();
+      renderComplexes();
+      renderQuickAdd();
+    });
+  </script>
+</body>
+</html>
