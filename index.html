@@ -3,6 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script>
+    // 카카오톡 인앱 브라우저 탈출 로직 (스마트폰 기본 브라우저로 자동 열기)
+    (function() {
+      var ua = navigator.userAgent.toLowerCase();
+      if (ua.indexOf('kakaotalk') > -1) {
+        var currentUrl = location.href;
+        location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(currentUrl);
+      }
+    })();
+  </script>
   <title>네이버 부동산 실시간 매물 알림 - 신규 구독 신청</title>
   <style>
     :root {
@@ -844,6 +854,12 @@
 </head>
 <body>
 
+  <!-- 인앱 브라우저 감지 시 상단 안내 배너 -->
+  <div id="inAppNotice" style="display:none; background:#fef3c7; border-bottom:1px solid #fde047; padding:10px 16px; font-size:12.5px; color:#854d0e; text-align:center; font-weight:700;">
+    📱 카카오톡 내부 화면으로 접속 중이신 경우, 원활한 연동을 위해 
+    <a href="javascript:void(0)" onclick="openExternalBrowser()" style="margin-left:6px; background:#f59e0b; color:#fff; text-decoration:none; border-radius:4px; padding:3px 8px; font-size:12px; display:inline-block;">👉 기본 브라우저(크롬/사파리)로 열기</a>
+  </div>
+
   <!-- 상단 헤더 -->
   <header class="header">
     <div class="header-badge">울산광역시 전지역 실시간 매물 관제</div>
@@ -991,11 +1007,21 @@
         <span>🟡 카카오 로그인 및 메시지 수신 동의하기</span>
       </a>
 
-      <div class="form-group">
-        <label class="form-label" for="authCodeInput">로그인 완료 후 주소창 주소 붙여넣기 <span class="req">*</span></label>
-        <input type="text" id="authCodeInput" class="form-input" placeholder="예: https://localhost.com/?code=abcde12345... 또는 코드값" required>
+      <!-- 모바일 및 초보자를 위한 친절 안내 박스 -->
+      <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:12px; margin-top:10px; font-size:12.5px; color:#1e40af; line-height:1.6;">
+        <b>💡 [카카오 로그인 연동 안내]</b><br>
+        • <b>PC 또는 기본 브라우저</b>: 위 노란 버튼 클릭 ➡️ 로그인 및 수신 동의 ➡️ 이동된 주소창의 주소(또는 code)를 복사하여 아래에 입력합니다.<br>
+        • <b style="color:#0369a1;">📱 모바일 간편 신청</b>: 스마트폰에서 주소 복사가 번거로우실 경우, <b>이 단계를 건너뛰고 바로 아래 [신청 완료]를 누르셔도 정상 접수</b>됩니다! (접수 확인 후 대표 소장님이 카톡으로 간편 인증을 도와드립니다.)
+      </div>
+
+      <div class="form-group" style="margin-top:14px;">
+        <label class="form-label" for="authCodeInput">
+          로그인 완료 후 주소창 주소 붙여넣기 
+          <span style="font-size:11.5px; font-weight:normal; color:#64748b;">(모바일 복사가 어려우시면 비워두셔도 됩니다)</span>
+        </label>
+        <input type="text" id="authCodeInput" class="form-input" placeholder="예: https://localhost.com/?code=... (어려우시면 비워두셔도 됩니다)">
         <small style="color:var(--slate-500); font-size:11.5px; margin-top:4px; display:block;">
-          ※ 카카오 로그인 후 화면 주소창의 주소를 복사하여 그대로 붙여넣으시면 됩니다.
+          ※ 주소를 복사하신 분은 붙여넣어 주시고, 비워두신 분은 신청 완료 후 카톡으로 인증을 완료하실 수 있습니다.
         </small>
       </div>
     </section>
@@ -1175,7 +1201,15 @@
       }
       initComplexes();
       initPhoneAutoFormat();
+      if (/kakaotalk|naver|instagram|fb/i.test(navigator.userAgent)) {
+        const banner = document.getElementById('inAppNotice');
+        if (banner) banner.style.display = 'block';
+      }
     });
+
+    function openExternalBrowser() {
+      location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href);
+    }
 
     function selectPlan(plan) {
       currentPlan = plan;
@@ -1515,11 +1549,10 @@
         return;
       }
       if (!phone) { alert("연락처를 입력해 주세요."); return; }
-      if (!rawCode) { alert("카카오 인증 주소를 입력해 주세요.\n먼저 [카카오 로그인 연동]을 진행하세요."); return; }
 
-      // code= 파싱
-      let authCode = rawCode;
-      if (authCode.includes("code=")) {
+      // code= 파싱 (모바일에서 비워둔 경우 관리자 카톡 발송 안내로 유연 처리)
+      let authCode = rawCode || "관리자_카톡_간편인증_요청";
+      if (rawCode && authCode.includes("code=")) {
         authCode = authCode.split("code=")[1].split("&")[0].trim();
       }
 
