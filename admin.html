@@ -787,7 +787,7 @@
         <label id="tokenPhoneLabel" style="display:block; font-size:12px; font-weight:800; color:#334155; margin-bottom:3px;">
           연락처 (휴대폰) <span style="color:#ef4444;">*</span>:
         </label>
-        <input type="tel" id="tokenPhoneInput" class="input-text" style="width:100%; height:38px; font-size:13px;" placeholder="예: 010-1234-5678">
+        <input type="tel" id="tokenPhoneInput" class="input-text" style="width:100%; height:38px; font-size:13px;" placeholder="예: 010-1234-5678" maxlength="13" inputmode="numeric">
       </div>
 
       <!-- 버튼 바 -->
@@ -1092,7 +1092,7 @@
             </div>
             <div class="form-group">
               <label for="inpPhone" id="lblInpPhone">연락처 (휴대폰):</label>
-              <input type="text" id="inpPhone" class="input-text" style="width:160px;" placeholder="예: 010-1234-5678">
+              <input type="tel" id="inpPhone" class="input-text" style="width:160px;" placeholder="예: 010-1234-5678" maxlength="13" inputmode="numeric">
             </div>
           </div>
         </fieldset>
@@ -2710,8 +2710,51 @@
       toastT = setTimeout(() => t.classList.remove("show"), 2800);
     }
 
+    // 전화번호 자동 포맷팅 및 하이픈(-) 입력 차단 (최대 11자리)
+    function formatAdminPhoneNumber(val) {
+      if (!val) return '';
+      const nums = val.replace(/[^0-9]/g, '').slice(0, 11);
+      if (nums.startsWith('02')) {
+        if (nums.length <= 2) return nums;
+        if (nums.length <= 5) return nums.slice(0, 2) + '-' + nums.slice(2);
+        if (nums.length <= 9) return nums.slice(0, 2) + '-' + nums.slice(2, 5) + '-' + nums.slice(5);
+        return nums.slice(0, 2) + '-' + nums.slice(2, 6) + '-' + nums.slice(6);
+      }
+      if (nums.length <= 3) return nums;
+      if (nums.startsWith('010')) {
+        if (nums.length <= 7) return nums.slice(0, 3) + '-' + nums.slice(3);
+        return nums.slice(0, 3) + '-' + nums.slice(3, 7) + '-' + nums.slice(7);
+      }
+      if (nums.length <= 7) return nums.slice(0, 3) + '-' + nums.slice(3);
+      if (nums.length <= 10) return nums.slice(0, 3) + '-' + nums.slice(3, 6) + '-' + nums.slice(6);
+      return nums.slice(0, 3) + '-' + nums.slice(3, 7) + '-' + nums.slice(7, 11);
+    }
+
+    function initAdminPhoneFormat() {
+      const inputs = [document.getElementById('inpPhone'), document.getElementById('tokenPhoneInput')];
+      inputs.forEach(el => {
+        if (!el) return;
+        el.setAttribute('maxlength', '13');
+        el.setAttribute('inputmode', 'numeric');
+        el.addEventListener('keydown', (e) => {
+          if (e.key === '-' || e.key === 'Minus' || e.code === 'Minus' || e.code === 'NumpadSubtract' || e.keyCode === 189 || e.keyCode === 109) {
+            e.preventDefault();
+            return false;
+          }
+        });
+        el.addEventListener('input', function() {
+          const formatted = formatAdminPhoneNumber(this.value);
+          if (this.value !== formatted) this.value = formatted;
+        });
+        el.addEventListener('paste', function() {
+          setTimeout(() => { this.value = formatAdminPhoneNumber(this.value); }, 0);
+        });
+      });
+    }
+
     // 초기 실행
     window.addEventListener("DOMContentLoaded", () => {
+      initAdminPhoneFormat();
       initStorage();
       checkAuth();
       updateSummaryStats();

@@ -259,19 +259,39 @@
     /* 구/군 필터 버튼 바 */
     .district-tabs {
       display: flex;
-      gap: 6px;
+      gap: 8px;
       overflow-x: auto;
-      padding-bottom: 8px;
+      padding-bottom: 10px;
       margin-bottom: 12px;
-      scrollbar-width: none;
+      scrollbar-width: thin;
+      scrollbar-color: #0284c7 #e2e8f0;
+      -webkit-overflow-scrolling: touch;
+      white-space: nowrap;
     }
 
     .district-tabs::-webkit-scrollbar {
-      display: none;
+      height: 8px;
+      display: block;
+    }
+
+    .district-tabs::-webkit-scrollbar-track {
+      background: #e2e8f0;
+      border-radius: 9999px;
+    }
+
+    .district-tabs::-webkit-scrollbar-thumb {
+      background: #0284c7;
+      border-radius: 9999px;
+      transition: background 0.2s ease;
+    }
+
+    .district-tabs::-webkit-scrollbar-thumb:hover {
+      background: #0369a1;
     }
 
     .dist-tab {
       flex-shrink: 0;
+      white-space: nowrap;
       padding: 6px 14px;
       font-size: 13px;
       font-weight: 700;
@@ -883,7 +903,7 @@
       </div>
       <div class="form-group">
         <label class="form-label" for="phone" id="lblClientPhone">연락처 (휴대폰 번호) <span class="req">*</span></label>
-        <input type="tel" id="phone" class="form-input" placeholder="예: 010-1234-5678" required>
+        <input type="tel" id="phone" class="form-input" placeholder="예: 010-1234-5678" maxlength="13" inputmode="numeric" required>
       </div>
     </section>
 
@@ -996,7 +1016,7 @@
           먼저 위의 1~3번 정보를 작성하시고 아래 <b>[🚀 구독 신청 완료하기]</b> 버튼을 눌러 승인을 요청해 주세요.
         </p>
         <div class="check-license-bar">
-          <input type="tel" id="checkPhoneInput" class="form-input" placeholder="신청하신 휴대폰 번호 입력" style="max-width:220px; height:40px; font-size:13px;">
+          <input type="tel" id="checkPhoneInput" class="form-input" placeholder="신청하신 휴대폰 번호 입력" maxlength="13" inputmode="numeric" style="max-width:220px; height:40px; font-size:13px;">
           <button type="button" class="btn-check-license" onclick="checkRemoteApproval()">🔍 실시간 승인 확인 & 잠금 해제</button>
         </div>
         <div id="checkStatusMsg" style="font-size:12.5px; margin-top:10px; font-weight:700; display:none;"></div>
@@ -1074,7 +1094,79 @@
     let customComplexes = [];
     let filteredList = [];
 
-    // URL 파라미터에서 code 자동 추출
+    // 전화번호 자동 포맷팅 및 하이픈(-) 입력 차단 (최대 11자리)
+    function formatPhoneNumber(val) {
+      if (!val) return '';
+      const nums = val.replace(/[^0-9]/g, '').slice(0, 11);
+      if (nums.startsWith('02')) {
+        if (nums.length <= 2) return nums;
+        if (nums.length <= 5) return nums.slice(0, 2) + '-' + nums.slice(2);
+        if (nums.length <= 9) return nums.slice(0, 2) + '-' + nums.slice(2, 5) + '-' + nums.slice(5);
+        return nums.slice(0, 2) + '-' + nums.slice(2, 6) + '-' + nums.slice(6);
+      }
+      if (nums.length <= 3) {
+        return nums;
+      }
+      if (nums.startsWith('010')) {
+        if (nums.length <= 7) {
+          return nums.slice(0, 3) + '-' + nums.slice(3);
+        }
+        return nums.slice(0, 3) + '-' + nums.slice(3, 7) + '-' + nums.slice(7);
+      }
+      if (nums.length <= 7) {
+        return nums.slice(0, 3) + '-' + nums.slice(3);
+      } else if (nums.length <= 10) {
+        return nums.slice(0, 3) + '-' + nums.slice(3, 6) + '-' + nums.slice(6);
+      } else {
+        return nums.slice(0, 3) + '-' + nums.slice(3, 7) + '-' + nums.slice(7, 11);
+      }
+    }
+
+    function initPhoneAutoFormat() {
+      const inputs = [document.getElementById('phone'), document.getElementById('checkPhoneInput')];
+      inputs.forEach(el => {
+        if (!el) return;
+        el.setAttribute('maxlength', '13');
+        el.setAttribute('inputmode', 'numeric');
+
+        // '-' 입력 원천 차단
+        el.addEventListener('keydown', (e) => {
+          if (e.key === '-' || e.key === 'Minus' || e.code === 'Minus' || e.code === 'NumpadSubtract' || e.keyCode === 189 || e.keyCode === 109) {
+            e.preventDefault();
+            return false;
+          }
+        });
+
+        // 실시간 자동 하이픈 및 최대 11자리 제한
+        el.addEventListener('input', function() {
+          const old = this.value;
+          const formatted = formatPhoneNumber(old);
+          if (old !== formatted) {
+            this.value = formatted;
+          }
+        });
+
+        // 붙여넣기 자동 포맷
+        el.addEventListener('paste', function() {
+          setTimeout(() => {
+            this.value = formatPhoneNumber(this.value);
+          }, 0);
+        });
+      });
+
+      // 단지 필터 탭 바 마우스 휠 가로스크롤 편의 지원
+      const distTabs = document.getElementById('districtTabs') || document.querySelector('.district-tabs');
+      if (distTabs) {
+        distTabs.addEventListener('wheel', (e) => {
+          if (e.deltaY !== 0) {
+            distTabs.scrollLeft += e.deltaY;
+            e.preventDefault();
+          }
+        }, { passive: false });
+      }
+    }
+
+    // URL 파라미터에서 code 자동 추출 & 전화번호 포맷팅 초기화
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
@@ -1082,6 +1174,7 @@
         document.getElementById('authCodeInput').value = code;
       }
       initComplexes();
+      initPhoneAutoFormat();
     });
 
     function selectPlan(plan) {
@@ -1163,10 +1256,17 @@
     function filterDistrict(district) {
       currentDistrict = district;
       document.querySelectorAll('.dist-tab').forEach(tab => {
+        let isActive = false;
         if (district === '선택단지') {
-          tab.classList.toggle('active', tab.id === 'tabSelectedOnly');
+          isActive = (tab.id === 'tabSelectedOnly');
         } else {
-          tab.classList.toggle('active', tab.textContent.startsWith(district) && tab.id !== 'tabSelectedOnly');
+          isActive = (tab.textContent.startsWith(district) && tab.id !== 'tabSelectedOnly');
+        }
+        tab.classList.toggle('active', isActive);
+        if (isActive) {
+          try {
+            tab.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+          } catch(e){}
         }
       });
       applySearchAndFilter();
