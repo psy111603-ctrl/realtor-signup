@@ -991,37 +991,59 @@
 
     <!-- 3. 카카오톡 연동 & 신청 -->
     <section class="section-card">
-      <div class="section-title">
-        <span class="num">3</span>
-        <span>스마트폰 카카오톡 알림 1회 연동</span>
+      <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="num">3</span>
+          <span>스마트폰 카카오톡 알림 1회 연동</span>
+        </div>
+        <button type="button" onclick="openKakaoHelpModal()" style="background:#eff6ff; border:1.5px solid #bfdbfe; color:#0284c7; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+          ❓ 연동 방법 도움말
+        </button>
       </div>
 
-      <p style="font-size:13px; color:var(--slate-600); margin-bottom:12px;">
-        아래 버튼을 눌러 카카오 계정으로 1회 로그인 및 알림 수신에 동의해 주세요.
-      </p>
+      <!-- 3단계 시각 가이드 카드 (안심 안내) -->
+      <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:10px; padding:12px 14px; margin-bottom:14px;">
+        <div style="font-size:13px; font-weight:800; color:#0f172a; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+          <span>📢 카카오 로그인 후 <b style="color:#b91c1c;">"연결할 수 없음"</b>이 뜨는 것은 100% 정상입니다!</span>
+        </div>
+        <p style="font-size:12px; color:#475569; margin:0 0 10px 0; line-height:1.5;">
+          보안 인증 특성상 로그인이 끝나면 일시적으로 빈 화면이나 '연결할 수 없습니다'가 나타납니다. <b>오류가 아니니 안심하시고 맨 위 주소창의 주소를 복사</b>하여 아래 칸에 붙여넣어 주세요.
+        </p>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:6px; font-size:11.5px;">
+          <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:6px; padding:7px 9px;">
+            <b style="color:#0284c7;">STEP 1.</b> 아래 노란 버튼 클릭
+          </div>
+          <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:6px; padding:7px 9px;">
+            <b style="color:#0284c7;">STEP 2.</b> 주소창 주소 복사
+          </div>
+          <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:6px; padding:7px 9px;">
+            <b style="color:#0284c7;">STEP 3.</b> 아래 칸에 붙여넣기
+          </div>
+        </div>
+      </div>
 
-      <a href="https://kauth.kakao.com/oauth/authorize?client_id=1819438e56622cebb258c9ad43f8523c&redirect_uri=https://localhost.com&response_type=code&scope=talk_message" target="_blank" class="kakao-btn" id="btnKakaoAuth">
+      <!-- 카카오 로그인 버튼 -->
+      <a href="https://kauth.kakao.com/oauth/authorize?client_id=1819438e56622cebb258c9ad43f8523c&redirect_uri=https://localhost.com&response_type=code&scope=talk_message" target="_blank" class="kakao-btn" id="btnKakaoAuth" onclick="onKakaoAuthBtnClick()">
         <svg class="kakao-logo" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 3C6.477 3 2 6.477 2 10.764c0 2.76 1.87 5.183 4.697 6.551-.205.76-.74 2.753-.847 3.176-.134.53.195.522.41.38.169-.112 2.68-1.82 3.766-2.557.63.092 1.284.14 1.974.14 5.523 0 10-3.477 10-7.764C22 6.477 17.523 3 12 3z"/>
         </svg>
-        <span>🟡 카카오 로그인 및 메시지 수신 동의하기</span>
+        <span>🟡 1. 카카오 로그인 및 수신 동의하기 (새 창 열림)</span>
       </a>
 
-      <!-- 모바일 및 초보자를 위한 친절 안내 박스 -->
-      <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:12px; margin-top:10px; font-size:12.5px; color:#1e40af; line-height:1.6;">
-        <b>💡 [카카오 로그인 연동 안내]</b><br>
-        • <b>PC 또는 기본 브라우저</b>: 위 노란 버튼 클릭 ➡️ 로그인 및 수신 동의 ➡️ 이동된 주소창의 주소(또는 code)를 복사하여 아래에 입력합니다.<br>
-        • <b style="color:#0369a1;">📱 모바일 간편 신청</b>: 스마트폰에서 주소 복사가 번거로우실 경우, <b>이 단계를 건너뛰고 바로 아래 [신청 완료]를 누르셔도 정상 접수</b>됩니다! (접수 확인 후 대표 소장님이 카톡으로 간편 인증을 도와드립니다.)
-      </div>
-
+      <!-- 붙여넣기 입력창 -->
       <div class="form-group" style="margin-top:14px;">
-        <label class="form-label" for="authCodeInput">
-          로그인 완료 후 주소창 주소 붙여넣기 
-          <span style="font-size:11.5px; font-weight:normal; color:#64748b;">(모바일 복사가 어려우시면 비워두셔도 됩니다)</span>
-        </label>
-        <input type="text" id="authCodeInput" class="form-input" placeholder="예: https://localhost.com/?code=... (어려우시면 비워두셔도 됩니다)">
-        <small style="color:var(--slate-500); font-size:11.5px; margin-top:4px; display:block;">
-          ※ 주소를 복사하신 분은 붙여넣어 주시고, 비워두신 분은 신청 완료 후 카톡으로 인증을 완료하실 수 있습니다.
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <label class="form-label" for="authCodeInput" style="margin:0; font-weight:800;">
+            2. 로그인 완료 후 주소창 주소 붙여넣기
+          </label>
+          <button type="button" onclick="pasteAuthCodeFromClipboard()" style="background:#e0f2fe; border:1px solid #7dd3fc; color:#0369a1; border-radius:6px; padding:3px 9px; font-size:11.5px; font-weight:700; cursor:pointer;">
+            📋 원클릭 주소 붙여넣기
+          </button>
+        </div>
+        <input type="text" id="authCodeInput" class="form-input" placeholder="예: https://localhost.com/?code=... (주소창 복사 후 붙여넣기)" oninput="validateAuthCodeInput(this.value)">
+        <div id="authCodeStatusBadge" style="margin-top:6px; font-size:12px; font-weight:700; display:none;"></div>
+        <small style="color:var(--slate-500); font-size:11.5px; margin-top:5px; display:block; line-height:1.5;">
+          💡 <b>모바일 진행 팁</b>: 스마트폰에서 주소 복사가 번거로우실 경우, 이 칸을 비워두신 채 아래 <b>[구독 신청 완료하기]</b>를 누르셔도 정상 접수됩니다! (대표 소장님이 카톡으로 간편 인증을 도와드립니다)
         </small>
       </div>
     </section>
@@ -1092,6 +1114,67 @@
   </main>
 
   <!-- 신청 완료 모달 -->
+  <!-- 카카오 연동 30초 도움말 모달 -->
+  <div class="modal-overlay" id="kakaoHelpModal" style="display:none;" onclick="if(event.target===this)closeKakaoHelpModal()">
+    <div class="modal-content" style="max-width:500px; text-align:left; padding:22px 20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid #e2e8f0; padding-bottom:12px; margin-bottom:14px;">
+        <div style="font-size:16px; font-weight:800; color:#0f172a; display:flex; align-items:center; gap:6px;">
+          <span>💬</span>
+          <span>카카오톡 알림 1회 연동 도움말</span>
+        </div>
+        <button type="button" onclick="closeKakaoHelpModal()" style="background:none; border:none; font-size:20px; color:#64748b; cursor:pointer; line-height:1;">✕</button>
+      </div>
+
+      <div style="font-size:12.5px; color:#334155; line-height:1.6; margin-bottom:14px;">
+        카카오 보안 정책상, 고객님께 실시간 매물 알림을 전송하려면 <b>최초 1회 '나에게 메시지 보내기' 수신 동의</b>가 필요합니다.
+      </div>
+
+      <!-- 핵심 안심 안내 -->
+      <div style="background:#fef2f2; border:1.5px solid #fecaca; border-radius:8px; padding:12px; margin-bottom:14px;">
+        <div style="font-size:12.5px; font-weight:800; color:#b91c1c; margin-bottom:4px;">
+          ⚠️ "이 페이지에 연결할 수 없습니다" 가 뜨는 이유
+        </div>
+        <div style="font-size:12px; color:#7f1d1d; line-height:1.5;">
+          로그인 후 나타나는 <b>'연결할 수 없음' / 흰색 화면은 오류가 아닌 정상 완료 화면</b>입니다!<br>
+          당황하지 마시고 화면 맨 위 <b>주소창의 주소</b>를 복사해 주시면 됩니다.
+        </div>
+      </div>
+
+      <!-- 3단계 시각적 가이드 -->
+      <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+        <div style="display:flex; gap:10px; align-items:flex-start; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px 10px;">
+          <span style="background:#0284c7; color:#fff; width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:11px; flex-shrink:0;">1</span>
+          <div style="font-size:12px; color:#1e293b;">
+            <b>[카카오 로그인] 버튼 터치</b> 후 로그인 및 <b>[전체 동의하기]</b> 클릭
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:flex-start; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px 10px;">
+          <span style="background:#0284c7; color:#fff; width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:11px; flex-shrink:0;">2</span>
+          <div style="font-size:12px; color:#1e293b;">
+            '연결할 수 없음' 창 맨 위 <code>https://localhost.com/?code=...</code> <b>주소 복사</b>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:flex-start; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px 10px;">
+          <span style="background:#0284c7; color:#fff; width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:11px; flex-shrink:0;">3</span>
+          <div style="font-size:12px; color:#1e293b;">
+            원래 신청 창 2번 입력란에 <b>붙여넣기</b> 후 신청 완료!
+          </div>
+        </div>
+      </div>
+
+      <!-- 모바일 사용자 배려 꿀팁 -->
+      <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 12px; font-size:12px; color:#166534; line-height:1.5; margin-bottom:14px;">
+        💡 <b>모바일 진행 시 꿀팁</b>: 스마트폰에서 주소 복사가 번거로우실 경우, <b>이 단계를 비워두고 바로 신청</b>하셔도 됩니다! 신청 후 관리자가 카톡으로 간편 인증을 즉시 도와드립니다.
+      </div>
+
+      <button type="button" class="btn-modal-close" onclick="closeKakaoHelpModal()" style="width:100%; height:42px; font-size:13.5px; font-weight:800;">
+        확인했습니다 (닫기)
+      </button>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="successModal">
     <div class="modal-content">
       <div class="modal-icon">🎉</div>
@@ -1209,6 +1292,56 @@
 
     function openExternalBrowser() {
       location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href);
+    }
+
+    function openKakaoHelpModal() {
+      const modal = document.getElementById('kakaoHelpModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeKakaoHelpModal() {
+      const modal = document.getElementById('kakaoHelpModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function onKakaoAuthBtnClick() {
+      setTimeout(() => {
+        openKakaoHelpModal();
+      }, 700);
+    }
+
+    function validateAuthCodeInput(val) {
+      const badge = document.getElementById('authCodeStatusBadge');
+      if (!badge) return;
+      if (!val || val.trim() === '') {
+        badge.style.display = 'none';
+        return;
+      }
+      if (val.includes('code=') || val.length >= 30) {
+        let code = val.includes('code=') ? val.split('code=')[1].split('&')[0] : val;
+        badge.style.display = 'block';
+        badge.style.color = '#16a34a';
+        badge.innerHTML = '✅ <b>카카오 알림 인증 코드가 정상 인식되었습니다!</b> (코드: ' + code.slice(0, 10) + '...)';
+      } else {
+        badge.style.display = 'block';
+        badge.style.color = '#0284c7';
+        badge.innerHTML = 'ℹ️ 주소가 입력되었습니다.';
+      }
+    }
+
+    async function pasteAuthCodeFromClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          const input = document.getElementById('authCodeInput');
+          input.value = text;
+          validateAuthCodeInput(text);
+        } else {
+          alert('클립보드에 복사된 주소가 없습니다. 먼저 주소창의 주소를 복사해 주세요.');
+        }
+      } catch (err) {
+        alert('브라우저 권한에 의해 직접 입력란을 길게 터치하여 [붙여넣기]해 주세요.');
+      }
     }
 
     function selectPlan(plan) {
