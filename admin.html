@@ -2212,9 +2212,7 @@
       const isAll = sub.all_complexes === true;
       const cNos = sub.complex_nos || [];
 
-      if (isOwner && !isAll) {
-        titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0369a1;">태화강아이파크 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 타 부동산(소소부동산 등)이 추가한 단지는 제외되며, 오직 아래 등록된 단지만 태화강아이파크 카카오톡으로 수신됩니다. [➕ 단지 추가하기]로 단지를 자유롭게 추가/제외할 수 있습니다.</span>`;
-      } else if (isAll) {
+      if (isAll) {
         titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#b45309;">☀️ 등록 감시단지 전체 수신 모드 (총 ${monitoredList.length}개 감시단지 실시간 전송)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 현재 크롤러가 감시 중인 전체 단지의 알림을 일괄 수신 중입니다. [📍 전체단지 수신해제]를 누르면 개별 지정 단지만 수신하도록 변경됩니다.</span>`;
 
         monitoredList.forEach(c => {
@@ -2234,25 +2232,35 @@
           tbodyC.appendChild(tr);
         });
       } else {
-        titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0284c7;">신청 및 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 오직 아래 지정된 ${cNos.length}개 단지만 카카오톡으로 전송됩니다. [☀️ 전체단지 수신전환]을 누르면 모든 감시단지를 일괄 수신합니다.</span>`;
+        if (isOwner) {
+          titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0369a1;">태화강아이파크 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 타 부동산(소소부동산 등)이 추가한 단지는 제외되며, 오직 아래 등록된 단지만 태화강아이파크 카카오톡으로 수신됩니다. [➕ 단지 추가하기]로 단지를 자유롭게 추가/제외할 수 있습니다.</span>`;
+        } else {
+          titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0284c7;">신청 및 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 오직 아래 지정된 ${cNos.length}개 단지만 카카오톡으로 전송됩니다. [☀️ 전체단지 수신전환]을 누르면 모든 감시단지를 일괄 수신합니다.</span>`;
+        }
 
-        cNos.forEach(cno => {
-          const c = monitoredList.find(m => String(m.no) === String(cno)) || allComplexes.find(m => String(m.no) === String(cno)) || { no: cno, name: "단지 " + cno, district: "-", dong: "-" };
-          const isSelected = selectedSubComplexNo === c.no;
-          const tr = document.createElement("tr");
-          if (isSelected) tr.className = "selected";
-          tr.innerHTML = `
-            <td style="text-align:center; font-weight:700;">${c.no}</td>
-            <td>${c.name}</td>
-            <td style="text-align:center;">${c.district || "-"}</td>
-            <td style="text-align:center;">${c.dong || "-"}</td>
-          `;
-          tr.onclick = () => {
-            selectedSubComplexNo = c.no;
-            renderSubDetailPanel();
-          };
-          tbodyC.appendChild(tr);
-        });
+        if (cNos.length === 0) {
+          const emptyTr = document.createElement("tr");
+          emptyTr.innerHTML = `<td colspan="4" style="text-align:center; padding:24px; color:#94a3b8; font-size:13px;">등록된 수신 단지가 없습니다. 우측 [➕ 단지 추가하기]를 눌러 단지를 등록해 주세요.</td>`;
+          tbodyC.appendChild(emptyTr);
+        } else {
+          cNos.forEach(cno => {
+            const c = monitoredList.find(m => String(m.no) === String(cno)) || allComplexes.find(m => String(m.no) === String(cno)) || { no: cno, name: "단지 " + cno, district: "-", dong: "-" };
+            const isSelected = selectedSubComplexNo === c.no;
+            const tr = document.createElement("tr");
+            if (isSelected) tr.className = "selected";
+            tr.innerHTML = `
+              <td style="text-align:center; font-weight:700;">${c.no}</td>
+              <td>${c.name}</td>
+              <td style="text-align:center;">${c.district || "-"}</td>
+              <td style="text-align:center;">${c.dong || "-"}</td>
+            `;
+            tr.onclick = () => {
+              selectedSubComplexNo = c.no;
+              renderSubDetailPanel();
+            };
+            tbodyC.appendChild(tr);
+          });
+        }
       }
 
       // 우측 버튼 상태 동적 업데이트
@@ -2536,6 +2544,7 @@
     function removeSelectedComplexFromSub() {
       const sub = subscribersList.find(s => s.id === selectedSubId);
       if (!sub) { alert("부동산을 먼저 선택해 주세요."); return; }
+      const subName = sub.office_name || sub.name;
 
       if (!selectedSubComplexNo) {
         alert("제외할 단지를 왼쪽 단지 목록에서 먼저 클릭(선택)해 주세요.\n(예: 하늘색으로 선택된 행)");
@@ -2556,7 +2565,7 @@
                     allComplexes.find(m => String(m.no) === String(selectedSubComplexNo));
       const targetName = found ? found.name : ("단지 " + selectedSubComplexNo);
 
-      if (confirm(`정말로 [${sub.office_name}] 부동산의 수신 목록에서\n[${selectedSubComplexNo} ${targetName}] 단지를 제외하시겠습니까?`)) {
+      if (confirm(`정말로 [${subName}] 부동산의 수신 목록에서\n[${selectedSubComplexNo} ${targetName}] 단지를 제외하시겠습니까?`)) {
         currentList = currentList.filter(x => String(x).trim() !== String(selectedSubComplexNo).trim());
         sub.complex_nos = currentList;
         selectedSubComplexNo = null;
@@ -2570,13 +2579,14 @@
     function setSubToAllComplexes() {
       const sub = subscribersList.find(s => s.id === selectedSubId);
       if (!sub) { alert("부동산을 목록에서 먼저 선택해 주세요."); return; }
+      const subName = sub.office_name || sub.name;
 
-      if (confirm(`[${sub.office_name}] 부동산을 '등록 감시단지 전체 수신' 모드로 전환하시겠습니까?\n\n전환 시 현재 등록된 모든 감시단지(${monitoredList.length}개)의 알림을 일괄 수신하게 됩니다.`)) {
+      if (confirm(`[${subName}] 부동산을 '등록 감시단지 전체 수신' 모드로 전환하시겠습니까?\n\n전환 시 현재 등록된 모든 감시단지(${monitoredList.length}개)의 알림을 일괄 수신하게 됩니다.`)) {
         sub.all_complexes = true;
         selectedSubComplexNo = null;
         saveStorage();
         renderSubscribersTable();
-        showToast(`[${sub.office_name}] 전체 감시단지(${monitoredList.length}개) 일괄 수신 모드로 전환되었습니다! ☀️`, "🌟");
+        showToast(`[${subName}] 전체 감시단지(${monitoredList.length}개) 일괄 수신 모드로 전환되었습니다! ☀️`, "🌟");
       }
     }
 
@@ -2584,9 +2594,10 @@
     function cancelSubAllComplexes() {
       const sub = subscribersList.find(s => s.id === selectedSubId);
       if (!sub) { alert("부동산을 목록에서 먼저 선택해 주세요."); return; }
+      const subName = sub.office_name || sub.name;
 
       if (!sub.all_complexes) {
-        alert(`[${sub.office_name}] 부동산은 이미 '지정 단지 수신' 모드입니다.`);
+        alert(`[${subName}] 부동산은 이미 '지정 단지 수신' 모드입니다.`);
         return;
       }
 
