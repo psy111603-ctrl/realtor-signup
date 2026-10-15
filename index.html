@@ -2308,6 +2308,7 @@
           owner_name: owner,
           agent_name: agent,
           phone: phone,
+          auth_code: authCode,
           req_complexes: allComplexesList.join(", ")
         });
 
@@ -2321,16 +2322,18 @@
           <b>[${office}]</b> 대표님, 환영합니다!<br><br>
           • 신청 유형: <span style="color:#0284c7; font-weight:800;">${planName}</span><br>
           • 선택 단지: 총 <b>${selectedList.length + customComplexes.length}개</b> 단지<br><br>
-          신청서가 대표 소장님 관리 시스템으로 접수되었습니다.<br>
-          <b>대표 소장님의 승인이 완료되면</b> 화면 하단 <span style="color:#16a34a; font-weight:800;">[4. 사무실 PC 설치 & 구동 센터]</span>의 잠금이 해제되며 원클릭 프로그램을 다운로드받으실 수 있습니다!<br>
-          (승인 완료 축하 카톡으로도 안내가 전송됩니다)
+          💬 <b>대표님 카카오톡으로 가입 신청 접수 알림이 발송되었습니다.</b><br>
+          신청서가 대표 소장님 관리 시스템으로 안전하게 접수되었습니다.<br><br>
+          <b>대표 소장님의 승인이 완료되면</b> 화면 하단 <span style="color:#16a34a; font-weight:800;">[4. 사무실 PC 설치 & 구동 센터]</span>의 잠금이 해제되며 프로그램을 다운로드받으실 수 있습니다!<br>
+          (승인 완료 축하 카톡으로도 함께 안내됩니다)
         `;
       } else {
         document.getElementById('modalDesc').innerHTML = `
           <b>[${office}]</b> 대표님, 환영합니다!<br><br>
           • 신청 유형: <span style="color:#0284c7; font-weight:800;">${planName}</span><br>
           • 선택 단지: 총 <b>${selectedList.length + customComplexes.length}개</b> 단지<br><br>
-          대표 관리자(태화강아이파크)에게 신청서가 성공적으로 접수되었습니다.<br>
+          💬 <b>대표님 카카오톡으로 가입 신청 접수 알림이 발송되었습니다.</b><br>
+          대표 관리자(태화강아이파크)에게 신청서가 성공적으로 접수되었습니다.<br><br>
           승인 완료 즉시 대표님의 스마트폰 카카오톡으로 실시간 맞춤 매물 알림이 시작됩니다!
         `;
       }
