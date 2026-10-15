@@ -2284,6 +2284,253 @@
     }
 
     // =========================================================================
+    // [단지 추가 모달: 구/군 > 동 > 단지 3단계 필터링 및 선택 팝업]
+    // =========================================================================
+    function openAddComplexModal() {
+      const sub = subscribersList.find(s => s.id === selectedSubId);
+      if (!sub) { alert("단지를 추가할 부동산을 목록에서 먼저 선택해 주세요."); return; }
+
+      const isOwner = sub.id === "owner" || sub.plan === "OWNER";
+      const planLabel = isOwner ? "👑 대표 관리자" : (sub.plan === "B" ? "💻 파트B PC설치" : "📱 파트A 스마트폰");
+      const subName = sub.office_name || sub.name;
+
+      document.getElementById("dialogModalTitle").innerText = `➕ [${subName}] 수신 단지 추가 (${planLabel})`;
+      document.getElementById("dialogSearchInput").value = "";
+      dialogDistrict = "전체";
+      dialogDong = "전체";
+      dialogSelectedComplex = null;
+
+      const container = document.getElementById("dialogDongContainer");
+      if (container) container.style.display = "none";
+
+      document.querySelectorAll("#dialogDistrictBar .btn-district").forEach(b => {
+        b.classList.toggle("active", b.innerText === "전체");
+      });
+
+      document.getElementById("addComplexModalBackdrop").style.display = "flex";
+      filterDialogComplexes();
+    }
+
+    function closeAddComplexModal() {
+      document.getElementById("addComplexModalBackdrop").style.display = "none";
+    }
+
+    function setDialogDistrict(dist) {
+      dialogDistrict = dist;
+      dialogSelectedComplex = null;
+
+      document.querySelectorAll("#dialogDistrictBar .btn-district").forEach(b => {
+        b.classList.toggle("active", b.innerText === dist);
+      });
+
+      const container = document.getElementById("dialogDongContainer");
+      const chipsBox = document.getElementById("dialogDongChips");
+      const distLabel = document.getElementById("dialogDongDistrictLabel");
+
+      if (dist === "전체") {
+        dialogDong = "전체";
+        if (container) container.style.display = "none";
+      } else {
+        // 소장님 요청: 남구 등 구/군 선택 시 먼저 동을 선택하게 대기!
+        dialogDong = null;
+        if (container) container.style.display = "block";
+        if (distLabel) distLabel.innerText = dist;
+        if (chipsBox) {
+          chipsBox.innerHTML = "";
+
+          // '전체 동' 버튼
+          const allBtn = document.createElement("button");
+          allBtn.type = "button";
+          allBtn.className = "btn-dong-chip";
+          allBtn.innerText = "전체 동";
+          allBtn.onclick = () => setDialogDong("전체");
+          chipsBox.appendChild(allBtn);
+
+          const dongs = ULSAN_DISTRICT_DONGS[dist] || [];
+          dongs.forEach(dong => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "btn-dong-chip";
+            btn.setAttribute("data-dong", dong);
+            btn.innerText = dong;
+            btn.onclick = () => setDialogDong(dong);
+            chipsBox.appendChild(btn);
+          });
+        }
+      }
+
+      filterDialogComplexes();
+    }
+
+    function setDialogDong(dong) {
+      dialogDong = dong;
+      dialogSelectedComplex = null;
+
+      document.querySelectorAll("#dialogDongChips .btn-dong-chip").forEach(b => {
+        if (dong === "전체") {
+          b.classList.toggle("active", b.innerText === "전체 동");
+        } else {
+          b.classList.toggle("active", b.getAttribute("data-dong") === dong);
+        }
+      });
+
+      filterDialogComplexes();
+    }
+
+    function clearDialogSearch() {
+      document.getElementById("dialogSearchInput").value = "";
+      filterDialogComplexes();
+    }
+
+    function filterDialogComplexes() {
+      const sub = subscribersList.find(s => s.id === selectedSubId);
+      const curNos = new Set((sub && sub.complex_nos) ? sub.complex_nos.map(String) : []);
+
+      const q = document.getElementById("dialogSearchInput").value.trim().toLowerCase();
+      const dist = dialogDistrict;
+      const dong = dialogDong;
+
+      const tbody = document.getElementById("dialogTbodyComplexes");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      // 1. 구/군(예: 남구)을 선택했으나 아직 동을 클릭하지 않았고, 검색어도 없는 경우 -> 동 선택 안내 표시
+      if (dist !== "전체" && !dong && !q) {
+        const countLabel = document.getElementById("dialogResultCountLabel");
+        if (countLabel) countLabel.innerText = `[${dist}] 위 읍·면·동 목록에서 원하는 동을 선택해 주세요.`;
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align:center; padding:40px 16px; color:#334155; font-size:13.5px; font-weight:700; background:#f8fafc; line-height:1.7;">
+              📍 위 <span style="color:#0284c7; font-weight:900; font-size:14.5px;">[${dist}]</span>의 <b>읍·면·동</b>(예: 옥동, 신정동, 무거동, 달동 등)을 클릭해 주세요.<br>
+              <span style="font-size:12px; color:#64748b; font-weight:normal;">동을 클릭하시면 해당 동의 아파트 단지 목록이 아래에 표시되어 원하는 단지를 바로 추가하실 수 있습니다.</span>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      let list = allComplexes;
+      if (dist !== "전체") {
+        list = list.filter(c => c.district === dist);
+      }
+      if (dong && dong !== "전체") {
+        list = list.filter(c => c.dong === dong);
+      }
+      if (q) {
+        list = list.filter(c => 
+          (c.name && c.name.toLowerCase().includes(q)) ||
+          (c.dong && c.dong.toLowerCase().includes(q)) ||
+          (c.no && c.no.includes(q))
+        );
+      }
+
+      let locLabel = "울산 전체";
+      if (dist !== "전체") {
+        locLabel = (dong && dong !== "전체") ? `${dist} ${dong}` : `${dist} 전체`;
+      }
+      const countLabel = document.getElementById("dialogResultCountLabel");
+      if (countLabel) {
+        countLabel.innerText = `검색 결과: [${locLabel}] 총 ${list.length}개 단지` + (list.length > 200 ? " (상위 200개 표시 중, 검색어로 좁혀보세요)" : "");
+      }
+
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align:center; padding:30px 16px; color:#94a3b8; font-size:13px;">
+              해당 조건에 일치하는 단지가 없습니다.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const displayList = list.slice(0, 200);
+
+      displayList.forEach((c, idx) => {
+        const isAlready = curNos.has(String(c.no));
+        const isSelected = dialogSelectedComplex && String(dialogSelectedComplex.no) === String(c.no);
+
+        const tr = document.createElement("tr");
+        let regStatusHtml = "";
+        if (isSelected) {
+          tr.style.backgroundColor = "#0284c7";
+          tr.style.color = "#ffffff";
+          tr.style.fontWeight = "700";
+          regStatusHtml = isAlready 
+            ? `<span style="color:#bbf7d0; font-weight:800; font-size:12px;">✔ 이미 등록됨</span>`
+            : `<button type="button" class="btn" style="background:#ffffff; color:#0284c7; height:25px; padding:0 8px; font-size:11.5px; font-weight:800; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.2);" onclick="event.stopPropagation(); confirmAddDialogComplex(displayList[${idx}]);">➕ 추가 가능</button>`;
+        } else {
+          tr.style.backgroundColor = isAlready ? "#f8fafc" : "#ffffff";
+          regStatusHtml = isAlready 
+            ? `<span style="color:#16a34a; font-weight:700; font-size:12px;">✔ 이미 등록됨</span>`
+            : `<button type="button" class="btn" style="background:#e0f2fe; color:#0284c7; border:1px solid #bae6fd; height:25px; padding:0 8px; font-size:11.5px; font-weight:700; border-radius:4px;" onclick="event.stopPropagation(); confirmAddDialogComplex(displayList[${idx}]);">➕ 추가 가능</button>`;
+        }
+
+        const householdStr = c.household ? (c.household + "세대") : "-";
+
+        tr.innerHTML = `
+          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${c.no}</td>
+          <td style="padding:7px 10px; border-right:1px solid rgba(226,232,240,0.5); font-weight:700;">${c.name}</td>
+          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${c.district || "-"}</td>
+          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${c.dong || "-"}</td>
+          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${householdStr}</td>
+          <td style="padding:5px 8px; text-align:center;">${regStatusHtml}</td>
+        `;
+
+        tr.onclick = () => {
+          dialogSelectedComplex = c;
+          filterDialogComplexes();
+        };
+
+        tr.ondblclick = () => {
+          confirmAddDialogComplex(c);
+        };
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function confirmAddDialogComplex(specificComplex = null) {
+      const sub = subscribersList.find(s => s.id === selectedSubId);
+      if (!sub) return;
+
+      const c = specificComplex || dialogSelectedComplex;
+      if (!c) {
+        alert("목록에서 추가할 단지를 먼저 클릭하여 선택해 주세요.");
+        return;
+      }
+
+      const cno = String(c.no);
+
+      if (!sub.complex_nos) {
+        sub.complex_nos = [];
+      }
+
+      if (!sub.complex_nos.map(String).includes(cno)) {
+        sub.complex_nos.push(cno);
+      } else {
+        alert(`[${c.name}] (${cno}) 단지는 이미 등록되어 있습니다.`);
+        return;
+      }
+
+      // 소장님 전체 감시 목록(크롤러)에도 없으면 자동 추가 연동
+      if (!monitoredList.some(m => String(m.no) === cno)) {
+        monitoredList.push({
+          no: cno,
+          name: c.name,
+          district: c.district || "울산",
+          dong: c.dong || "",
+          enabled: true
+        });
+      }
+
+      saveStorage();
+      closeAddComplexModal();
+      renderSubscribersTable();
+      showToast(`✅ [${c.name}] (${cno}) 단지가 성공적으로 수신 목록에 추가되었습니다!`, "🎉");
+    }
+
+    // =========================================================================
     // [선택 단지 제외: 소장님 요청대로 잔소리 없이 바로 확인창 묻고 즉시 삭제!]
     // =========================================================================
     function removeSelectedComplexFromSub() {
