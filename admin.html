@@ -541,6 +541,34 @@
       box-shadow: 0 2px 6px rgba(3, 199, 90, 0.25);
     }
 
+    .btn-dong-chip {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .btn-dong-chip:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+      color: #0f172a;
+    }
+
+    .btn-dong-chip.active {
+      background: #0284c7 !important;
+      color: #ffffff !important;
+      border-color: #0284c7 !important;
+      box-shadow: 0 1px 3px rgba(2, 132, 199, 0.35);
+      font-weight: 800;
+    }
+
     /* 읍·면·동 네이버 스타일 3열 그리드 바 (스크린샷 2 완벽 재현) */
     .dong-filter-section {
       background: #ffffff;
@@ -1199,6 +1227,19 @@
           <button class="btn-district" onclick="setDialogDistrict('울주군')">울주군</button>
         </div>
 
+        <!-- 읍·면·동 선택 바 (구/군 선택 시 2단계로 표시) -->
+        <div id="dialogDongContainer" style="display:none; background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:8px; padding:10px 12px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:4px;">
+            <span style="font-size:12.5px; font-weight:800; color:#0369a1;">
+              📍 <span id="dialogDongDistrictLabel" style="color:#0284c7; font-weight:900; font-size:13.5px;">남구</span> 읍·면·동 선택:
+            </span>
+            <span style="font-size:11.5px; color:#64748b; font-weight:600;">(동을 클릭하면 해당 동의 아파트 단지가 아래에 나타납니다)</span>
+          </div>
+          <div id="dialogDongChips" style="display:flex; gap:6px; flex-wrap:wrap; max-height:115px; overflow-y:auto; padding:2px;">
+            <!-- 자바스크립트로 읍·면·동 버튼 동적 생성 -->
+          </div>
+        </div>
+
         <!-- 단지 목록 테이블 (스크롤 가능) -->
         <div style="border:1.5px solid #cbd5e1; border-radius:6px; background:#ffffff; max-height:280px; overflow-y:auto; overflow-x:auto;">
           <table style="width:100%; border-collapse:collapse; font-size:12.5px; min-width:620px;">
@@ -1325,9 +1366,10 @@
               📖 구독 부동산 목록
             </span>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button class="btn-filter active" id="btnFilterAll" onclick="filterSubs('ALL')">🌟 전체 (2곳)</button>
-              <button class="btn-filter" id="btnFilterA" onclick="filterSubs('A')">📱 파트A : 스마트폰 (1곳)</button>
-              <button class="btn-filter" id="btnFilterB" onclick="filterSubs('B')">💻 파트B : PC설치 (0곳)</button>
+              <button class="btn-filter active" id="btnFilterAll" onclick="filterSubs('ALL')">🌟 전체</button>
+              <button class="btn-filter" id="btnFilterOwner" onclick="filterSubs('OWNER')" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d; font-weight:800;">👑 태화강아이파크 (대표)</button>
+              <button class="btn-filter" id="btnFilterA" onclick="filterSubs('A')">📱 파트A : 스마트폰</button>
+              <button class="btn-filter" id="btnFilterB" onclick="filterSubs('B')">💻 파트B : PC설치</button>
             </div>
           </div>
           <div>
@@ -1756,7 +1798,7 @@
       { no: "180258", name: "번영로롯데캐슬센트럴스카이(주상복합)", district: "중구", dong: "복산동", enabled: true }
     ];
 
-    // 구독자 목록 (대표 소장님만 기본 등록, 타 부동산은 자유롭게 추가/삭제 가능)
+    // 구독자 목록 (대표 소장님 기본 10개 단지, 문수로트럼프 전용 4개 단지 각각 별도 관리)
     let subscribersList = [
       {
         "id": "owner",
@@ -1765,10 +1807,41 @@
         "owner_name": "대표 소장님",
         "phone": "-",
         "plan": "OWNER",
-        "complex_nos": [],
+        "complex_nos": [
+          "154078",
+          "166019",
+          "158599",
+          "148021",
+          "132391",
+          "198037",
+          "133528",
+          "140153",
+          "177817",
+          "180258"
+        ],
         "enabled": true,
         "approved": true,
         "token_file": "kakao_token.json"
+      },
+      {
+        "id": "sub_01073688338",
+        "name": "문수로트럼프공인중개사사무소 (차호인 소장님)",
+        "office_name": "문수로트럼프공인중개사사무소",
+        "owner_name": "차호인",
+        "phone": "010-7368-8338",
+        "plan": "A",
+        "realtor_names": ["문수로트럼프공인중개사사무소"],
+        "token_file": "tokens/sub_01073688338.json",
+        "complex_nos": [
+          "154078",
+          "166019",
+          "158599",
+          "148021"
+        ],
+        "enabled": true,
+        "license_check": true,
+        "approved": true,
+        "approved_notified": true
       }
     ];
 
@@ -1792,15 +1865,36 @@
     let selectedSubId = "owner";
     let selectedSubComplexNo = null;
 
-    // 단지 추가 모달 전용 상태
+    // 단지 추가 모달 전용 상태 (구 > 동 > 단지 3단계 필터링)
     let dialogDistrict = "전체";
+    let dialogDong = null;
     let dialogSelectedComplex = null;
 
     function initStorage() {
       const savedM = localStorage.getItem("naver_admin_monitored");
       if (savedM) { try { monitoredList = JSON.parse(savedM); } catch(e){} }
       const savedS = localStorage.getItem("naver_admin_subs");
-      if (savedS) { try { subscribersList = JSON.parse(savedS); } catch(e){} }
+      if (savedS) {
+        try {
+          subscribersList = JSON.parse(savedS);
+          // 기존 localStorage에 대표(owner)의 complex_nos가 비어있는 경우 기본 10개로 자동 마이그레이션!
+          const ownerSub = subscribersList.find(s => s.id === "owner");
+          if (ownerSub && (!ownerSub.complex_nos || ownerSub.complex_nos.length === 0)) {
+            ownerSub.complex_nos = [
+              "154078", "166019", "158599", "148021", "132391",
+              "198037", "133528", "140153", "177817", "180258"
+            ];
+            saveStorage();
+          }
+
+          // 문수로트럼프공인중개사도 태화강아이파크 단지와 연동되지 않고 전용 4개 단지로 자동 분리 지정!
+          const trumpSub = subscribersList.find(s => s.id === "sub_01073688338" || (s.office_name && s.office_name.includes("문수로트럼프")));
+          if (trumpSub && (!trumpSub.complex_nos || trumpSub.complex_nos.length === 0)) {
+            trumpSub.complex_nos = ["154078", "166019", "158599", "148021"];
+            saveStorage();
+          }
+        } catch(e){}
+      }
     }
 
     function saveStorage() {
@@ -1884,6 +1978,9 @@
 
     function filterSubs(plan) {
       currentPlanFilter = plan;
+      if (plan === "OWNER") {
+        selectedSubId = "owner";
+      }
       selectTab("tabSubscribers");
     }
 
@@ -1899,11 +1996,13 @@
 
       document.querySelectorAll(".btn-filter").forEach(b => b.classList.remove("active"));
       if (currentPlanFilter === "A") {
-        document.getElementById("btnFilterA").classList.add("active");
+        const b = document.getElementById("btnFilterA"); if (b) b.classList.add("active");
       } else if (currentPlanFilter === "B") {
-        document.getElementById("btnFilterB").classList.add("active");
+        const b = document.getElementById("btnFilterB"); if (b) b.classList.add("active");
+      } else if (currentPlanFilter === "OWNER") {
+        const b = document.getElementById("btnFilterOwner"); if (b) b.classList.add("active");
       } else {
-        document.getElementById("btnFilterAll").classList.add("active");
+        const b = document.getElementById("btnFilterAll"); if (b) b.classList.add("active");
       }
     }
 
@@ -1918,9 +2017,10 @@
       document.getElementById("valPartA").innerText = cntA + "곳";
       document.getElementById("valPartB").innerText = cntB + "곳";
 
-      document.getElementById("btnFilterAll").innerText = `🌟 전체 (${totS}곳)`;
-      document.getElementById("btnFilterA").innerText = `📱 파트A : 스마트폰 (${cntA}곳)`;
-      document.getElementById("btnFilterB").innerText = `💻 파트B : PC설치 (${cntB}곳)`;
+      const bAll = document.getElementById("btnFilterAll"); if (bAll) bAll.innerText = `🌟 전체 (${totS}곳)`;
+      const bOwn = document.getElementById("btnFilterOwner"); if (bOwn) bOwn.innerText = `👑 대표: 태화강아이파크 (1곳)`;
+      const bA = document.getElementById("btnFilterA"); if (bA) bA.innerText = `📱 파트A : 스마트폰 (${cntA}곳)`;
+      const bB = document.getElementById("btnFilterB"); if (bB) bB.innerText = `💻 파트B : PC설치 (${cntB}곳)`;
     }
 
     // =========================================================================
@@ -1956,6 +2056,11 @@
       const c = monitoredList[idx];
       if (confirm(`[${c.name}] 단지를 실시간 감시 목록에서 제외하시겠습니까?`)) {
         monitoredList.splice(idx, 1);
+        // 대표(owner)의 수신 단지 목록에서도 해당 단지 제외
+        const ownerSub = subscribersList.find(s => s.id === "owner");
+        if (ownerSub && ownerSub.complex_nos) {
+          ownerSub.complex_nos = ownerSub.complex_nos.filter(x => String(x) !== String(c.no));
+        }
         saveStorage();
         renderMonitoredGrid();
         showToast(`[${c.name}] 감시 목록에서 제외되었습니다.`, "➖");
@@ -1975,8 +2080,12 @@
         filtered = subscribersList.filter(s => s.id !== "owner" && s.plan === "A");
       } else if (currentPlanFilter === "B") {
         filtered = subscribersList.filter(s => s.id !== "owner" && s.plan === "B");
+      } else if (currentPlanFilter === "OWNER") {
+        filtered = subscribersList.filter(s => s.id === "owner");
       } else {
-        filtered = subscribersList;
+        filtered = [...subscribersList];
+        // 전체 목록에서는 대표(owner)를 항상 맨 위에 고정 배치
+        filtered.sort((a, b) => (a.id === "owner" ? -1 : (b.id === "owner" ? 1 : 0)));
       }
 
       if (!filtered.some(s => s.id === selectedSubId)) {
@@ -2036,7 +2145,9 @@
 
         const ownerTextColor = isSelected ? '#ffffff' : '#1e293b';
 
-        if (isAgent) {
+        if (isOwner) {
+          nameHtml = `👑 <b style="color:${isSelected ? '#ffffff' : '#b45309'}; font-weight:800;">${sub.office_name || sub.name}</b> <span style="font-size:12px; color:${isSelected ? '#fef3c7' : '#d97706'}; font-weight:700;">(대표 소장님 전용 계정)</span>`;
+        } else if (isAgent) {
           nameHtml = `<span style="display:inline-block; background:${isSelected ? 'rgba(255,255,255,0.25)' : '#e0e7ff'}; color:${isSelected ? '#ffffff' : '#4338ca'}; font-size:11px; font-weight:800; padding:1px 6px; border-radius:4px; margin-right:5px; border:1px solid ${isSelected ? 'rgba(255,255,255,0.4)' : '#c7d2fe'};">👤 소공</span><b>${sub.office_name || sub.name}</b> <span class="sub-owner-label" style="font-size:12.5px; color:${ownerTextColor}; font-weight:700;">(${sub.agent_name} 실장님 / 대표: ${sub.owner_name || "-"})</span>`;
         } else {
           nameHtml = `<b>${sub.office_name || sub.name}</b>` + (ownerLabel ? ` <span class="sub-owner-label" style="font-size:12.5px; color:${ownerTextColor}; font-weight:700;">(${ownerLabel})</span>` : "");
@@ -2088,7 +2199,9 @@
       const officeName = sub.office_name || sub.name;
       const cNos = sub.complex_nos || [];
 
-      if (cNos.length === 0) {
+      if (isOwner) {
+        titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0369a1;">태화강아이파크 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 타 부동산(소소부동산 등)이 추가한 단지는 제외되며, 오직 아래 등록된 단지만 태화강아이파크 카카오톡으로 수신됩니다. [➕ 단지 추가하기]로 단지를 자유롭게 추가/제외할 수 있습니다.</span>`;
+      } else if (cNos.length === 0) {
         titleEl.innerText = `📍 [${officeName} | ${planStr}] - ☀️ 등록 감시단지 전체 수신 모드 (총 ${monitoredList.length}개 감시단지 실시간 전송)`;
 
         monitoredList.forEach(c => {
@@ -2144,7 +2257,11 @@
       document.getElementById("dialogModalTitle").innerText = `➕ [${subName}] 수신 단지 추가 (${planLabel})`;
       document.getElementById("dialogSearchInput").value = "";
       dialogDistrict = "전체";
+      dialogDong = "전체";
       dialogSelectedComplex = null;
+
+      const container = document.getElementById("dialogDongContainer");
+      if (container) container.style.display = "none";
 
       document.querySelectorAll("#dialogDistrictBar .btn-district").forEach(b => {
         b.classList.toggle("active", b.innerText === "전체");
@@ -2160,9 +2277,63 @@
 
     function setDialogDistrict(dist) {
       dialogDistrict = dist;
+      dialogSelectedComplex = null;
+
       document.querySelectorAll("#dialogDistrictBar .btn-district").forEach(b => {
         b.classList.toggle("active", b.innerText === dist);
       });
+
+      const container = document.getElementById("dialogDongContainer");
+      const chipsBox = document.getElementById("dialogDongChips");
+      const distLabel = document.getElementById("dialogDongDistrictLabel");
+
+      if (dist === "전체") {
+        dialogDong = "전체";
+        if (container) container.style.display = "none";
+      } else {
+        // 소장님 요청: 남구 등 구/군 선택 시 먼저 동을 선택하게 대기!
+        dialogDong = null;
+        if (container) container.style.display = "block";
+        if (distLabel) distLabel.innerText = dist;
+        if (chipsBox) {
+          chipsBox.innerHTML = "";
+
+          // '전체 동' 버튼
+          const allBtn = document.createElement("button");
+          allBtn.type = "button";
+          allBtn.className = "btn-dong-chip";
+          allBtn.innerText = "전체 동";
+          allBtn.onclick = () => setDialogDong("전체");
+          chipsBox.appendChild(allBtn);
+
+          const dongs = ULSAN_DISTRICT_DONGS[dist] || [];
+          dongs.forEach(dong => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "btn-dong-chip";
+            btn.setAttribute("data-dong", dong);
+            btn.innerText = dong;
+            btn.onclick = () => setDialogDong(dong);
+            chipsBox.appendChild(btn);
+          });
+        }
+      }
+
+      filterDialogComplexes();
+    }
+
+    function setDialogDong(dong) {
+      dialogDong = dong;
+      dialogSelectedComplex = null;
+
+      document.querySelectorAll("#dialogDongChips .btn-dong-chip").forEach(b => {
+        if (dong === "전체") {
+          b.classList.toggle("active", b.innerText === "전체 동");
+        } else {
+          b.classList.toggle("active", b.getAttribute("data-dong") === dong);
+        }
+      });
+
       filterDialogComplexes();
     }
 
@@ -2177,10 +2348,32 @@
 
       const q = document.getElementById("dialogSearchInput").value.trim().toLowerCase();
       const dist = dialogDistrict;
+      const dong = dialogDong;
+
+      const tbody = document.getElementById("dialogTbodyComplexes");
+      tbody.innerHTML = "";
+
+      // 1. 구/군(예: 남구)을 선택했으나 아직 동을 클릭하지 않았고, 검색어도 없는 경우 -> 동 선택 안내 표시
+      if (dist !== "전체" && !dong && !q) {
+        document.getElementById("dialogResultCountLabel").innerText = 
+          `[${dist}] 위 읍·면·동 목록에서 원하는 동을 선택해 주세요.`;
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align:center; padding:40px 16px; color:#334155; font-size:13.5px; font-weight:700; background:#f8fafc; line-height:1.7;">
+              📍 위 <span style="color:#0284c7; font-weight:900; font-size:14.5px;">[${dist}]</span>의 <b>읍·면·동</b>(예: 옥동, 신정동, 무거동, 달동 등)을 클릭해 주세요.<br>
+              <span style="font-size:12px; color:#64748b; font-weight:normal;">동을 클릭하시면 해당 동의 아파트 단지 목록이 아래에 표시되어 원하는 단지를 바로 추가하실 수 있습니다.</span>
+            </td>
+          </tr>
+        `;
+        return;
+      }
 
       let list = allComplexes;
       if (dist !== "전체") {
         list = list.filter(c => c.district === dist);
+      }
+      if (dong && dong !== "전체") {
+        list = list.filter(c => c.dong === dong);
       }
       if (q) {
         list = list.filter(c => 
@@ -2190,11 +2383,23 @@
         );
       }
 
+      let locLabel = "울산 전체";
+      if (dist !== "전체") {
+        locLabel = (dong && dong !== "전체") ? `${dist} ${dong}` : `${dist} 전체`;
+      }
       document.getElementById("dialogResultCountLabel").innerText = 
-        `검색 결과: 총 ${list.length}개 단지 (상위 200개 표시 중, 검색어로 좁혀보세요)`;
+        `검색 결과: [${locLabel}] 총 ${list.length}개 단지` + (list.length > 200 ? " (상위 200개 표시 중, 검색어로 좁혀보세요)" : "");
 
-      const tbody = document.getElementById("dialogTbodyComplexes");
-      tbody.innerHTML = "";
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align:center; padding:30px 16px; color:#94a3b8; font-size:13px;">
+              해당 조건에 일치하는 단지가 없습니다.
+            </td>
+          </tr>
+        `;
+        return;
+      }
 
       const displayList = list.slice(0, 200);
 
@@ -2218,12 +2423,14 @@
             : `<button type="button" class="btn" style="background:#e0f2fe; color:#0284c7; border:1px solid #bae6fd; height:25px; padding:0 8px; font-size:11.5px; font-weight:700; border-radius:4px;" onclick="event.stopPropagation(); confirmAddDialogComplex(displayList[${idx}]);">➕ 추가 가능</button>`;
         }
 
+        const householdStr = c.household ? (c.household + "세대") : "-";
+
         tr.innerHTML = `
           <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${c.no}</td>
           <td style="padding:7px 10px; border-right:1px solid rgba(226,232,240,0.5); font-weight:700;">${c.name}</td>
           <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${c.district || "-"}</td>
           <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${c.dong || "-"}</td>
-          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">-</td>
+          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${householdStr}</td>
           <td style="padding:5px 8px; text-align:center;">${regStatusHtml}</td>
         `;
 
@@ -2252,8 +2459,12 @@
 
       const cno = String(c.no);
 
-      // 전체 수신 모드였을 경우, 기본 10개 목록에 새로 선택한 단지를 더해줌!
-      if (!sub.complex_nos || sub.complex_nos.length === 0) {
+      if (!sub.complex_nos) {
+        sub.complex_nos = [];
+      }
+
+      // owner가 아닌 다른 일반 구독자가 전체수신([]) 모드였을 때만 전체 목록을 기본값으로 변환
+      if (sub.id !== "owner" && sub.complex_nos.length === 0) {
         sub.complex_nos = monitoredList.map(m => m.no);
       }
 
@@ -2923,6 +3134,9 @@
       }
 
       let addedCnt = 0;
+      const ownerSub = subscribersList.find(s => s.id === "owner");
+      if (ownerSub && !ownerSub.complex_nos) ownerSub.complex_nos = [];
+
       selectedComplexNos.forEach(cno => {
         if (!monitoredList.some(m => m.no === cno)) {
           const comp = allComplexes.find(c => c.no === cno);
@@ -2937,11 +3151,15 @@
             addedCnt++;
           }
         }
+        // 대표(owner)의 알림 수신 단지에도 자동 추가!
+        if (ownerSub && !ownerSub.complex_nos.map(String).includes(String(cno))) {
+          ownerSub.complex_nos.push(String(cno));
+        }
       });
 
       saveStorage();
       renderMonitoredGrid();
-      showToast(`선택하신 ${addedCnt}개 단지가 실시간 감시 목록에 추가되었습니다!`, "🎉");
+      showToast(`선택하신 ${addedCnt}개 단지가 실시간 감시 및 태화강아이파크 수신 목록에 추가되었습니다!`, "🎉");
       selectTab("tabComplexes");
     }
 
@@ -2967,10 +3185,19 @@
         enabled: true
       });
 
+      // 대표(owner)의 알림 수신 단지에도 자동 추가!
+      const ownerSub = subscribersList.find(s => s.id === "owner");
+      if (ownerSub) {
+        if (!ownerSub.complex_nos) ownerSub.complex_nos = [];
+        if (!ownerSub.complex_nos.map(String).includes(String(cno))) {
+          ownerSub.complex_nos.push(String(cno));
+        }
+      }
+
       document.getElementById("inpDirectComplex").value = "";
       saveStorage();
       renderMonitoredGrid();
-      showToast(`[${cname}] 단지가 실시간 감시 목록에 등록되었습니다!`, "🚀");
+      showToast(`[${cname}] 단지가 실시간 감시 및 태화강아이파크 수신 목록에 등록되었습니다!`, "🚀");
       selectTab("tabComplexes");
     }
 
