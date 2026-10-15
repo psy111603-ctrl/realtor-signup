@@ -446,16 +446,78 @@
       font-weight: 800;
     }
 
+    /* 네이버 부동산 스타일 상단 위치 네비게이션 캡슐 바 (스크린샷 1, 2, 3) */
+    .naver-capsule-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 4px 0 14px 0;
+    }
+
+    .naver-capsule-bar {
+      display: inline-flex;
+      align-items: center;
+      background: #ffffff;
+      border: 1.5px solid #03c75a;
+      border-radius: 30px;
+      padding: 6px 18px;
+      box-shadow: 0 2px 10px rgba(3, 199, 90, 0.14);
+      gap: 12px;
+    }
+
+    .ncb-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s ease;
+    }
+
+    .ncb-item:hover { color: #03c75a; }
+
+    .ncb-item.ncb-city {
+      color: #03c75a;
+      font-weight: 800;
+      cursor: default;
+    }
+
+    .ncb-pin { font-size: 15px; }
+
+    .ncb-sep {
+      width: 1px;
+      height: 15px;
+      background: #cbd5e1;
+    }
+
+    .ncb-arrow {
+      font-size: 10px;
+      color: #64748b;
+      margin-left: 2px;
+    }
+
+    .naver-location-subpath {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #334155;
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    /* 구/군 필터 버튼 */
     .district-filter-bar {
       display: flex;
       gap: 6px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       flex-wrap: wrap;
     }
 
     .btn-district {
-      padding: 7px 14px;
-      background: #e2e8f0;
+      padding: 8px 14px;
+      background: #ffffff;
       color: #334155;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
@@ -467,10 +529,198 @@
       touch-action: manipulation;
     }
 
+    .btn-district:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
     .btn-district.active {
-      background: #0284c7;
+      background: #03c75a !important;
+      color: #ffffff !important;
+      border-color: #03c75a !important;
+      box-shadow: 0 2px 6px rgba(3, 199, 90, 0.25);
+    }
+
+    /* 읍·면·동 네이버 스타일 3열 그리드 바 (스크린샷 2 완벽 재현) */
+    .dong-filter-section {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .dong-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .dong-breadcrumb-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .dong-breadcrumb-title .nbc-dist { color: #03c75a; }
+    .dong-breadcrumb-title .nbc-dong { color: #0284c7; }
+
+    .dong-guide-text {
+      font-size: 11.5px;
+      color: #64748b;
+    }
+
+    .dong-grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: #e2e8f0;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      overflow: hidden;
+      max-height: 240px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 500px) {
+      .dong-grid-3col { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .btn-dong-cell {
+      background: #ffffff;
+      border: none;
+      padding: 10px 4px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: background 0.15s, color 0.15s;
+      outline: none;
+    }
+
+    .btn-dong-cell:hover {
+      background: #f0fdf4;
+      color: #03c75a;
+    }
+
+    .btn-dong-cell.active {
+      background: #03c75a !important;
+      color: #ffffff !important;
+      font-weight: 800;
+    }
+
+    .btn-dong-cell .dong-badge {
+      font-size: 10.5px;
+      color: #64748b;
+      font-weight: normal;
+    }
+
+    .btn-dong-cell.active .dong-badge {
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 700;
+    }
+
+    /* 스크린샷 2 하단 네이버 초록색 액션 버튼 */
+    .btn-naver-dong-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 42px;
+      background: #03c75a;
       color: #ffffff;
-      border-color: #0284c7;
+      font-size: 14px;
+      font-weight: 800;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      gap: 6px;
+      transition: background 0.15s ease;
+      box-shadow: 0 2px 6px rgba(3, 199, 90, 0.25);
+    }
+
+    .btn-naver-dong-action:hover {
+      background: #02b150;
+    }
+
+    /* 네비게이션 브레드크럼 및 정렬 바 (스크린샷 3 완벽 재현) */
+    .complex-nav-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+    }
+
+    .breadcrumb-trail {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .breadcrumb-trail .bc-sep {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .breadcrumb-trail .bc-step.active {
+      color: #03c75a;
+      font-weight: 800;
+    }
+
+    .breadcrumb-trail .bc-count {
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .sort-actions-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-sort {
+      background: none;
+      border: none;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      padding: 4px 6px;
+      transition: color 0.15s ease;
+    }
+
+    .btn-sort:hover { color: #03c75a; }
+
+    .btn-sort.active {
+      color: #03c75a !important;
+      font-weight: 800 !important;
+      border-bottom: 2px solid #03c75a;
+    }
+
+    .sort-sep {
+      color: #cbd5e1;
+      font-size: 11px;
     }
 
     .complex-scroll-container {
@@ -514,7 +764,7 @@
     .btn-select-all:hover { background: #f1f5f9; }
 
     .scroll-body {
-      max-height: 280px;
+      max-height: 320px;
       overflow-y: auto;
       background: #ffffff;
       border: 1px solid #e2e8f0;
@@ -530,22 +780,137 @@
       .scroll-body { grid-template-columns: 1fr; }
     }
 
+    /* 네이버 스타일 단지 체크 아이템 카드 (스크린샷 3) */
     .comp-check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 9px 10px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.12s ease, border-color 0.12s ease;
+    }
+
+    .comp-check-item:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .comp-check-item.checked-active {
+      background: #f0fdf4 !important;
+      border-color: #86efac !important;
+    }
+
+    .comp-check-item input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      margin-top: 2px;
+      cursor: pointer;
+      flex-shrink: 0;
+      accent-color: #03c75a;
+    }
+
+    .comp-check-label {
+      flex: 1;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .comp-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .comp-name-txt {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .comp-star-icon {
+      font-size: 16px;
+      color: #cbd5e1;
+      line-height: 1;
+      transition: transform 0.15s ease;
+    }
+
+    .comp-star-icon.starred { color: #eab308; }
+
+    .comp-sub-row {
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 5px 8px;
-      border-radius: 4px;
-      font-size: 12.5px;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.1s ease;
+      font-size: 11.5px;
+      color: #64748b;
+      flex-wrap: wrap;
     }
 
-    .comp-check-item:hover { background: #f0f9ff; }
-    .comp-check-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
-    .comp-check-label { cursor: pointer; color: #1e293b; word-break: break-all; }
-    .comp-check-label .cno-sub { color: #64748b; font-size: 11px; }
+    .comp-dong-pill {
+      display: inline-block;
+      font-size: 10.5px;
+      font-weight: 800;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-right: 4px;
+    }
+
+    .comp-type-tag {
+      font-size: 10.5px;
+      color: #047857;
+      font-weight: 700;
+      background: #ecfdf5;
+      padding: 1px 5px;
+      border-radius: 3px;
+      border: 1px solid #a7f3d0;
+    }
+
+    .comp-meta-text {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: normal;
+    }
+
+    .cno-sub {
+      color: #94a3b8;
+      font-size: 11px;
+    }
+
+    .selected-chips-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 6px;
+    }
+
+    .selected-chip-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #ffffff;
+      border: 1px solid #86efac;
+      padding: 4px 9px;
+      border-radius: 14px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #166534;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .selected-chip-item:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #991b1b;
+    }
 
     .fieldset-box {
       border: 1.5px solid #cbd5e1;
@@ -1119,6 +1484,32 @@
             </div>
           </div>
 
+          <!-- 네이버 부동산 스타일 상단 위치 네비게이션 캡슐 바 (스크린샷 1, 2, 3) -->
+          <div class="naver-capsule-container">
+            <div class="naver-capsule-bar">
+              <div class="ncb-item ncb-city">
+                <span class="ncb-pin">📍</span>
+                <span class="ncb-text">울산시</span>
+              </div>
+              <div class="ncb-sep"></div>
+              <div class="ncb-item" id="ncbDistrict" onclick="focusDistrictSelect()">
+                <span class="ncb-text" id="ncbDistrictText">전체</span>
+              </div>
+              <div class="ncb-sep"></div>
+              <div class="ncb-item" id="ncbDong" onclick="focusDongSelect()">
+                <span class="ncb-text" id="ncbDongText">읍/면/동</span>
+              </div>
+              <div class="ncb-sep"></div>
+              <div class="ncb-item ncb-complex" id="ncbComplex" onclick="scrollToComplexList()">
+                <span class="ncb-text">단지</span>
+                <span class="ncb-arrow">▼</span>
+              </div>
+            </div>
+            <div class="naver-location-subpath" id="naverLocationSubpath">
+              울산시 전체 단지
+            </div>
+          </div>
+
           <div class="district-filter-bar" id="districtFilterBar">
             <button class="btn-district active" onclick="setDistrictFilter('전체')">전체 (2094)</button>
             <button class="btn-district" onclick="setDistrictFilter('남구')">남구 (758)</button>
@@ -1128,12 +1519,49 @@
             <button class="btn-district" onclick="setDistrictFilter('울주군')">울주군 (292)</button>
           </div>
 
+          <!-- 읍·면·동 네이버 스타일 3열 그리드 바 (스크린샷 2 완벽 재현) -->
+          <div class="dong-filter-section" id="dongFilterSection">
+            <div class="dong-section-header">
+              <div class="dong-breadcrumb-title" id="dongBreadcrumbTitle">
+                <span class="nbc-city">울산시</span> &gt; <span class="nbc-dist" id="dongDistTitle">남구</span> &gt; <span class="nbc-dong" id="dongCurrentTitle">야음동</span>
+              </div>
+              <span class="dong-guide-text">원하시는 동을 클릭하시면 해당 동의 단지만 쏙 모아드립니다.</span>
+            </div>
+            <div class="dong-grid-3col" id="dongChipsGrid">
+              <!-- JS 3열 직사각형 그리드 생성 -->
+            </div>
+            <!-- 스크린샷 2 하단 초록색 액션 버튼 완벽 재현 -->
+            <button type="button" class="btn-naver-dong-action" id="btnNaverDongAction" onclick="scrollToComplexList()">
+              <span class="btn-dong-action-icon">📍</span>
+              <span id="btnNaverDongActionText">야음동 단지 목록 보기</span>
+            </button>
+          </div>
+
+          <!-- 네비게이션 브레드크럼 및 정렬 바 (스크린샷 3 완벽 재현) -->
+          <div class="complex-nav-toolbar" id="complexNavToolbar">
+            <div class="breadcrumb-trail" id="breadcrumbTrail">
+              <span class="bc-step">📍 울산시</span>
+              <span class="bc-sep">&gt;</span>
+              <span class="bc-step active" id="bcDistrict">전체</span>
+              <span class="bc-sep">&gt;</span>
+              <span class="bc-step active" id="bcDong">전체 동</span>
+              <span class="bc-count" id="bcCount">(총 2094개 단지)</span>
+            </div>
+            <div class="sort-actions-bar">
+              <button type="button" class="btn-sort active" id="btnSortName" onclick="setSortMode('name')">가나다순</button>
+              <span class="sort-sep">|</span>
+              <button type="button" class="btn-sort" id="btnSortHousehold" onclick="setSortMode('household')">세대수순</button>
+              <span class="sort-sep">|</span>
+              <button type="button" class="btn-sort" id="btnSortRecent" onclick="setSortMode('recent')">최신입주순</button>
+            </div>
+          </div>
+
           <div class="complex-scroll-container">
             <div class="scroll-header">
               <span id="scrollTitleLabel">📍 울산시 전체 단지 목록 (총 2094개 단지)</span>
               <div class="scroll-actions-left">
-                <button class="btn-select-all" onclick="toggleSelectAllFiltered(true)">✔ 현재 목록 전체 선택</button>
-                <button class="btn-select-all" onclick="toggleSelectAllFiltered(false)">✖ 선택 해제</button>
+                <button type="button" class="btn-select-all" onclick="toggleSelectAllFiltered(true)">✔ 현재 목록 전체 선택</button>
+                <button type="button" class="btn-select-all" onclick="toggleSelectAllFiltered(false)">✖ 선택 해제</button>
               </div>
             </div>
 
@@ -1149,6 +1577,14 @@
             <button class="btn btn-primary" style="height:38px; padding:0 18px;" onclick="addSelectedComplexesToMonitored()">
               ★ [관리자] 선택 단지 감시목록 즉시 등록
             </button>
+          </div>
+
+          <!-- 내가 선택한 단지 모아보기 칩 박스 -->
+          <div class="selected-chips-box" id="adminSelectedChipsBox" style="display:none;">
+            <div style="font-size:12px; font-weight:800; color:#166534; margin-bottom:6px;">
+              📌 현재 선택된 단지 목록 (<span id="adminSelectedCountNum">0</span>개) <span style="font-size:11px; font-weight:normal; color:#475569;">- 단지를 클릭하면 즉시 선택에서 제외됩니다</span>
+            </div>
+            <div id="adminSelectedChipsList" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
           </div>
 
         </fieldset>
@@ -1340,7 +1776,17 @@
       ? ULSAN_COMPLEXES
       : monitoredList;
 
+    const ULSAN_DISTRICT_DONGS = {
+      "남구": ["신정동", "옥동", "달동", "삼산동", "무거동", "야음동", "선암동", "상개동", "두왕동", "부곡동", "고사동", "남화동", "매암동", "성암동", "여천동", "용연동", "용잠동", "장생포동", "황성동"],
+      "중구": ["우정동", "유곡동", "태화동", "복산동", "약사동", "성남동", "반구동", "학성동", "다운동", "교동", "북정동", "옥교동", "서동", "동동", "장현동", "성안동", "남외동", "학산동"],
+      "동구": ["전하동", "화정동", "방어동", "일산동", "서부동", "동부동", "주전동"],
+      "북구": ["송정동", "매곡동", "화봉동", "천곡동", "산하동", "신천동", "중산동", "호계동", "명촌동", "진장동", "양정동", "염포동", "연암동", "효문동", "구유동", "달천동", "상안동", "신명동", "정자동", "당사동"],
+      "울주군": ["범서읍", "언양읍", "온산읍", "온양읍", "청량읍", "삼남읍", "서생면", "웅촌면", "두동면", "두서면", "상북면", "삼동면"]
+    };
+
     let currentDistrict = "전체";
+    let currentDong = "전체";
+    let sortMode = "name"; // 'name', 'household', 'recent'
     let selectedComplexNos = new Set();
     let currentPlanFilter = "ALL";
     let selectedSubId = "owner";
@@ -2138,14 +2584,136 @@
     }
 
     // =========================================================================
-    // [6. 탭 3: 울산 2,094개 단지 체크박스 목록 렌더링 & 검색]
+    // [6. 탭 3: 네이버 부동산 스타일 3단계(구 > 동 > 단지) 필터 및 체크박스 목록]
     // =========================================================================
     function setDistrictFilter(district) {
       currentDistrict = district;
+      currentDong = "전체";
       document.querySelectorAll(".btn-district").forEach(b => {
         b.classList.toggle("active", b.innerText.startsWith(district));
       });
+
+      // 네이버 상단 캡슐 바 및 서브패스 업데이트 (스크린샷 1, 2)
+      const ncbDist = document.getElementById("ncbDistrictText");
+      const ncbDong = document.getElementById("ncbDongText");
+      const ncbPath = document.getElementById("naverLocationSubpath");
+      if (ncbDist) ncbDist.innerText = district;
+      if (ncbDong) ncbDong.innerText = "읍/면/동";
+      if (ncbPath) {
+        ncbPath.innerText = (district === "전체") ? "울산시 전체 단지" : `울산시 ${district} 전체`;
+      }
+
+      renderDongChips();
       renderComplexCheckList();
+    }
+
+    function setDongFilter(dong) {
+      currentDong = dong;
+      document.querySelectorAll(".btn-dong-cell").forEach(cell => {
+        cell.classList.toggle("active", cell.getAttribute("data-dong") === dong);
+      });
+
+      // 네이버 상단 캡슐 바 및 타이틀 업데이트 (스크린샷 2, 3)
+      const ncbDong = document.getElementById("ncbDongText");
+      const dongTitle = document.getElementById("dongCurrentTitle");
+      const actionText = document.getElementById("btnNaverDongActionText");
+      const ncbPath = document.getElementById("naverLocationSubpath");
+
+      if (ncbDong) ncbDong.innerText = (dong === "전체") ? "읍/면/동" : dong;
+      if (dongTitle) dongTitle.innerText = (dong === "전체") ? "전체 동" : dong;
+      if (actionText) {
+        actionText.innerText = (dong === "전체")
+          ? `${currentDistrict} 전체 단지 목록 보기`
+          : `${dong} 단지 목록 보기`;
+      }
+      if (ncbPath) {
+        ncbPath.innerText = (dong === "전체") ? `울산시 ${currentDistrict}` : `울산시 ${currentDistrict} ${dong}`;
+      }
+
+      renderComplexCheckList();
+    }
+
+    function setSortMode(mode) {
+      sortMode = mode;
+      document.querySelectorAll(".btn-sort").forEach(b => {
+        b.classList.toggle("active", b.id === (mode === 'name' ? 'btnSortName' : mode === 'household' ? 'btnSortHousehold' : 'btnSortRecent'));
+      });
+      renderComplexCheckList();
+    }
+
+    function renderDongChips() {
+      const section = document.getElementById("dongFilterSection");
+      const grid = document.getElementById("dongChipsGrid");
+      const distTitle = document.getElementById("dongDistTitle");
+      const dongTitle = document.getElementById("dongCurrentTitle");
+      const actionText = document.getElementById("btnNaverDongActionText");
+      if (!section || !grid) return;
+
+      if (distTitle) distTitle.innerText = currentDistrict;
+      if (dongTitle) dongTitle.innerText = (currentDong === "전체") ? "읍·면·동 선택" : currentDong;
+
+      if (currentDistrict === "전체") {
+        grid.className = "dong-grid-3col";
+        grid.innerHTML = `
+          <button type="button" class="btn-dong-cell ${currentDong === '전체' ? 'active' : ''}" style="grid-column: 1 / -1; padding: 12px; font-weight: 800;" data-dong="전체" onclick="setDongFilter('전체')">
+            <span>울산시 전체 단지 모아보기</span> <span class="dong-badge">(${allComplexes.length}개)</span>
+          </button>
+        `;
+        if (actionText) actionText.innerText = "울산시 전체 단지 목록 보기";
+        return;
+      }
+
+      const dongs = ULSAN_DISTRICT_DONGS[currentDistrict] || [];
+      const distComplexes = allComplexes.filter(c => c.district === currentDistrict);
+
+      let html = `
+        <button type="button" class="btn-dong-cell ${currentDong === '전체' ? 'active' : ''}" style="grid-column: 1 / -1; padding: 11px; font-weight: 800; background: #f8fafc;" data-dong="전체" onclick="setDongFilter('전체')">
+          <span>${currentDistrict} 전체 동 단지 보기</span> <span class="dong-badge">(${distComplexes.length}개)</span>
+        </button>
+      `;
+
+      dongs.forEach(dong => {
+        const count = distComplexes.filter(c => c.dong === dong || (c.name && c.name.includes(dong))).length;
+        const isActive = (currentDong === dong);
+        html += `
+          <button type="button" class="btn-dong-cell ${isActive ? 'active' : ''}" data-dong="${dong}" onclick="setDongFilter('${dong}')">
+            <span>${dong}</span> <span class="dong-badge">(${count})</span>
+          </button>
+        `;
+      });
+
+      // 스크린샷 2 완벽 재현: 3열 그리드 나머지 빈 칸을 깔끔한 테두리 셀로 채움
+      const remainder = dongs.length % 3;
+      if (remainder > 0) {
+        const emptyCells = 3 - remainder;
+        for (let i = 0; i < emptyCells; i++) {
+          html += `<div class="btn-dong-cell" style="background:#fcfcfc; cursor:default;"></div>`;
+        }
+      }
+
+      grid.className = "dong-grid-3col";
+      grid.innerHTML = html;
+
+      if (actionText) {
+        actionText.innerText = (currentDong === "전체")
+          ? `${currentDistrict} 전체 단지 목록 보기`
+          : `${currentDong} 단지 목록 보기`;
+      }
+    }
+
+    function scrollToComplexList() {
+      const el = document.getElementById("complexNavToolbar") || document.getElementById("complexCheckBoxGrid");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function focusDistrictSelect() {
+      const el = document.getElementById("districtFilterBar");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function focusDongSelect() {
+      const el = document.getElementById("dongFilterSection");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function clearSearchInput() {
@@ -2162,13 +2730,20 @@
       if (!grid) return;
       grid.innerHTML = "";
 
-      const kw = document.getElementById("inpSearchKw").value.trim().toLowerCase();
+      const kw = document.getElementById("inpSearchKw") ? document.getElementById("inpSearchKw").value.trim().toLowerCase() : "";
       let list = allComplexes;
 
+      // 1. 구 필터
       if (currentDistrict !== "전체") {
         list = list.filter(c => c.district === currentDistrict);
       }
 
+      // 2. 동 필터
+      if (currentDong !== "전체") {
+        list = list.filter(c => c.dong === currentDong || (c.name && c.name.includes(currentDong)));
+      }
+
+      // 3. 검색어 필터
       if (kw) {
         list = list.filter(c => 
           (c.name && c.name.toLowerCase().includes(kw)) ||
@@ -2177,48 +2752,116 @@
         );
       }
 
-      document.getElementById("scrollTitleLabel").innerText = 
-        `📍 울산시 ${currentDistrict} 단지 목록 (총 ${list.length}개 단지)`;
+      // 4. 네이버 스타일 정렬 (가나다순 / 세대수순 / 최신입주순)
+      list = [...list].sort((a, b) => {
+        if (sortMode === "household") {
+          return (Number(b.household) || 0) - (Number(a.household) || 0);
+        } else if (sortMode === "recent") {
+          return String(b.useYmd || "").localeCompare(String(a.useYmd || ""));
+        } else {
+          return (a.name || "").localeCompare(b.name || "", "ko-KR");
+        }
+      });
 
-      const displayItems = list.slice(0, 200);
+      // 5. 브레드크럼 및 타이틀 업데이트
+      const bcDistrict = document.getElementById("bcDistrict");
+      const bcDong = document.getElementById("bcDong");
+      const bcCount = document.getElementById("bcCount");
+      if (bcDistrict) bcDistrict.innerText = currentDistrict;
+      if (bcDong) bcDong.innerText = (currentDong === "전체") ? "전체 동" : currentDong;
+      if (bcCount) bcCount.innerText = `(총 ${list.length}개 단지)`;
+
+      const scrollTitle = document.getElementById("scrollTitleLabel");
+      if (scrollTitle) {
+        if (kw) {
+          scrollTitle.innerText = `🔍 '${kw}' 검색 결과 (총 ${list.length}개 단지)`;
+        } else if (currentDong !== "전체") {
+          scrollTitle.innerText = `📍 울산시 > ${currentDistrict} > ${currentDong} 단지 목록 (총 ${list.length}개)`;
+        } else {
+          scrollTitle.innerText = `📍 울산시 ${currentDistrict} 전체 단지 목록 (총 ${list.length}개)`;
+        }
+      }
+
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 32px 10px; color: #94a3b8; font-size: 13px;">
+            🔍 조건에 일치하는 단지가 없습니다.<br>
+            위 검색창을 비우시거나 다른 읍·면·동을 선택해 보세요.
+          </div>
+        `;
+        updateSelectedCountLabel();
+        renderAdminSelectedChips();
+        return;
+      }
+
+      // 특정 동 선택이나 검색 시는 100% 전부 노출, 전체일 때는 최대 300개
+      const displayItems = (currentDong !== "전체" || kw) ? list : list.slice(0, 300);
 
       displayItems.forEach(c => {
         const isChecked = selectedComplexNos.has(c.no);
         const itemDiv = document.createElement("div");
-        itemDiv.className = "comp-check-item";
+        itemDiv.className = "comp-check-item" + (isChecked ? " checked-active" : "");
+        
+        const typeBadge = c.type ? `<span class="comp-type-tag">${c.type}</span>` : "";
+        const householdText = c.household ? `${Number(c.household).toLocaleString()}세대` : "";
+        const yearText = c.useYmd ? `${c.useYmd.substring(0, 4)}년` : "";
+        const metaParts = [householdText, yearText].filter(Boolean).join(" · ");
+        const metaHtml = metaParts ? `<span class="comp-meta-text">${metaParts}</span>` : "";
+
         itemDiv.innerHTML = `
           <input type="checkbox" id="chk_${c.no}" value="${c.no}" ${isChecked ? "checked" : ""}>
-          <label for="chk_${c.no}" class="comp-check-label">
-            [${c.district || "울산"} ${c.dong || ""}] <b>${c.name}</b> <span class="cno-sub">(${c.no})</span>
+          <label for="chk_${c.no}" class="comp-check-label" style="flex:1;">
+            <div class="comp-title-row">
+              <span class="comp-name-txt"><span class="comp-dong-pill">${c.dong || c.district || "울산"}</span>${c.name}</span>
+              <span class="comp-star-icon ${isChecked ? 'starred' : ''}" id="star_${c.no}">${isChecked ? '⭐' : '☆'}</span>
+            </div>
+            <div class="comp-sub-row">
+              ${typeBadge} ${metaHtml}
+              <span class="cno-sub">(${c.no})</span>
+            </div>
           </label>
         `;
         const chk = itemDiv.querySelector("input");
         chk.addEventListener("change", (e) => {
-          if (e.target.checked) selectedComplexNos.add(c.no);
-          else selectedComplexNos.delete(c.no);
+          if (e.target.checked) {
+            selectedComplexNos.add(c.no);
+            itemDiv.classList.add("checked-active");
+            const star = itemDiv.querySelector(".comp-star-icon");
+            if (star) { star.innerText = "⭐"; star.classList.add("starred"); }
+          } else {
+            selectedComplexNos.delete(c.no);
+            itemDiv.classList.remove("checked-active");
+            const star = itemDiv.querySelector(".comp-star-icon");
+            if (star) { star.innerText = "☆"; star.classList.remove("starred"); }
+          }
           updateSelectedCountLabel();
+          renderAdminSelectedChips();
         });
         grid.appendChild(itemDiv);
       });
 
-      if (list.length > 200) {
+      if (list.length > displayItems.length) {
         const moreNote = document.createElement("div");
         moreNote.style.gridColumn = "1 / -1";
         moreNote.style.color = "#64748b";
-        moreNote.style.fontSize = "11.5px";
+        moreNote.style.fontSize = "12px";
         moreNote.style.textAlign = "center";
-        moreNote.style.padding = "8px 0";
-        moreNote.innerText = `...외 ${list.length - 200}개 단지 (검색어를 입력하시면 빠르게 찾으실 수 있습니다)`;
+        moreNote.style.padding = "10px 0";
+        moreNote.style.background = "#f1f5f9";
+        moreNote.style.borderRadius = "6px";
+        moreNote.innerText = `...외 ${list.length - displayItems.length}개 단지 (위 [읍·면·동 선택]에서 특정 동을 클릭하시면 누락 없이 100% 한눈에 보실 수 있습니다)`;
         grid.appendChild(moreNote);
       }
 
       updateSelectedCountLabel();
+      renderAdminSelectedChips();
     }
 
     function toggleSelectAllFiltered(select) {
-      const kw = document.getElementById("inpSearchKw").value.trim().toLowerCase();
+      const kw = document.getElementById("inpSearchKw") ? document.getElementById("inpSearchKw").value.trim().toLowerCase() : "";
       let list = allComplexes;
       if (currentDistrict !== "전체") list = list.filter(c => c.district === currentDistrict);
+      if (currentDong !== "전체") list = list.filter(c => c.dong === currentDong || (c.name && c.name.includes(currentDong)));
       if (kw) list = list.filter(c => (c.name && c.name.toLowerCase().includes(kw)) || (c.dong && c.dong.toLowerCase().includes(kw)) || (c.no && c.no.includes(kw)));
 
       list.forEach(c => {
@@ -2230,8 +2873,47 @@
 
     function updateSelectedCountLabel() {
       const cnt = selectedComplexNos.size;
-      document.getElementById("lblSelectedCount").innerText = 
-        `선택된 단지: ${cnt}개 ${cnt === 0 ? "(전체 알림)" : ""}`;
+      const lbl = document.getElementById("lblSelectedCount");
+      if (lbl) {
+        lbl.innerText = `선택된 단지: ${cnt}개 ${cnt === 0 ? "(선택 없을 시 전체 알림)" : ""}`;
+      }
+    }
+
+    function renderAdminSelectedChips() {
+      const box = document.getElementById("adminSelectedChipsBox");
+      const listDiv = document.getElementById("adminSelectedChipsList");
+      const countSpan = document.getElementById("adminSelectedCountNum");
+      if (!box || !listDiv) return;
+
+      const cnt = selectedComplexNos.size;
+      if (countSpan) countSpan.innerText = cnt;
+
+      if (cnt === 0) {
+        box.style.display = "none";
+        listDiv.innerHTML = "";
+        return;
+      }
+
+      box.style.display = "block";
+      let html = "";
+      selectedComplexNos.forEach(cno => {
+        const comp = allComplexes.find(c => c.no === cno);
+        const name = comp ? comp.name : cno;
+        const dong = comp ? (comp.dong || comp.district || "") : "";
+        html += `
+          <span class="selected-chip-item" onclick="removeAdminSelectedComplex('${cno}')" title="클릭 시 선택 해제" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; padding:4px 8px; background:#ffffff; border:1px solid #86efac; border-radius:16px; font-size:12px; color:#1e293b;">
+            ${dong ? `<span style="color:#0369a1; font-weight:700;">[${dong}]</span>` : ""}
+            <b>${name}</b>
+            <span style="color:#ef4444; font-weight:900; margin-left:3px;">✕</span>
+          </span>
+        `;
+      });
+      listDiv.innerHTML = html;
+    }
+
+    function removeAdminSelectedComplex(cno) {
+      selectedComplexNos.delete(cno);
+      renderComplexCheckList();
     }
 
     function addSelectedComplexesToMonitored() {
@@ -2761,6 +3443,7 @@
       renderMonitoredGrid();
       syncSubFilterButtons();
       renderSubscribersTable();
+      renderDongChips();
       renderComplexCheckList();
       const inpS = document.getElementById("inpSheetUrl");
       if (inpS) inpS.value = getSheetUrl();
