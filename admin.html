@@ -3631,6 +3631,33 @@
               const ssOffice = (ss.office_name || "").trim();
               const ssMid = (ss.mid || "").trim().toUpperCase();
 
+              // 구글 시트의 메모/단지 파라미터에서 요청 단지 번호들 자동 추출
+              let extractedNos = [];
+              if (Array.isArray(ss.complex_nos) && ss.complex_nos.length > 0) {
+                extractedNos = ss.complex_nos.map(String);
+              } else if (ss.req_complexes && typeof ss.req_complexes === "string") {
+                extractedNos = ss.req_complexes.split(",").map(x => x.trim()).filter(x => /^\d+$/.test(x));
+              } else if (ss.memo && typeof ss.memo === "string") {
+                const match = ss.memo.match(/요청단지:\s*([^)]+)/);
+                if (match && match[1]) {
+                  extractedNos = match[1].split(",").map(x => x.trim()).filter(x => /^\d+$/.test(x));
+                }
+              }
+
+              // 신청된 단지들이 중앙 감시 목록(monitoredList)에 없으면 자동 연동 등록
+              extractedNos.forEach(cno => {
+                if (!monitoredList.some(m => String(m.no) === String(cno))) {
+                  const found = allComplexes.find(a => String(a.no) === String(cno));
+                  monitoredList.push({
+                    no: String(cno),
+                    name: found ? found.name : ("단지 " + cno),
+                    district: found ? (found.district || "울산") : "울산",
+                    dong: found ? (found.dong || "") : "",
+                    enabled: true
+                  });
+                }
+              });
+
               // 기존 로컬 목록에서 일치하는 구독자 찾기
               let existing = subscribersList.find(s => {
                 const sDigits = (s.phone || "").replace(/[^0-9]/g, "");
@@ -3646,6 +3673,11 @@
                   existing.approved = isApproved;
                   updatedCount++;
                 }
+                // 만약 기존 구독자의 complex_nos가 비어있고 구글 시트에서 추출된 단지가 있다면 즉시 복구/채움!
+                if ((!existing.complex_nos || existing.complex_nos.length === 0) && extractedNos.length > 0) {
+                  existing.complex_nos = [...extractedNos];
+                  updatedCount++;
+                }
               } else if (ssOffice && ssOffice !== "대표 소장님") {
                 // 시트에만 있고 로컬에 없는 신규 신청자 자동 동기화 추가
                 const newId = ssDigits ? `sub_${ssDigits}` : `sub_${Date.now()}`;
@@ -3659,7 +3691,7 @@
                   phone: ss.phone || "-",
                   plan: "A",
                   realtor_names: [ssOffice],
-                  complex_nos: [],
+                  complex_nos: extractedNos.length > 0 ? [...extractedNos] : [],
                   enabled: true,
                   approved: isApproved,
                   token_file: `tokens/${newId}.json`
