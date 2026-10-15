@@ -1421,16 +1421,19 @@
               </table>
             </div>
 
-            <!-- 우측 단지 조작 버튼 3종 -->
-            <div style="display:flex; flex-direction:column; gap:6px; min-width:160px; justify-content:flex-start;">
-              <button class="btn btn-primary" style="height:34px; font-size:12.5px;" onclick="openAddComplexModal()">
+            <!-- 우측 단지 조작 버튼 4종 -->
+            <div style="display:flex; flex-direction:column; gap:6px; min-width:165px; justify-content:flex-start;">
+              <button class="btn btn-primary" style="height:34px; font-size:12.5px; font-weight:800;" onclick="openAddComplexModal()">
                 ➕ 단지 추가하기
               </button>
-              <button class="btn btn-danger" style="height:34px; font-size:12.5px;" onclick="removeSelectedComplexFromSub()">
+              <button class="btn btn-danger" style="height:34px; font-size:12.5px; font-weight:700;" onclick="removeSelectedComplexFromSub()">
                 ➖ 선택 단지 제외
               </button>
-              <button class="btn btn-gray" style="height:34px; font-size:11.5px; border:1px solid #cbd5e1;" onclick="setSubToAllComplexes()">
-                ☀️ 전체 단지 수신 전환
+              <button class="btn" id="btnSubAllComplexes" style="height:34px; font-size:12px; font-weight:800; background:#fef3c7; color:#92400e; border:1.5px solid #f59e0b;" onclick="setSubToAllComplexes()">
+                ☀️ 전체단지 수신전환
+              </button>
+              <button class="btn" id="btnSubCancelAllComplexes" style="height:34px; font-size:12px; font-weight:800; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1;" onclick="cancelSubAllComplexes()">
+                📍 전체단지 수신해제
               </button>
             </div>
           </div>
@@ -1877,23 +1880,29 @@
       if (savedS) {
         try {
           subscribersList = JSON.parse(savedS);
-          // 기존 localStorage에 대표(owner)의 complex_nos가 비어있는 경우 기본 10개로 자동 마이그레이션!
-          const ownerSub = subscribersList.find(s => s.id === "owner");
-          if (ownerSub && (!ownerSub.complex_nos || ownerSub.complex_nos.length === 0)) {
-            ownerSub.complex_nos = [
-              "154078", "166019", "158599", "148021", "132391",
-              "198037", "133528", "140153", "177817", "180258"
-            ];
-            saveStorage();
-          }
-
-          // 문수로트럼프공인중개사도 태화강아이파크 단지와 연동되지 않고 전용 4개 단지로 자동 분리 지정!
-          const trumpSub = subscribersList.find(s => s.id === "sub_01073688338" || (s.office_name && s.office_name.includes("문수로트럼프")));
-          if (trumpSub && (!trumpSub.complex_nos || trumpSub.complex_nos.length === 0)) {
-            trumpSub.complex_nos = ["154078", "166019", "158599", "148021"];
-            saveStorage();
-          }
         } catch(e){}
+      }
+
+      // 1회성 마이그레이션 플래그: 사용자가 수동 설정한 전체수신/지정수신 상태를 F5 시 절대로 덮어쓰지 않음!
+      const migrationDone = localStorage.getItem("naver_subs_migrated_v4");
+      if (!migrationDone) {
+        const ownerSub = subscribersList.find(s => s.id === "owner");
+        if (ownerSub && (!ownerSub.complex_nos || ownerSub.complex_nos.length === 0)) {
+          ownerSub.complex_nos = [
+            "154078", "166019", "158599", "148021", "132391",
+            "198037", "133528", "140153", "177817", "180258"
+          ];
+          ownerSub.all_complexes = false;
+        }
+
+        const trumpSub = subscribersList.find(s => s.id === "sub_01073688338" || (s.office_name && s.office_name.includes("문수로트럼프")));
+        if (trumpSub && (!trumpSub.complex_nos || trumpSub.complex_nos.length === 0)) {
+          trumpSub.complex_nos = ["154078", "166019", "158599", "148021"];
+          trumpSub.all_complexes = false;
+        }
+
+        localStorage.setItem("naver_subs_migrated_v4", "true");
+        saveStorage();
       }
     }
 
@@ -2112,9 +2121,12 @@
         if (isOwner) planDesc = "👑 대표 관리자";
         else if (sub.plan === "B") planDesc = "💻 파트B (PC설치)";
 
+        const isAll = sub.all_complexes === true;
         let cDesc = "";
-        if (!sub.complex_nos || sub.complex_nos.length === 0) {
+        if (isAll) {
           cDesc = `☀️ 등록 감시단지 전체 (${monitoredList.length}개)`;
+        } else if (!sub.complex_nos || sub.complex_nos.length === 0) {
+          cDesc = `미지정 (0개)`;
         } else {
           cDesc = `${sub.complex_nos.length}개 단지 지정 수신`;
         }
@@ -2197,12 +2209,13 @@
       else if (sub.plan === "B") planStr = "💻 파트B (PC설치형 - 상대 PC 자체 구동)";
 
       const officeName = sub.office_name || sub.name;
+      const isAll = sub.all_complexes === true;
       const cNos = sub.complex_nos || [];
 
-      if (isOwner) {
+      if (isOwner && !isAll) {
         titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0369a1;">태화강아이파크 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 타 부동산(소소부동산 등)이 추가한 단지는 제외되며, 오직 아래 등록된 단지만 태화강아이파크 카카오톡으로 수신됩니다. [➕ 단지 추가하기]로 단지를 자유롭게 추가/제외할 수 있습니다.</span>`;
-      } else if (cNos.length === 0) {
-        titleEl.innerText = `📍 [${officeName} | ${planStr}] - ☀️ 등록 감시단지 전체 수신 모드 (총 ${monitoredList.length}개 감시단지 실시간 전송)`;
+      } else if (isAll) {
+        titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#b45309;">☀️ 등록 감시단지 전체 수신 모드 (총 ${monitoredList.length}개 감시단지 실시간 전송)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 현재 크롤러가 감시 중인 전체 단지의 알림을 일괄 수신 중입니다. [📍 전체단지 수신해제]를 누르면 개별 지정 단지만 수신하도록 변경됩니다.</span>`;
 
         monitoredList.forEach(c => {
           const isSelected = selectedSubComplexNo === c.no;
@@ -2211,8 +2224,8 @@
           tr.innerHTML = `
             <td style="text-align:center; font-weight:700;">${c.no}</td>
             <td>☀️ [전체수신] ${c.name}</td>
-            <td style="text-align:center;">${c.district || "중구"}</td>
-            <td style="text-align:center;">${c.dong || "우정동"}</td>
+            <td style="text-align:center;">${c.district || "울산"}</td>
+            <td style="text-align:center;">${c.dong || ""}</td>
           `;
           tr.onclick = () => {
             selectedSubComplexNo = c.no;
@@ -2221,10 +2234,10 @@
           tbodyC.appendChild(tr);
         });
       } else {
-        titleEl.innerText = `📍 [${officeName} | ${planStr}] - 신청 및 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)`;
+        titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0284c7;">신청 및 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 오직 아래 지정된 ${cNos.length}개 단지만 카카오톡으로 전송됩니다. [☀️ 전체단지 수신전환]을 누르면 모든 감시단지를 일괄 수신합니다.</span>`;
 
         cNos.forEach(cno => {
-          const c = monitoredList.find(m => m.no === cno) || allComplexes.find(m => m.no === cno) || { no: cno, name: "단지 " + cno, district: "-", dong: "-" };
+          const c = monitoredList.find(m => String(m.no) === String(cno)) || allComplexes.find(m => String(m.no) === String(cno)) || { no: cno, name: "단지 " + cno, district: "-", dong: "-" };
           const isSelected = selectedSubComplexNo === c.no;
           const tr = document.createElement("tr");
           if (isSelected) tr.className = "selected";
@@ -2241,255 +2254,33 @@
           tbodyC.appendChild(tr);
         });
       }
-    }
 
-    // =========================================================================
-    // [단지 추가 모달: 첫 번째 캡처 화면과 100% 동일한 팝업 다이얼로그]
-    // =========================================================================
-    function openAddComplexModal() {
-      const sub = subscribersList.find(s => s.id === selectedSubId);
-      if (!sub) { alert("단지를 추가할 부동산을 목록에서 먼저 선택해 주세요."); return; }
+      // 우측 버튼 상태 동적 업데이트
+      const btnAll = document.getElementById("btnSubAllComplexes");
+      const btnCancel = document.getElementById("btnSubCancelAllComplexes");
+      if (btnAll && btnCancel) {
+        if (isAll) {
+          btnAll.style.background = "#f59e0b";
+          btnAll.style.color = "#ffffff";
+          btnAll.style.borderColor = "#d97706";
+          btnAll.innerText = `☀️ 전체수신 중 (${monitoredList.length}개)`;
 
-      const isOwner = sub.id === "owner" || sub.plan === "OWNER";
-      const planLabel = isOwner ? "👑 대표 관리자" : (sub.plan === "B" ? "💻 파트B PC설치" : "📱 파트A 스마트폰");
-      const subName = sub.office_name || sub.name;
-
-      document.getElementById("dialogModalTitle").innerText = `➕ [${subName}] 수신 단지 추가 (${planLabel})`;
-      document.getElementById("dialogSearchInput").value = "";
-      dialogDistrict = "전체";
-      dialogDong = "전체";
-      dialogSelectedComplex = null;
-
-      const container = document.getElementById("dialogDongContainer");
-      if (container) container.style.display = "none";
-
-      document.querySelectorAll("#dialogDistrictBar .btn-district").forEach(b => {
-        b.classList.toggle("active", b.innerText === "전체");
-      });
-
-      document.getElementById("addComplexModalBackdrop").style.display = "flex";
-      filterDialogComplexes();
-    }
-
-    function closeAddComplexModal() {
-      document.getElementById("addComplexModalBackdrop").style.display = "none";
-    }
-
-    function setDialogDistrict(dist) {
-      dialogDistrict = dist;
-      dialogSelectedComplex = null;
-
-      document.querySelectorAll("#dialogDistrictBar .btn-district").forEach(b => {
-        b.classList.toggle("active", b.innerText === dist);
-      });
-
-      const container = document.getElementById("dialogDongContainer");
-      const chipsBox = document.getElementById("dialogDongChips");
-      const distLabel = document.getElementById("dialogDongDistrictLabel");
-
-      if (dist === "전체") {
-        dialogDong = "전체";
-        if (container) container.style.display = "none";
-      } else {
-        // 소장님 요청: 남구 등 구/군 선택 시 먼저 동을 선택하게 대기!
-        dialogDong = null;
-        if (container) container.style.display = "block";
-        if (distLabel) distLabel.innerText = dist;
-        if (chipsBox) {
-          chipsBox.innerHTML = "";
-
-          // '전체 동' 버튼
-          const allBtn = document.createElement("button");
-          allBtn.type = "button";
-          allBtn.className = "btn-dong-chip";
-          allBtn.innerText = "전체 동";
-          allBtn.onclick = () => setDialogDong("전체");
-          chipsBox.appendChild(allBtn);
-
-          const dongs = ULSAN_DISTRICT_DONGS[dist] || [];
-          dongs.forEach(dong => {
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.className = "btn-dong-chip";
-            btn.setAttribute("data-dong", dong);
-            btn.innerText = dong;
-            btn.onclick = () => setDialogDong(dong);
-            chipsBox.appendChild(btn);
-          });
-        }
-      }
-
-      filterDialogComplexes();
-    }
-
-    function setDialogDong(dong) {
-      dialogDong = dong;
-      dialogSelectedComplex = null;
-
-      document.querySelectorAll("#dialogDongChips .btn-dong-chip").forEach(b => {
-        if (dong === "전체") {
-          b.classList.toggle("active", b.innerText === "전체 동");
+          btnCancel.style.background = "#ffffff";
+          btnCancel.style.color = "#0284c7";
+          btnCancel.style.borderColor = "#0284c7";
+          btnCancel.innerText = "📍 전체단지 수신해제";
         } else {
-          b.classList.toggle("active", b.getAttribute("data-dong") === dong);
+          btnAll.style.background = "#fef3c7";
+          btnAll.style.color = "#92400e";
+          btnAll.style.borderColor = "#f59e0b";
+          btnAll.innerText = "☀️ 전체단지 수신전환";
+
+          btnCancel.style.background = "#f1f5f9";
+          btnCancel.style.color = "#64748b";
+          btnCancel.style.borderColor = "#cbd5e1";
+          btnCancel.innerText = `📍 지정수신 중 (${cNos.length}개)`;
         }
-      });
-
-      filterDialogComplexes();
-    }
-
-    function clearDialogSearch() {
-      document.getElementById("dialogSearchInput").value = "";
-      filterDialogComplexes();
-    }
-
-    function filterDialogComplexes() {
-      const sub = subscribersList.find(s => s.id === selectedSubId);
-      const curNos = new Set((sub && sub.complex_nos) ? sub.complex_nos.map(String) : []);
-
-      const q = document.getElementById("dialogSearchInput").value.trim().toLowerCase();
-      const dist = dialogDistrict;
-      const dong = dialogDong;
-
-      const tbody = document.getElementById("dialogTbodyComplexes");
-      tbody.innerHTML = "";
-
-      // 1. 구/군(예: 남구)을 선택했으나 아직 동을 클릭하지 않았고, 검색어도 없는 경우 -> 동 선택 안내 표시
-      if (dist !== "전체" && !dong && !q) {
-        document.getElementById("dialogResultCountLabel").innerText = 
-          `[${dist}] 위 읍·면·동 목록에서 원하는 동을 선택해 주세요.`;
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" style="text-align:center; padding:40px 16px; color:#334155; font-size:13.5px; font-weight:700; background:#f8fafc; line-height:1.7;">
-              📍 위 <span style="color:#0284c7; font-weight:900; font-size:14.5px;">[${dist}]</span>의 <b>읍·면·동</b>(예: 옥동, 신정동, 무거동, 달동 등)을 클릭해 주세요.<br>
-              <span style="font-size:12px; color:#64748b; font-weight:normal;">동을 클릭하시면 해당 동의 아파트 단지 목록이 아래에 표시되어 원하는 단지를 바로 추가하실 수 있습니다.</span>
-            </td>
-          </tr>
-        `;
-        return;
       }
-
-      let list = allComplexes;
-      if (dist !== "전체") {
-        list = list.filter(c => c.district === dist);
-      }
-      if (dong && dong !== "전체") {
-        list = list.filter(c => c.dong === dong);
-      }
-      if (q) {
-        list = list.filter(c => 
-          (c.name && c.name.toLowerCase().includes(q)) ||
-          (c.dong && c.dong.toLowerCase().includes(q)) ||
-          (c.no && c.no.includes(q))
-        );
-      }
-
-      let locLabel = "울산 전체";
-      if (dist !== "전체") {
-        locLabel = (dong && dong !== "전체") ? `${dist} ${dong}` : `${dist} 전체`;
-      }
-      document.getElementById("dialogResultCountLabel").innerText = 
-        `검색 결과: [${locLabel}] 총 ${list.length}개 단지` + (list.length > 200 ? " (상위 200개 표시 중, 검색어로 좁혀보세요)" : "");
-
-      if (list.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" style="text-align:center; padding:30px 16px; color:#94a3b8; font-size:13px;">
-              해당 조건에 일치하는 단지가 없습니다.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      const displayList = list.slice(0, 200);
-
-      displayList.forEach((c, idx) => {
-        const isAlready = curNos.has(String(c.no));
-        const isSelected = dialogSelectedComplex && String(dialogSelectedComplex.no) === String(c.no);
-
-        const tr = document.createElement("tr");
-        let regStatusHtml = "";
-        if (isSelected) {
-          tr.style.backgroundColor = "#0284c7";
-          tr.style.color = "#ffffff";
-          tr.style.fontWeight = "700";
-          regStatusHtml = isAlready 
-            ? `<span style="color:#bbf7d0; font-weight:800; font-size:12px;">✔ 이미 등록됨</span>`
-            : `<button type="button" class="btn" style="background:#ffffff; color:#0284c7; height:25px; padding:0 8px; font-size:11.5px; font-weight:800; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.2);" onclick="event.stopPropagation(); confirmAddDialogComplex(displayList[${idx}]);">➕ 추가 가능</button>`;
-        } else {
-          tr.style.backgroundColor = isAlready ? "#f8fafc" : "#ffffff";
-          regStatusHtml = isAlready 
-            ? `<span style="color:#16a34a; font-weight:700; font-size:12px;">✔ 이미 등록됨</span>`
-            : `<button type="button" class="btn" style="background:#e0f2fe; color:#0284c7; border:1px solid #bae6fd; height:25px; padding:0 8px; font-size:11.5px; font-weight:700; border-radius:4px;" onclick="event.stopPropagation(); confirmAddDialogComplex(displayList[${idx}]);">➕ 추가 가능</button>`;
-        }
-
-        const householdStr = c.household ? (c.household + "세대") : "-";
-
-        tr.innerHTML = `
-          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${c.no}</td>
-          <td style="padding:7px 10px; border-right:1px solid rgba(226,232,240,0.5); font-weight:700;">${c.name}</td>
-          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${c.district || "-"}</td>
-          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${c.dong || "-"}</td>
-          <td style="padding:7px 8px; text-align:center; border-right:1px solid rgba(226,232,240,0.5);">${householdStr}</td>
-          <td style="padding:5px 8px; text-align:center;">${regStatusHtml}</td>
-        `;
-
-        tr.onclick = () => {
-          dialogSelectedComplex = c;
-          filterDialogComplexes();
-        };
-
-        tr.ondblclick = () => {
-          confirmAddDialogComplex(c);
-        };
-
-        tbody.appendChild(tr);
-      });
-    }
-
-    function confirmAddDialogComplex(specificComplex = null) {
-      const sub = subscribersList.find(s => s.id === selectedSubId);
-      if (!sub) return;
-
-      const c = specificComplex || dialogSelectedComplex;
-      if (!c) {
-        alert("목록에서 추가할 단지를 먼저 클릭하여 선택해 주세요.");
-        return;
-      }
-
-      const cno = String(c.no);
-
-      if (!sub.complex_nos) {
-        sub.complex_nos = [];
-      }
-
-      // owner가 아닌 다른 일반 구독자가 전체수신([]) 모드였을 때만 전체 목록을 기본값으로 변환
-      if (sub.id !== "owner" && sub.complex_nos.length === 0) {
-        sub.complex_nos = monitoredList.map(m => m.no);
-      }
-
-      if (!sub.complex_nos.map(String).includes(cno)) {
-        sub.complex_nos.push(cno);
-      } else {
-        alert(`[${c.name}] (${cno}) 단지는 이미 등록되어 있습니다.`);
-        return;
-      }
-
-      // 소장님 전체 감시 목록에도 없으면 자동 추가 연동
-      if (!monitoredList.some(m => String(m.no) === cno)) {
-        monitoredList.push({
-          no: cno,
-          name: c.name,
-          district: c.district || "울산",
-          dong: c.dong || "",
-          enabled: true
-        });
-      }
-
-      saveStorage();
-      closeAddComplexModal();
-      renderSubscribersTable();
-      showToast(`✅ [${c.name}] (${cno}) 단지가 성공적으로 수신 목록에 추가되었습니다!`, "🎉");
     }
 
     // =========================================================================
@@ -2504,7 +2295,12 @@
         return;
       }
 
-      // 현재 목록 추출 (전체 수신 모드였을 경우 10개 감시 목록을 기본 베이스로 가져옴!)
+      // 전체 수신 모드였을 경우, 전체 수신을 해제하고 해당 단지만 뺀 목록으로 지정 수신 전환!
+      if (sub.all_complexes === true) {
+        sub.all_complexes = false;
+        sub.complex_nos = monitoredList.map(c => c.no);
+      }
+
       let currentList = (sub.complex_nos && sub.complex_nos.length > 0)
         ? [...sub.complex_nos]
         : monitoredList.map(c => c.no);
@@ -2513,7 +2309,6 @@
                     allComplexes.find(m => String(m.no) === String(selectedSubComplexNo));
       const targetName = found ? found.name : ("단지 " + selectedSubComplexNo);
 
-      // 소장님 요청: 귀찮은 에러창 대신 "삭제 여부를 다시 묻고 확인 시 즉시 삭제"
       if (confirm(`정말로 [${sub.office_name}] 부동산의 수신 목록에서\n[${selectedSubComplexNo} ${targetName}] 단지를 제외하시겠습니까?`)) {
         currentList = currentList.filter(x => String(x).trim() !== String(selectedSubComplexNo).trim());
         sub.complex_nos = currentList;
@@ -2524,21 +2319,49 @@
       }
     }
 
-    // 전체 단지 수신 전환
+    // 전체 단지 수신 전환 (소장님 요청: 11개 단지 즉시 적용 및 F5 시에도 100% 영구 보존)
     function setSubToAllComplexes() {
       const sub = subscribersList.find(s => s.id === selectedSubId);
       if (!sub) { alert("부동산을 목록에서 먼저 선택해 주세요."); return; }
 
-      if (confirm(`[${sub.office_name}] 부동산을 '등록 감시단지 전체 수신' 모드로 전환하시겠습니까?\n\n전환 시 현재 등록된 모든 감시단지의 알림을 일괄 수신하게 됩니다.`)) {
-        sub.complex_nos = [];
+      if (confirm(`[${sub.office_name}] 부동산을 '등록 감시단지 전체 수신' 모드로 전환하시겠습니까?\n\n전환 시 현재 등록된 모든 감시단지(${monitoredList.length}개)의 알림을 일괄 수신하게 됩니다.`)) {
+        sub.all_complexes = true;
         selectedSubComplexNo = null;
         saveStorage();
         renderSubscribersTable();
-        showToast(`[${sub.office_name}] 전체 감시단지 수신 모드로 전환되었습니다! ☀️`, "🌟");
+        showToast(`[${sub.office_name}] 전체 감시단지(${monitoredList.length}개) 일괄 수신 모드로 전환되었습니다! ☀️`, "🌟");
       }
     }
 
-    // 일시 정지 / 재개 버튼
+    // 전체 단지 수신 해제 (소장님 요청: 개별 지정 단지 수신 모드로 즉시 해제 및 복귀)
+    function cancelSubAllComplexes() {
+      const sub = subscribersList.find(s => s.id === selectedSubId);
+      if (!sub) { alert("부동산을 목록에서 먼저 선택해 주세요."); return; }
+
+      if (!sub.all_complexes) {
+        alert(`[${sub.office_name}] 부동산은 이미 '지정 단지 수신' 모드입니다.`);
+        return;
+      }
+
+      if (confirm(`[${sub.office_name}] 부동산의 '전체 감시단지 수신'을 해제하시겠습니까?\n\n해제 시 지정된 개별 단지만 알림을 받게 됩니다.`)) {
+        sub.all_complexes = false;
+
+        // 지정 단지 목록이 비어있으면 대표 또는 문수로트럼프 기본 단지 복원
+        if (!sub.complex_nos || sub.complex_nos.length === 0) {
+          if (sub.id === "owner") {
+            sub.complex_nos = ["154078", "166019", "158599", "148021", "132391", "198037", "133528", "140153", "177817", "180258"];
+          } else if (sub.id === "sub_01073688338" || (sub.office_name && sub.office_name.includes("문수로트럼프"))) {
+            sub.complex_nos = ["154078", "166019", "158599", "148021"];
+          }
+        }
+
+        selectedSubComplexNo = null;
+        saveStorage();
+        renderSubscribersTable();
+        showToast(`[${sub.office_name}] 전체 수신이 해제되고 지정 단지(${sub.complex_nos ? sub.complex_nos.length : 0}개) 수신 모드로 전환되었습니다! 📍`, "✅");
+      }
+    }
+
     function toggleCurrentSubStatus() {
       const sub = subscribersList.find(s => s.id === selectedSubId);
       if (!sub) { alert("상태를 변경할 부동산을 목록에서 먼저 선택해 주세요."); return; }
