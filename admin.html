@@ -1787,8 +1787,8 @@
       showToast("구글 스프레드시트 연동 주소가 저장되었습니다!", "📊");
     }
 
-    // 10개 기본 감시 단지
-    let monitoredList = [
+    // [철저 분리 원칙] 대표(태화강아이파크) 고유 10개 감시 단지 상수
+    const OWNER_DEFAULT_COMPLEXES = [
       { no: "154078", name: "옥동경남아너스빌ubc", district: "남구", dong: "옥동", enabled: true },
       { no: "166019", name: "힐스테이트문수로센트럴", district: "남구", dong: "신정동", enabled: true },
       { no: "158599", name: "문수로롯데캐슬그랑파르크(주상복합)", district: "남구", dong: "신정동", enabled: true },
@@ -1801,7 +1801,9 @@
       { no: "180258", name: "번영로롯데캐슬센트럴스카이(주상복합)", district: "중구", dong: "복산동", enabled: true }
     ];
 
-    // 구독자 목록 (대표 소장님 기본 10개 단지, 문수로트럼프 전용 4개 단지 각각 별도 관리)
+    let monitoredList = OWNER_DEFAULT_COMPLEXES.map(c => ({ ...c }));
+
+    // 구독자 목록 (대표 소장님 10개 단지, 문수로트럼프 차호인 소장님 4개 단지, 차승혁 소공 3개 단지 각각 철저 격리 관리)
     let subscribersList = [
       {
         "id": "owner",
@@ -1845,6 +1847,27 @@
         "license_check": true,
         "approved": true,
         "approved_notified": true
+      },
+      {
+        "id": "sub_01073747595",
+        "name": "문수로트럼프 (차승혁 실장님 / 대표: 차호인)",
+        "office_name": "문수로트럼프",
+        "owner_name": "차호인",
+        "user_type": "소공",
+        "agent_name": "차승혁",
+        "phone": "010-7374-7595",
+        "plan": "A",
+        "realtor_names": ["문수로트럼프"],
+        "token_file": "tokens/sub_01073747595.json",
+        "complex_nos": [
+          "154078",
+          "173878",
+          "158599"
+        ],
+        "enabled": true,
+        "license_check": true,
+        "approved": true,
+        "approved_notified": true
       }
     ];
 
@@ -1874,36 +1897,75 @@
     let dialogSelectedComplex = null;
 
     function initStorage() {
+      // 1. 대표(태화강아이파크) 실시간 감시 단지 로드 (관리자가 수정한 추가/삭제 상태 100% 영구 보존)
       const savedM = localStorage.getItem("naver_admin_monitored");
-      if (savedM) { try { monitoredList = JSON.parse(savedM); } catch(e){} }
+      if (savedM) {
+        try {
+          const parsedM = JSON.parse(savedM);
+          if (Array.isArray(parsedM) && parsedM.length > 0) {
+            monitoredList = parsedM;
+          }
+        } catch(e){}
+      } else {
+        monitoredList = OWNER_DEFAULT_COMPLEXES.map(c => ({ ...c }));
+      }
+
+      // [1회성 구버전 오염 단지 정화] 과거 버그로 섞여들어갔던 래미안(101101, 14746) 등만 1회성 정화
+      const purgeDone = localStorage.getItem("naver_monitored_purged_v6");
+      if (!purgeDone) {
+        monitoredList = monitoredList.filter(m => !["101101", "14746"].includes(String(m.no)));
+        localStorage.setItem("naver_monitored_purged_v6", "true");
+        localStorage.setItem("naver_admin_monitored", JSON.stringify(monitoredList));
+      }
+
+      // 2. 구독자 목록 로드 (관리자가 추가/수정/삭제한 상태 그대로 100% 영구 보존)
       const savedS = localStorage.getItem("naver_admin_subs");
       if (savedS) {
         try {
-          subscribersList = JSON.parse(savedS);
+          const parsed = JSON.parse(savedS);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            subscribersList = parsed;
+          }
         } catch(e){}
       }
 
-      // 1회성 마이그레이션 플래그: 사용자가 수동 설정한 전체수신/지정수신 상태를 F5 시 절대로 덮어쓰지 않음!
-      const migrationDone = localStorage.getItem("naver_subs_migrated_v4");
-      if (!migrationDone) {
-        const ownerSub = subscribersList.find(s => s.id === "owner");
-        if (ownerSub && (!ownerSub.complex_nos || ownerSub.complex_nos.length === 0)) {
-          ownerSub.complex_nos = [
-            "154078", "166019", "158599", "148021", "132391",
-            "198037", "133528", "140153", "177817", "180258"
-          ];
-          ownerSub.all_complexes = false;
-        }
-
-        const trumpSub = subscribersList.find(s => s.id === "sub_01073688338" || (s.office_name && s.office_name.includes("문수로트럼프")));
-        if (trumpSub && (!trumpSub.complex_nos || trumpSub.complex_nos.length === 0)) {
-          trumpSub.complex_nos = ["154078", "166019", "158599", "148021"];
-          trumpSub.all_complexes = false;
-        }
-
-        localStorage.setItem("naver_subs_migrated_v4", "true");
-        saveStorage();
+      // 3. 대표(owner) 계정과 상단 실시간 감시단지(monitoredList) 양방향 동기화
+      const ownerSub = subscribersList.find(s => s.id === "owner");
+      if (ownerSub) {
+        ownerSub.complex_nos = monitoredList.map(c => String(c.no));
+        ownerSub.all_complexes = false;
       }
+
+      // 4. 문수로트럼프 차호인 소장님 계정 기본 단지 (미설정 시에만 초기 4개 단지 보장)
+      const trumpSub = subscribersList.find(s => s.id === "sub_01073688338" || (s.office_name && s.office_name.includes("문수로트럼프") && s.user_type !== "소공"));
+      if (trumpSub && (!trumpSub.complex_nos || trumpSub.complex_nos.length === 0)) {
+        trumpSub.complex_nos = ["154078", "166019", "158599", "148021"];
+        trumpSub.all_complexes = false;
+      }
+
+      // 5. 문수로트럼프 차승혁 소공 계정 (미존재 시에만 신규 신청 3개 단지 기본 탑재, 이후 관리자 수정/삭제 100% 보존)
+      let changSub = subscribersList.find(s => s.id === "sub_01073747595" || (s.phone && s.phone.includes("7374-7595")));
+      if (!changSub) {
+        subscribersList.push({
+          "id": "sub_01073747595",
+          "name": "문수로트럼프 (차승혁 실장님 / 대표: 차호인)",
+          "office_name": "문수로트럼프",
+          "owner_name": "차호인",
+          "user_type": "소공",
+          "agent_name": "차승혁",
+          "phone": "010-7374-7595",
+          "plan": "A",
+          "realtor_names": ["문수로트럼프"],
+          "token_file": "tokens/sub_01073747595.json",
+          "complex_nos": ["154078", "173878", "158599"],
+          "enabled": true,
+          "license_check": true,
+          "approved": true,
+          "approved_notified": true
+        });
+      }
+
+      saveStorage();
     }
 
     function saveStorage() {
@@ -2064,14 +2126,16 @@
     function removeMonitored(idx) {
       const c = monitoredList[idx];
       if (confirm(`[${c.name}] 단지를 실시간 감시 목록에서 제외하시겠습니까?`)) {
+        const removedNo = String(c.no);
         monitoredList.splice(idx, 1);
         // 대표(owner)의 수신 단지 목록에서도 해당 단지 제외
         const ownerSub = subscribersList.find(s => s.id === "owner");
         if (ownerSub && ownerSub.complex_nos) {
-          ownerSub.complex_nos = ownerSub.complex_nos.filter(x => String(x) !== String(c.no));
+          ownerSub.complex_nos = ownerSub.complex_nos.filter(x => String(x) !== removedNo);
         }
         saveStorage();
         renderMonitoredGrid();
+        renderSubscribersTable();
         showToast(`[${c.name}] 감시 목록에서 제외되었습니다.`, "➖");
       }
     }
@@ -2521,21 +2585,29 @@
         return;
       }
 
-      // 소장님 전체 감시 목록(크롤러)에도 없으면 자동 추가 연동
-      if (!monitoredList.some(m => String(m.no) === cno)) {
-        monitoredList.push({
-          no: cno,
-          name: c.name,
-          district: c.district || "울산",
-          dong: c.dong || "",
-          enabled: true
-        });
+      // [단지 추가 상호 반영]
+      if (sub.id === "owner") {
+        if (!monitoredList.some(m => String(m.no) === cno)) {
+          monitoredList.push({
+            no: cno,
+            name: c.name,
+            district: c.district || "울산",
+            dong: c.dong || "",
+            enabled: true
+          });
+        }
+        renderMonitoredGrid();
+      } else {
+        sub.admin_customized = true;
       }
 
       saveStorage();
       closeAddComplexModal();
       renderSubscribersTable();
       showToast(`✅ [${c.name}] (${cno}) 단지가 성공적으로 수신 목록에 추가되었습니다!`, "🎉");
+
+      // [모바일 <-> PC 실시간 동기화] 구글 시트로 단지 목록 즉시 동기화
+      syncComplexesToGoogleSheet(sub);
     }
 
     // =========================================================================
@@ -2568,11 +2640,42 @@
       if (confirm(`정말로 [${subName}] 부동산의 수신 목록에서\n[${selectedSubComplexNo} ${targetName}] 단지를 제외하시겠습니까?`)) {
         currentList = currentList.filter(x => String(x).trim() !== String(selectedSubComplexNo).trim());
         sub.complex_nos = currentList;
+
+        // [태화강아이파크(owner) 단지 제외 시 상단 실시간 감시 목록에서도 동시 제외 & 화면 즉시 반영]
+        if (sub.id === "owner") {
+          monitoredList = monitoredList.filter(m => String(m.no).trim() !== String(selectedSubComplexNo).trim());
+          renderMonitoredGrid();
+        } else {
+          sub.admin_customized = true;
+        }
+
         selectedSubComplexNo = null;
         saveStorage();
         renderSubscribersTable();
         showToast(`[${targetName}] 단지가 수신 목록에서 성공적으로 제외되었습니다!`, "➖");
+
+        // [모바일 <-> PC 실시간 동기화] 구글 시트로 단지 목록 즉시 동기화
+        syncComplexesToGoogleSheet(sub);
       }
+    }
+
+    // [모바일 <-> PC 실시간 동기화 통신 함수]
+    function syncComplexesToGoogleSheet(sub) {
+      if (!sub || sub.id === "owner") return;
+      const scriptUrl = getSheetUrl() || "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
+      const cnosStr = (sub.complex_nos || []).join(", ");
+      const mid = sub.license_mid || sub.id || "";
+      const phone = sub.phone || "";
+      const office = sub.office_name || "";
+
+      fetch(`${scriptUrl}?action=update_complexes&mid=${encodeURIComponent(mid)}&phone=${encodeURIComponent(phone)}&office_name=${encodeURIComponent(office)}&complex_nos=${encodeURIComponent(cnosStr)}&_t=${Date.now()}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log("구글 시트 단지 동기화 결과:", data);
+        })
+        .catch(err => {
+          console.warn("구글 시트 단지 동기화 통신 중:", err);
+        });
     }
 
     // 전체 단지 수신 전환 (소장님 요청: 11개 단지 즉시 적용 및 F5 시에도 100% 영구 보존)
@@ -3644,19 +3747,8 @@
                 }
               }
 
-              // 신청된 단지들이 중앙 감시 목록(monitoredList)에 없으면 자동 연동 등록
-              extractedNos.forEach(cno => {
-                if (!monitoredList.some(m => String(m.no) === String(cno))) {
-                  const found = allComplexes.find(a => String(a.no) === String(cno));
-                  monitoredList.push({
-                    no: String(cno),
-                    name: found ? found.name : ("단지 " + cno),
-                    district: found ? (found.district || "울산") : "울산",
-                    dong: found ? (found.dong || "") : "",
-                    enabled: true
-                  });
-                }
-              });
+              // [철저 분리 원칙]
+              // 신청된 타 구독자의 단지는 대표(태화강아이파크) 감시 목록(monitoredList)에 절대 섞지 않음!
 
               // 기존 로컬 목록에서 일치하는 구독자 찾기
               let existing = subscribersList.find(s => {
@@ -3673,10 +3765,23 @@
                   existing.approved = isApproved;
                   updatedCount++;
                 }
-                // 만약 기존 구독자의 complex_nos가 비어있고 구글 시트에서 추출된 단지가 있다면 즉시 복구/채움!
-                if ((!existing.complex_nos || existing.complex_nos.length === 0) && extractedNos.length > 0) {
-                  existing.complex_nos = [...extractedNos];
-                  updatedCount++;
+                // [구글 시트 <-> 모바일/PC 양방향 단지 동기화]
+                // 1) 최초 신청 시에는 신청 단지 목록을 기본 탑재
+                // 2) 관리자가 수정/삭제한 경우 그 상태를 영구 보존하고 구글 시트로 동기화
+                if (extractedNos.length > 0) {
+                  if (!existing.complex_nos || existing.complex_nos.length === 0) {
+                    existing.complex_nos = [...extractedNos];
+                    updatedCount++;
+                  } else if (!existing.admin_customized) {
+                    const currentSorted = [...existing.complex_nos].map(String).sort().join(",");
+                    const sheetSorted = [...extractedNos].map(String).sort().join(",");
+                    if (currentSorted !== sheetSorted) {
+                      existing.complex_nos = [...extractedNos];
+                      updatedCount++;
+                    }
+                  } else {
+                    syncComplexesToGoogleSheet(existing);
+                  }
                 }
               } else if (ssOffice && ssOffice !== "대표 소장님") {
                 // 시트에만 있고 로컬에 없는 신규 신청자 자동 동기화 추가
