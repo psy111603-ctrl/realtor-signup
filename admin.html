@@ -2694,16 +2694,18 @@
       }
     }
 
-    // [모바일 <-> PC 실시간 동기화 통신 함수: 대표(태화강아이파크) & 타 부동산 구글 시트 양방향 직결]
+    // [모바일 <-> PC 실시간 동기화 통신 함수: 타 부동산 구글 시트 양방향 직결 (대표는 장부 등록 제외)]
     function syncComplexesToGoogleSheet(sub) {
       if (!sub) return;
-      const scriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
       const isOwner = (sub.id === "owner" || sub.plan === "OWNER");
+      if (isOwner) return; // ★ 대표 소장님은 관리자이므로 구독 신청 시트에 행을 만들지 않음
+
+      const scriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
       const cnosStr = (sub.complex_nos || []).join(", ");
       const phoneDigits = (sub.phone || "").replace(/[^0-9]/g, "");
-      const mid = isOwner ? "OWNER" : (sub.license_mid || (phoneDigits ? `SUB_${phoneDigits}` : sub.id || ""));
-      const phone = isOwner ? "010-0000-0000" : (sub.phone || "");
-      const office = isOwner ? "태화강아이파크공인중개사사무소" : (sub.office_name || "");
+      const mid = sub.license_mid || (phoneDigits ? `SUB_${phoneDigits}` : sub.id || "");
+      const phone = sub.phone || "";
+      const office = sub.office_name || "";
 
       fetch(`${scriptUrl}?action=update_complexes&mid=${encodeURIComponent(mid)}&phone=${encodeURIComponent(phone)}&office_name=${encodeURIComponent(office)}&complex_nos=${encodeURIComponent(cnosStr)}&_t=${Date.now()}`)
         .then(res => res.json())
@@ -2772,12 +2774,14 @@
       const newStatus = sub.enabled ? "승인" : "일시정지";
       showToast(`[${sub.office_name || sub.name}] 상태가 [${sub.enabled ? "정상 가동" : "일시 정지"}]으로 변경되었습니다. (클라우드 동기화)`, sub.enabled ? "▶️" : "⏸️");
 
-      // [클라우드/구글 시트 실시간 양방향 동기화] PC든 모바일이든 가동 상태(정상가동/일시정지) 100% 동일 반영
+      // [클라우드/구글 시트 실시간 양방향 동기화] PC든 모바일이든 가동 상태(정상가동/일시정지) 100% 동일 반영 (대표는 장부 등록 제외)
       try {
-        const isOwner = (sub.id === "owner");
-        const digits = isOwner ? "01000000000" : (sub.phone || "").replace(/[^0-9]/g, "");
-        const subMid = isOwner ? "OWNER" : (sub.license_mid || (digits ? `SUB_${digits}` : (sub.id || "").toUpperCase()));
-        const office = isOwner ? "태화강아이파크공인중개사사무소" : (sub.office_name || sub.name || "");
+        const isOwner = (sub.id === "owner" || sub.plan === "OWNER");
+        if (isOwner) return; // ★ 대표 소장님은 관리자이므로 구글 시트 구독자 장부에 전송하지 않음
+
+        const digits = (sub.phone || "").replace(/[^0-9]/g, "");
+        const subMid = sub.license_mid || (digits ? `SUB_${digits}` : (sub.id || "").toUpperCase());
+        const office = sub.office_name || sub.name || "";
 
         const googleScriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
         const params = new URLSearchParams({
@@ -2818,7 +2822,29 @@
       sub.enabled = true;
       saveStorage();
       renderSubscribersTable();
-      showToast(`🎉 [${sub.office_name}] 대표님께 승인완료 축하 카카오톡이 정상 발송되었습니다!`, "✅");
+      showToast(`🎉 [${sub.office_name}] 승인완료 축하 카카오톡 발송 요청 완료!`, "✅");
+
+      // [구글 시트 라이선스 서버로 실시간 승인 전송 -> 고객 카톡 자동 즉시 발송 연동]
+      try {
+        const digits = (sub.phone || "").replace(/[^0-9]/g, "");
+        const subMid = sub.license_mid || (digits ? `SUB_${digits}` : (sub.id || "").toUpperCase());
+        const office = sub.office_name || sub.name || "";
+        const googleScriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
+        const params = new URLSearchParams({
+          action: "update_status",
+          mid: subMid,
+          phone: digits,
+          office_name: office,
+          status: "승인",
+          _t: String(Date.now())
+        });
+        const finalUrl = googleScriptUrl + "?" + params.toString();
+        fetch(finalUrl, { mode: 'no-cors' }).catch(() => {});
+        const imgPing = new Image();
+        imgPing.src = finalUrl;
+      } catch (errApprove) {
+        console.warn("구글 시트 승인 원격 요청 예외:", errApprove);
+      }
     }
 
     // 선택 부동산 삭제 버튼 (구글 스프레드시트 동시 자동 삭제 연동)
@@ -3907,18 +3933,41 @@
               }
             });
 
-            // ★ [대표 관리자 절대 원칙: 태화강아이파크는 관리자 1곳(owner)뿐이며 구독 신청 부동산이 아님!]
+            // ★ [PC <-> 모바일 실시간 삭제 양방향 동기화: 구글 시트에서 삭제된 부동산은 타 기기에서도 자동 동시 삭제!]
             const beforeCount = subscribersList.length;
             subscribersList = subscribersList.filter(s => {
+              // 1. 대표 관리자 마스터(owner)는 절대 안전 영구 보존
               if (s.id === "owner") return true;
+
+              // 2. 태화강아이파크 중복 가짜 계정 제외
               const office = (s.office_name || s.name || "").trim();
               const phone = (s.phone || "").replace(/[^0-9]/g, "");
               if (office.includes("태화강아이파크") || phone === "01000000000" || s.id === "sub_01000000000") {
                 return false;
               }
-              return true;
+
+              // 3. 구글 시트에 존재하는지 대조 (시트에서 삭제된 부동산은 모바일 등 타 기기에서도 즉시 동시 자동 삭제!)
+              const sDigits = (s.phone || "").replace(/[^0-9]/g, "");
+              const sOffice = (s.office_name || s.name || "").trim();
+              const sMid = (s.license_mid || (sDigits ? `SUB_${sDigits}` : s.id || "")).toUpperCase();
+
+              const existsInSheet = sheetSubs.some(ss => {
+                const ssDigits = (ss.phone || "").replace(/[^0-9]/g, "");
+                const ssOffice = (ss.office_name || "").trim();
+                const ssMid = (ss.mid || "").trim().toUpperCase();
+                return (ssMid && sMid === ssMid) || (ssDigits && sDigits === ssDigits) || (ssOffice && sOffice === ssOffice);
+              });
+
+              return existsInSheet;
             });
-            if (subscribersList.length !== beforeCount) updatedCount++;
+
+            if (subscribersList.length !== beforeCount) {
+              updatedCount++;
+              if (!subscribersList.some(s => s.id === selectedSubId)) {
+                selectedSubId = "owner";
+                selectedSubComplexNo = null;
+              }
+            }
 
             if (updatedCount > 0) {
               saveStorage();
