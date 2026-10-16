@@ -1841,7 +1841,12 @@
           "154078",
           "166019",
           "158599",
-          "148021"
+          "148021",
+          "132391",
+          "198037",
+          "133528",
+          "140153",
+          "177817"
         ],
         "enabled": true,
         "license_check": true,
@@ -1861,8 +1866,7 @@
         "token_file": "tokens/sub_01073747595.json",
         "complex_nos": [
           "154078",
-          "173878",
-          "158599"
+          "106867"
         ],
         "enabled": true,
         "license_check": true,
@@ -1928,6 +1932,18 @@
           }
         } catch(e){}
       }
+
+      // ★ [대표 관리자 절대 원칙: 태화강아이파크는 관리자 1곳(owner)뿐이며 구독 신청 부동산이 아님!]
+      // 가짜 중복 계정(sub_01000000000 등) 강제 영구 정화
+      subscribersList = subscribersList.filter(s => {
+        if (s.id === "owner") return true;
+        const office = (s.office_name || s.name || "").trim();
+        const phone = (s.phone || "").replace(/[^0-9]/g, "");
+        if (office.includes("태화강아이파크") || phone === "01000000000" || s.id === "sub_01000000000") {
+          return false;
+        }
+        return true;
+      });
 
       // 3. 대표(owner) 계정과 상단 실시간 감시단지(monitoredList) 양방향 동기화
       const ownerSub = subscribersList.find(s => s.id === "owner");
@@ -2201,10 +2217,8 @@
         let licDesc = "";
         if (isOwner) {
           licDesc = "👑 대표자 (영구무료)";
-        } else if (sub.approved_notified) {
+        } else if (sub.approved_notified || sub.approved) {
           licDesc = "🟢 승인완료 (카톡 전송됨)";
-        } else if (sub.approved) {
-          licDesc = "🟡 승인완료 (카톡 미발송)";
         } else {
           licDesc = "⏳ 대기중 (승인요청)";
         }
@@ -3809,8 +3823,9 @@
               const isApproved = (ss.status === "승인" || ss.status === "ACTIVE" || ss.status === "사용중");
 
               if (existing) {
-                if (existing.approved !== isApproved) {
+                if (existing.approved !== isApproved || existing.approved_notified !== isApproved) {
                   existing.approved = isApproved;
+                  existing.approved_notified = isApproved;
                   updatedCount++;
                 }
                 // [PC에서 수정하든 모바일에서 수정하든 구글 시트 최신 단지 목록으로 100% 실시간 동일화]
@@ -3822,7 +3837,7 @@
                     updatedCount++;
                   }
                 }
-              } else if (ssOffice && ssOffice !== "대표 소장님") {
+              } else if (ssOffice && ssOffice !== "대표 소장님" && ssOffice.indexOf("태화강아이파크") === -1 && ssDigits !== "01000000000" && ssMid !== "OWNER") {
                 // 시트에만 있고 로컬에 없는 신규 신청자 자동 동기화 추가
                 const newId = ssDigits ? `sub_${ssDigits}` : `sub_${Date.now()}`;
                 const newEntry = {
@@ -3838,12 +3853,26 @@
                   complex_nos: extractedNos.length > 0 ? [...extractedNos] : [],
                   enabled: true,
                   approved: isApproved,
+                  approved_notified: isApproved,
                   token_file: `tokens/${newId}.json`
                 };
                 subscribersList.push(newEntry);
                 updatedCount++;
               }
             });
+
+            // ★ [대표 관리자 절대 원칙: 태화강아이파크는 관리자 1곳(owner)뿐이며 구독 신청 부동산이 아님!]
+            const beforeCount = subscribersList.length;
+            subscribersList = subscribersList.filter(s => {
+              if (s.id === "owner") return true;
+              const office = (s.office_name || s.name || "").trim();
+              const phone = (s.phone || "").replace(/[^0-9]/g, "");
+              if (office.includes("태화강아이파크") || phone === "01000000000" || s.id === "sub_01000000000") {
+                return false;
+              }
+              return true;
+            });
+            if (subscribersList.length !== beforeCount) updatedCount++;
 
             if (updatedCount > 0) {
               saveStorage();
