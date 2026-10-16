@@ -2767,7 +2767,34 @@
       sub.enabled = !sub.enabled;
       saveStorage();
       renderSubscribersTable();
-      showToast(`[${sub.office_name}] 상태가 [${sub.enabled ? "정상 가동" : "일시 정지"}]으로 변경되었습니다.`, sub.enabled ? "▶️" : "⏸️");
+      renderSubDetailPanel();
+
+      const newStatus = sub.enabled ? "승인" : "일시정지";
+      showToast(`[${sub.office_name || sub.name}] 상태가 [${sub.enabled ? "정상 가동" : "일시 정지"}]으로 변경되었습니다. (클라우드 동기화)`, sub.enabled ? "▶️" : "⏸️");
+
+      // [클라우드/구글 시트 실시간 양방향 동기화] PC든 모바일이든 가동 상태(정상가동/일시정지) 100% 동일 반영
+      try {
+        const isOwner = (sub.id === "owner");
+        const digits = isOwner ? "01000000000" : (sub.phone || "").replace(/[^0-9]/g, "");
+        const subMid = isOwner ? "OWNER" : (sub.license_mid || (digits ? `SUB_${digits}` : (sub.id || "").toUpperCase()));
+        const office = isOwner ? "태화강아이파크공인중개사사무소" : (sub.office_name || sub.name || "");
+
+        const googleScriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
+        const params = new URLSearchParams({
+          action: "update_status",
+          mid: subMid,
+          phone: digits,
+          office_name: office,
+          status: newStatus,
+          _t: String(Date.now())
+        });
+        const finalUrl = googleScriptUrl + "?" + params.toString();
+        fetch(finalUrl, { mode: 'no-cors' }).catch(() => {});
+        const imgPing = new Image();
+        imgPing.src = finalUrl;
+      } catch (errStatus) {
+        console.warn("구글 시트 가동 상태 원격 반영 예외:", errStatus);
+      }
     }
 
     // 선택 부동산 승인완료 카톡 발송 버튼
@@ -3794,18 +3821,28 @@
               // 1. [대표 소장님(태화강아이파크) PC <-> 모바일 실시간 양방향 동기화]
               if (isOwnerRow) {
                 const ownerSub = subscribersList.find(s => s.id === "owner");
-                if (ownerSub && extractedNos.length > 0) {
-                  const currentSorted = [...(ownerSub.complex_nos || [])].map(String).sort().join(",");
-                  const sheetSorted = [...extractedNos].map(String).sort().join(",");
-                  if (currentSorted !== sheetSorted) {
-                    ownerSub.complex_nos = [...extractedNos];
-                    // 상단 monitoredList도 시트 단지 목록에 맞춰 동기화
-                    monitoredList = extractedNos.map(cno => {
-                      const found = allComplexes.find(c => String(c.no) === String(cno)) ||
-                                    monitoredList.find(c => String(c.no) === String(cno));
-                      return found ? { ...found, enabled: true } : { no: cno, name: "단지 " + cno, district: "울산", dong: "", enabled: true };
-                    });
+                if (ownerSub) {
+                  // [가동 상태 실시간 동기화]
+                  const isOwnerPaused = (ss.status === "일시정지" || ss.status === "PAUSED" || ss.status === "중지");
+                  const targetOwnerEnabled = !isOwnerPaused;
+                  if (ownerSub.enabled !== targetOwnerEnabled) {
+                    ownerSub.enabled = targetOwnerEnabled;
                     updatedCount++;
+                  }
+
+                  if (extractedNos.length > 0) {
+                    const currentSorted = [...(ownerSub.complex_nos || [])].map(String).sort().join(",");
+                    const sheetSorted = [...extractedNos].map(String).sort().join(",");
+                    if (currentSorted !== sheetSorted) {
+                      ownerSub.complex_nos = [...extractedNos];
+                      // 상단 monitoredList도 시트 단지 목록에 맞춰 동기화
+                      monitoredList = extractedNos.map(cno => {
+                        const found = allComplexes.find(c => String(c.no) === String(cno)) ||
+                                      monitoredList.find(c => String(c.no) === String(cno));
+                        return found ? { ...found, enabled: true } : { no: cno, name: "단지 " + cno, district: "울산", dong: "", enabled: true };
+                      });
+                      updatedCount++;
+                    }
                   }
                 }
                 return;
@@ -3820,7 +3857,8 @@
                 return (ssMid && sMid === ssMid) || (ssDigits && sDigits === ssDigits) || (ssOffice && sOffice === ssOffice);
               });
 
-              const isApproved = (ss.status === "승인" || ss.status === "ACTIVE" || ss.status === "사용중");
+              const isPaused = (ss.status === "일시정지" || ss.status === "PAUSED" || ss.status === "중지");
+              const isApproved = (ss.status === "승인" || ss.status === "ACTIVE" || ss.status === "사용중" || isPaused);
 
               if (existing) {
                 if (existing.approved !== isApproved || existing.approved_notified !== isApproved) {
@@ -3828,6 +3866,14 @@
                   existing.approved_notified = isApproved;
                   updatedCount++;
                 }
+
+                // ★ [가동 상태 실시간 양방향 동기화: PC <-> 모바일 100% 동일 유지]
+                const targetEnabled = !isPaused;
+                if (existing.enabled !== targetEnabled) {
+                  existing.enabled = targetEnabled;
+                  updatedCount++;
+                }
+
                 // [PC에서 수정하든 모바일에서 수정하든 구글 시트 최신 단지 목록으로 100% 실시간 동일화]
                 if (extractedNos.length > 0) {
                   const currentSorted = [...(existing.complex_nos || [])].map(String).sort().join(",");
@@ -3851,7 +3897,7 @@
                   plan: "A",
                   realtor_names: [ssOffice],
                   complex_nos: extractedNos.length > 0 ? [...extractedNos] : [],
-                  enabled: true,
+                  enabled: !isPaused,
                   approved: isApproved,
                   approved_notified: isApproved,
                   token_file: `tokens/${newId}.json`
