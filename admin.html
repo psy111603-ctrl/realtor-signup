@@ -1426,7 +1426,7 @@
               <button class="btn btn-primary" style="height:34px; font-size:12.5px; font-weight:800;" onclick="openAddComplexModal()">
                 ➕ 단지 추가하기
               </button>
-              <button class="btn btn-danger" style="height:34px; font-size:12.5px; font-weight:700;" onclick="removeSelectedComplexFromSub()">
+              <button class="btn btn-danger" id="btnRemoveSubComplex" style="height:34px; font-size:12.5px; font-weight:700;" onclick="removeSelectedComplexFromSub()">
                 ➖ 선택 단지 제외
               </button>
               <button class="btn" id="btnSubAllComplexes" style="height:34px; font-size:12px; font-weight:800; background:#fef3c7; color:#92400e; border:1.5px solid #f59e0b;" onclick="setSubToAllComplexes()">
@@ -2297,9 +2297,9 @@
         });
       } else {
         if (isOwner) {
-          titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0369a1;">태화강아이파크 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 타 부동산(소소부동산 등)이 추가한 단지는 제외되며, 오직 아래 등록된 단지만 태화강아이파크 카카오톡으로 수신됩니다. [➕ 단지 추가하기]로 단지를 자유롭게 추가/제외할 수 있습니다.</span>`;
+          titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0369a1;">태화강아이파크 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 타 부동산(문수로트럼프 등)의 매물/단지와 100% 철저히 분리되어 관리됩니다. 여기서 단지를 제외해도 타 부동산에는 전혀 영향을 주지 않습니다.</span>`;
         } else {
-          titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0284c7;">신청 및 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 오직 아래 지정된 ${cNos.length}개 단지만 카카오톡으로 전송됩니다. [☀️ 전체단지 수신전환]을 누르면 모든 감시단지를 일괄 수신합니다.</span>`;
+          titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0284c7;">${officeName} 전용 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 태화강아이파크의 매물/단지와 100% 철저히 분리되어 있습니다. 여기서 단지를 제외해도 태화강아이파크의 매물/단지는 일절 삭제되지 않고 100% 안전하게 유지됩니다.</span>`;
         }
 
         if (cNos.length === 0) {
@@ -2328,6 +2328,11 @@
       }
 
       // 우측 버튼 상태 동적 업데이트
+      const btnRemove = document.getElementById("btnRemoveSubComplex");
+      if (btnRemove) {
+        btnRemove.innerText = `➖ [${officeName}] 단지 제외`;
+      }
+
       const btnAll = document.getElementById("btnSubAllComplexes");
       const btnCancel = document.getElementById("btnSubCancelAllComplexes");
       if (btnAll && btnCancel) {
@@ -2611,7 +2616,10 @@
     }
 
     // =========================================================================
-    // [선택 단지 제외: 소장님 요청대로 잔소리 없이 바로 확인창 묻고 즉시 삭제!]
+    // =========================================================================
+    // =========================================================================
+    // =========================================================================
+    // [선택 단지 제외: 부동산별 매물/단지 100% 철저 분리 및 독립 제외]
     // =========================================================================
     function removeSelectedComplexFromSub() {
       const sub = subscribersList.find(s => s.id === selectedSubId);
@@ -2619,52 +2627,65 @@
       const subName = sub.office_name || sub.name;
 
       if (!selectedSubComplexNo) {
-        alert("제외할 단지를 왼쪽 단지 목록에서 먼저 클릭(선택)해 주세요.\n(예: 하늘색으로 선택된 행)");
+        alert("제외할 단지를 아래 단지 목록에서 먼저 클릭(선택)해 주세요.\n(예: 하늘색으로 선택된 행)");
         return;
       }
 
-      // 전체 수신 모드였을 경우, 전체 수신을 해제하고 해당 단지만 뺀 목록으로 지정 수신 전환!
-      if (sub.all_complexes === true) {
-        sub.all_complexes = false;
-        sub.complex_nos = monitoredList.map(c => c.no);
-      }
+      const isOwner = (sub.id === "owner");
 
-      let currentList = (sub.complex_nos && sub.complex_nos.length > 0)
-        ? [...sub.complex_nos]
-        : monitoredList.map(c => c.no);
-
-      const found = monitoredList.find(m => String(m.no) === String(selectedSubComplexNo)) ||
-                    allComplexes.find(m => String(m.no) === String(selectedSubComplexNo));
+      const found = allComplexes.find(m => String(m.no) === String(selectedSubComplexNo)) ||
+                    monitoredList.find(m => String(m.no) === String(selectedSubComplexNo));
       const targetName = found ? found.name : ("단지 " + selectedSubComplexNo);
 
-      if (confirm(`정말로 [${subName}] 부동산의 수신 목록에서\n[${selectedSubComplexNo} ${targetName}] 단지를 제외하시겠습니까?`)) {
+      // 소장님 요청: 부동산별 매물은 철저히 별개이므로 어떤 부동산에서 제외되는지 명확히 확인
+      const confirmMsg = isOwner
+        ? `[태화강아이파크(대표)] 수신 목록에서\n[${selectedSubComplexNo} ${targetName}] 단지를 제외하시겠습니까?\n\n(※ 타 부동산(문수로트럼프 등)에는 전혀 영향을 주지 않습니다)`
+        : `정말로 [${subName}] 부동산의 수신 목록에서\n[${selectedSubComplexNo} ${targetName}] 단지를 제외하시겠습니까?\n\n(※ 태화강아이파크 및 타 부동산의 매물/단지는 일절 삭제되지 않고 100% 안전하게 유지됩니다)`;
+
+      if (confirm(confirmMsg)) {
+        // [철저 분리 원칙: 타 부동산의 단지 목록에 태화강아이파크의 monitoredList를 섞거나 복사하지 않음]
+        if (sub.all_complexes === true) {
+          sub.all_complexes = false;
+          if (isOwner) {
+            sub.complex_nos = monitoredList.map(c => String(c.no));
+          } else {
+            sub.complex_nos = (sub.complex_nos && sub.complex_nos.length > 0) ? [...sub.complex_nos] : [];
+          }
+        }
+
+        let currentList = (sub.complex_nos && sub.complex_nos.length > 0) ? [...sub.complex_nos] : [];
         currentList = currentList.filter(x => String(x).trim() !== String(selectedSubComplexNo).trim());
         sub.complex_nos = currentList;
 
-        // [태화강아이파크(owner) 단지 제외 시 상단 실시간 감시 목록에서도 동시 제외 & 화면 즉시 반영]
-        if (sub.id === "owner") {
+        if (isOwner) {
+          // 태화강아이파크(대표) 본인 단지 제외 시에만 상단 감시 목록(monitoredList)에서도 동시 제외
           monitoredList = monitoredList.filter(m => String(m.no).trim() !== String(selectedSubComplexNo).trim());
           renderMonitoredGrid();
         } else {
+          // ★ [철저 분리 원칙 100% 보장]
+          // 타 부동산(문수로트럼프 등)일 때는 태화강아이파크(monitoredList 및 owner)는 절대 단 1개도 건드리지 않음!
           sub.admin_customized = true;
         }
 
         selectedSubComplexNo = null;
         saveStorage();
         renderSubscribersTable();
-        showToast(`[${targetName}] 단지가 수신 목록에서 성공적으로 제외되었습니다!`, "➖");
+        showToast(`[${subName}] 수신 목록에서 [${targetName}] 단지가 제외되었습니다!`, "➖");
 
-        // [모바일 <-> PC 실시간 동기화] 구글 시트로 단지 목록 즉시 동기화
-        syncComplexesToGoogleSheet(sub);
+        // [모바일 <-> PC 실시간 동기화] 타 부동산인 경우 구글 시트로 단지 목록 즉시 동기화
+        if (!isOwner) {
+          syncComplexesToGoogleSheet(sub);
+        }
       }
     }
 
-    // [모바일 <-> PC 실시간 동기화 통신 함수]
+    // [모바일 <-> PC 실시간 동기화 통신 함수: 구글 앱스 스크립트 실행 URL 직결]
     function syncComplexesToGoogleSheet(sub) {
       if (!sub || sub.id === "owner") return;
-      const scriptUrl = getSheetUrl() || "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
+      const scriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
       const cnosStr = (sub.complex_nos || []).join(", ");
-      const mid = sub.license_mid || sub.id || "";
+      const phoneDigits = (sub.phone || "").replace(/[^0-9]/g, "");
+      const mid = sub.license_mid || (phoneDigits ? `SUB_${phoneDigits}` : sub.id || "");
       const phone = sub.phone || "";
       const office = sub.office_name || "";
 
@@ -3750,8 +3771,9 @@
               // [철저 분리 원칙]
               // 신청된 타 구독자의 단지는 대표(태화강아이파크) 감시 목록(monitoredList)에 절대 섞지 않음!
 
-              // 기존 로컬 목록에서 일치하는 구독자 찾기
+              // 기존 로컬 목록에서 일치하는 구독자 찾기 (★ 대표 계정은 절대 매칭되지 않도록 100% 원천 격리)
               let existing = subscribersList.find(s => {
+                if (s.id === "owner") return false;
                 const sDigits = (s.phone || "").replace(/[^0-9]/g, "");
                 const sOffice = (s.office_name || s.name || "").trim();
                 const sMid = (s.license_mid || (sDigits ? `SUB_${sDigits}` : s.id || "")).toUpperCase();
