@@ -2852,46 +2852,81 @@
       const sub = subscribersList.find(s => s.id === selectedSubId);
       if (!sub) { alert("삭제할 부동산을 목록에서 먼저 선택해 주세요."); return; }
 
-      if (sub.id === "owner") {
+      if (sub.id === "owner" || sub.plan === "OWNER") {
         alert("대표 관리자(소장님 본인 계정)는 삭제할 수 없습니다.\n타 부동산만 삭제 가능합니다.");
         return;
       }
 
       const officeName = sub.office_name || sub.name;
       if (confirm(`정말로 [${officeName}] 부동산을 완전히 삭제하시겠습니까?\n\n(구글 스프레드시트의 해당 행도 자동으로 실시간 함께 삭제됩니다)`)) {
-        // 1. 구글 스프레드시트 라이선스 서버에 실시간 행 삭제 요청 전송
-        try {
-          const digits = (sub.phone || "").replace(/[^0-9]/g, "");
-          const subMid = sub.license_mid || (digits ? `SUB_${digits}` : (sub.id || "").toUpperCase());
-          const office = sub.office_name || sub.name || "";
+        const digits = (sub.phone || "").replace(/[^0-9]/g, "");
+        const subMid = sub.license_mid || (digits ? `SUB_${digits}` : (sub.id || "").toUpperCase());
+        const office = sub.office_name || sub.name || "";
+        const targetId = sub.id;
 
-          // ★ [안전 잠금장치] 유효한 연락처(3자리 이상) 또는 기기번호가 있을 때 구글 시트에 삭제 요청 전송
-          if (digits.length >= 3 || subMid.length >= 4 || office.length >= 2) {
-            const googleScriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
-            const delParams = new URLSearchParams({
-              action: "delete",
-              mid: subMid,
-              phone: digits,
-              office_name: office,
-              _t: String(Date.now())
-            });
-            const finalUrl = googleScriptUrl + "?" + delParams.toString();
-            fetch(finalUrl, { mode: 'no-cors' }).catch(() => {});
-            const imgPing = new Image();
-            imgPing.src = finalUrl;
-          }
+        // 1. 구글 스프레드시트 라이선스 서버에 행 삭제(delete) 및 상태 삭제(update_status) 듀얼 전송!
+        try {
+          const googleScriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
+
+          // 1-1. action=delete 전송
+          const delParams = new URLSearchParams({
+            action: "delete",
+            mid: subMid,
+            phone: digits,
+            office_name: office,
+            _t: String(Date.now())
+          });
+          const delUrl = googleScriptUrl + "?" + delParams.toString();
+          fetch(delUrl, { mode: 'no-cors' }).catch(() => {});
+          const imgPing1 = new Image();
+          imgPing1.src = delUrl;
+
+          // 1-2. action=update_status&status=삭제 동시 전송 (구글 시트 즉시 삭제 상태 확정)
+          const statusParams = new URLSearchParams({
+            action: "update_status",
+            mid: subMid,
+            phone: digits,
+            office_name: office,
+            status: "삭제",
+            _t: String(Date.now() + 1)
+          });
+          const statusUrl = googleScriptUrl + "?" + statusParams.toString();
+          fetch(statusUrl, { mode: 'no-cors' }).catch(() => {});
+          const imgPing2 = new Image();
+          imgPing2.src = statusUrl;
         } catch (e) {
           console.warn("Google Sheet remote deletion request error:", e);
         }
 
-        // 2. 로컬 관리 목록에서 삭제 및 화면 갱신
-        subscribersList = subscribersList.filter(s => s.id !== selectedSubId);
+        // 2. 삭제된 부동산 영구 블랙리스트 등록 (구글 시트 동기화 시 다시 되살아나는 것 100% 영구 차단)
+        try {
+          let delSet = JSON.parse(localStorage.getItem("naver_deleted_subs") || "[]");
+          if (!Array.isArray(delSet)) delSet = [];
+          if (targetId) delSet.push(targetId);
+          if (digits) delSet.push(`SUB_${digits}`, digits);
+          if (office) delSet.push(office);
+          localStorage.setItem("naver_deleted_subs", JSON.stringify(Array.from(new Set(delSet))));
+        } catch (eDel) {}
+
+        // 3. 로컬 관리 목록에서 완전 필터링 삭제 (ID, 연락처, 상호명 모두 대조)
+        subscribersList = subscribersList.filter(s => {
+          if (s.id === "owner") return true;
+          if (s.id === targetId) return false;
+          const sDigits = (s.phone || "").replace(/[^0-9]/g, "");
+          if (digits && sDigits && sDigits === digits) return false;
+          const sOffice = (s.office_name || s.name || "").trim();
+          if (office && sOffice && sOffice === office) return false;
+          return true;
+        });
+
         selectedSubId = "owner";
         selectedSubComplexNo = null;
         saveStorage();
         renderSubscribersTable();
+        renderSubDetailPanel();
+        renderMonitoredGrid();
         updateSummaryStats();
-        showToast(`[${officeName}] 삭제 완료! (구글 시트 동시 삭제 연동)`, "🗑️");
+        showToast(`[${officeName}] 삭제 완료! (구글 시트 및 관제센터에서 즉시 제거되었습니다)`, "🗑️");
       }
     }
 
@@ -3886,6 +3921,20 @@
               const isPaused = (ss.status === "일시정지" || ss.status === "PAUSED" || ss.status === "중지");
               const isApproved = (ss.status === "승인" || ss.status === "ACTIVE" || ss.status === "사용중" || isPaused);
 
+              // [삭제된 부동산 즉시 배제] 구글 시트의 상태가 '삭제'이거나 사용자가 삭제한 부동산은 즉시 제외
+              const isDeletedRow = (ss.status === "삭제" || ss.status === "DELETED" || ss.status === "폐업");
+              let delSet = [];
+              try { delSet = JSON.parse(localStorage.getItem("naver_deleted_subs") || "[]"); } catch (e) {}
+              const isBlacklisted = delSet.includes(ssDigits) || delSet.includes(`SUB_${ssDigits}`) || delSet.includes(ssOffice) || (ssMid && delSet.includes(ssMid));
+
+              if (isDeletedRow || isBlacklisted) {
+                if (existing) {
+                  subscribersList = subscribersList.filter(s => s !== existing);
+                  updatedCount++;
+                }
+                return;
+              }
+
               if (existing) {
                 if (existing.approved !== isApproved || existing.approved_notified !== isApproved) {
                   existing.approved = isApproved;
@@ -3910,26 +3959,28 @@
                   }
                 }
               } else if (ssOffice && ssOffice !== "대표 소장님" && ssOffice.indexOf("태화강아이파크") === -1 && ssDigits !== "01000000000" && ssMid !== "OWNER") {
-                // 시트에만 있고 로컬에 없는 신규 신청자 자동 동기화 추가
+                // 시트에만 있고 로컬에 없는 신규 신청자 자동 동기화 추가 (삭제된 적 없는 신규 신청자만)
                 const newId = ssDigits ? `sub_${ssDigits}` : `sub_${Date.now()}`;
-                const newEntry = {
-                  id: newId,
-                  name: `${ssOffice} (${ss.owner_name || "소장님"})`,
-                  office_name: ssOffice,
-                  owner_name: ss.owner_name || "-",
-                  user_type: ss.user_type || "대표",
-                  agent_name: ss.agent_name || "-",
-                  phone: ss.phone || "-",
-                  plan: "A",
-                  realtor_names: [ssOffice],
-                  complex_nos: extractedNos.length > 0 ? [...extractedNos] : [],
-                  enabled: !isPaused,
-                  approved: isApproved,
-                  approved_notified: isApproved,
-                  token_file: `tokens/${newId}.json`
-                };
-                subscribersList.push(newEntry);
-                updatedCount++;
+                if (!delSet.includes(newId)) {
+                  const newEntry = {
+                    id: newId,
+                    name: `${ssOffice} (${ss.owner_name || "소장님"})`,
+                    office_name: ssOffice,
+                    owner_name: ss.owner_name || "-",
+                    user_type: ss.user_type || "대표",
+                    agent_name: ss.agent_name || "-",
+                    phone: ss.phone || "-",
+                    plan: "A",
+                    realtor_names: [ssOffice],
+                    complex_nos: extractedNos.length > 0 ? [...extractedNos] : [],
+                    enabled: !isPaused,
+                    approved: isApproved,
+                    approved_notified: isApproved,
+                    token_file: `tokens/${newId}.json`
+                  };
+                  subscribersList.push(newEntry);
+                  updatedCount++;
+                }
               }
             });
 
