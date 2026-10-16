@@ -1939,11 +1939,11 @@
       // 4. 문수로트럼프 차호인 소장님 계정 기본 단지 (미설정 시에만 초기 4개 단지 보장)
       const trumpSub = subscribersList.find(s => s.id === "sub_01073688338" || (s.office_name && s.office_name.includes("문수로트럼프") && s.user_type !== "소공"));
       if (trumpSub && (!trumpSub.complex_nos || trumpSub.complex_nos.length === 0)) {
-        trumpSub.complex_nos = ["154078", "166019", "158599", "148021"];
+        trumpSub.complex_nos = ["154078", "166019", "158599", "148021", "132391", "198037", "133528", "140153", "177817"];
         trumpSub.all_complexes = false;
       }
 
-      // 5. 문수로트럼프 차승혁 소공 계정 (미존재 시에만 신규 신청 3개 단지 기본 탑재, 이후 관리자 수정/삭제 100% 보존)
+      // 5. 문수로트럼프 차승혁 소공 계정 (미존재 시에만 최신 2개 단지 기본 탑재, 이후 관리자 수정/삭제 100% 실시간 동기화)
       let changSub = subscribersList.find(s => s.id === "sub_01073747595" || (s.phone && s.phone.includes("7374-7595")));
       if (!changSub) {
         subscribersList.push({
@@ -1957,7 +1957,7 @@
           "plan": "A",
           "realtor_names": ["문수로트럼프"],
           "token_file": "tokens/sub_01073747595.json",
-          "complex_nos": ["154078", "173878", "158599"],
+          "complex_nos": ["154078", "106867"],
           "enabled": true,
           "license_check": true,
           "approved": true,
@@ -2132,6 +2132,9 @@
         const ownerSub = subscribersList.find(s => s.id === "owner");
         if (ownerSub && ownerSub.complex_nos) {
           ownerSub.complex_nos = ownerSub.complex_nos.filter(x => String(x) !== removedNo);
+        }
+        if (ownerSub) {
+          syncComplexesToGoogleSheet(ownerSub);
         }
         saveStorage();
         renderMonitoredGrid();
@@ -2672,27 +2675,26 @@
         renderSubscribersTable();
         showToast(`[${subName}] 수신 목록에서 [${targetName}] 단지가 제외되었습니다!`, "➖");
 
-        // [모바일 <-> PC 실시간 동기화] 타 부동산인 경우 구글 시트로 단지 목록 즉시 동기화
-        if (!isOwner) {
-          syncComplexesToGoogleSheet(sub);
-        }
+        // [모바일 <-> PC 실시간 동기화] 대표 및 타 부동산 구글 시트로 단지 목록 즉시 동기화
+        syncComplexesToGoogleSheet(sub);
       }
     }
 
-    // [모바일 <-> PC 실시간 동기화 통신 함수: 구글 앱스 스크립트 실행 URL 직결]
+    // [모바일 <-> PC 실시간 동기화 통신 함수: 대표(태화강아이파크) & 타 부동산 구글 시트 양방향 직결]
     function syncComplexesToGoogleSheet(sub) {
-      if (!sub || sub.id === "owner") return;
+      if (!sub) return;
       const scriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
+      const isOwner = (sub.id === "owner" || sub.plan === "OWNER");
       const cnosStr = (sub.complex_nos || []).join(", ");
       const phoneDigits = (sub.phone || "").replace(/[^0-9]/g, "");
-      const mid = sub.license_mid || (phoneDigits ? `SUB_${phoneDigits}` : sub.id || "");
-      const phone = sub.phone || "";
-      const office = sub.office_name || "";
+      const mid = isOwner ? "OWNER" : (sub.license_mid || (phoneDigits ? `SUB_${phoneDigits}` : sub.id || ""));
+      const phone = isOwner ? "010-0000-0000" : (sub.phone || "");
+      const office = isOwner ? "태화강아이파크공인중개사사무소" : (sub.office_name || "");
 
       fetch(`${scriptUrl}?action=update_complexes&mid=${encodeURIComponent(mid)}&phone=${encodeURIComponent(phone)}&office_name=${encodeURIComponent(office)}&complex_nos=${encodeURIComponent(cnosStr)}&_t=${Date.now()}`)
         .then(res => res.json())
         .then(data => {
-          console.log("구글 시트 단지 동기화 결과:", data);
+          console.log(`[${office}] 구글 시트 단지 동기화 완료:`, data);
         })
         .catch(err => {
           console.warn("구글 시트 단지 동기화 통신 중:", err);
@@ -3362,6 +3364,10 @@
         }
       });
 
+      if (ownerSub) {
+        syncComplexesToGoogleSheet(ownerSub);
+      }
+
       saveStorage();
       renderMonitoredGrid();
       showToast(`선택하신 ${addedCnt}개 단지가 실시간 감시 및 태화강아이파크 수신 목록에 추가되었습니다!`, "🎉");
@@ -3397,6 +3403,7 @@
         if (!ownerSub.complex_nos.map(String).includes(String(cno))) {
           ownerSub.complex_nos.push(String(cno));
         }
+        syncComplexesToGoogleSheet(ownerSub);
       }
 
       document.getElementById("inpDirectComplex").value = "";
@@ -3768,10 +3775,29 @@
                 }
               }
 
-              // [철저 분리 원칙]
-              // 신청된 타 구독자의 단지는 대표(태화강아이파크) 감시 목록(monitoredList)에 절대 섞지 않음!
+              const isOwnerRow = (ssMid === "OWNER" || ssOffice.indexOf("태화강아이파크") !== -1);
 
-              // 기존 로컬 목록에서 일치하는 구독자 찾기 (★ 대표 계정은 절대 매칭되지 않도록 100% 원천 격리)
+              // 1. [대표 소장님(태화강아이파크) PC <-> 모바일 실시간 양방향 동기화]
+              if (isOwnerRow) {
+                const ownerSub = subscribersList.find(s => s.id === "owner");
+                if (ownerSub && extractedNos.length > 0) {
+                  const currentSorted = [...(ownerSub.complex_nos || [])].map(String).sort().join(",");
+                  const sheetSorted = [...extractedNos].map(String).sort().join(",");
+                  if (currentSorted !== sheetSorted) {
+                    ownerSub.complex_nos = [...extractedNos];
+                    // 상단 monitoredList도 시트 단지 목록에 맞춰 동기화
+                    monitoredList = extractedNos.map(cno => {
+                      const found = allComplexes.find(c => String(c.no) === String(cno)) ||
+                                    monitoredList.find(c => String(c.no) === String(cno));
+                      return found ? { ...found, enabled: true } : { no: cno, name: "단지 " + cno, district: "울산", dong: "", enabled: true };
+                    });
+                    updatedCount++;
+                  }
+                }
+                return;
+              }
+
+              // 2. [타 구독자(문수로트럼프 등) PC <-> 모바일 실시간 양방향 동기화]
               let existing = subscribersList.find(s => {
                 if (s.id === "owner") return false;
                 const sDigits = (s.phone || "").replace(/[^0-9]/g, "");
@@ -3787,22 +3813,13 @@
                   existing.approved = isApproved;
                   updatedCount++;
                 }
-                // [구글 시트 <-> 모바일/PC 양방향 단지 동기화]
-                // 1) 최초 신청 시에는 신청 단지 목록을 기본 탑재
-                // 2) 관리자가 수정/삭제한 경우 그 상태를 영구 보존하고 구글 시트로 동기화
+                // [PC에서 수정하든 모바일에서 수정하든 구글 시트 최신 단지 목록으로 100% 실시간 동일화]
                 if (extractedNos.length > 0) {
-                  if (!existing.complex_nos || existing.complex_nos.length === 0) {
+                  const currentSorted = [...(existing.complex_nos || [])].map(String).sort().join(",");
+                  const sheetSorted = [...extractedNos].map(String).sort().join(",");
+                  if (currentSorted !== sheetSorted) {
                     existing.complex_nos = [...extractedNos];
                     updatedCount++;
-                  } else if (!existing.admin_customized) {
-                    const currentSorted = [...existing.complex_nos].map(String).sort().join(",");
-                    const sheetSorted = [...extractedNos].map(String).sort().join(",");
-                    if (currentSorted !== sheetSorted) {
-                      existing.complex_nos = [...extractedNos];
-                      updatedCount++;
-                    }
-                  } else {
-                    syncComplexesToGoogleSheet(existing);
                   }
                 }
               } else if (ssOffice && ssOffice !== "대표 소장님") {
@@ -3828,9 +3845,13 @@
               }
             });
 
-            saveStorage();
-            renderSubscribersTable();
-            updateSummaryStats();
+            if (updatedCount > 0) {
+              saveStorage();
+              renderMonitoredGrid();
+              renderSubscribersTable();
+              renderSubDetailPanel();
+              updateSummaryStats();
+            }
             if (showToastAlert) {
               showToast(`구글 시트와 실시간 동기화 완료! (등록 ${sheetSubs.length}곳)`, "☁️");
             }
@@ -3915,6 +3936,10 @@
       const inpS = document.getElementById("inpSheetUrl");
       if (inpS) inpS.value = getSheetUrl();
       syncWithGoogleSheet(false);
+      // [모바일 <-> PC 실시간 양방향 자동 동기화: 3.5초 주기 자동 감지 및 즉시 화면 갱신]
+      setInterval(() => {
+        syncWithGoogleSheet(false);
+      }, 3500);
     });
   </script>
 </body>
