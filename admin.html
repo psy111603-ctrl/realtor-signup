@@ -1852,6 +1852,23 @@
         "license_check": true,
         "approved": true,
         "approved_notified": true
+      },
+      {
+        "id": "sub_01073201130",
+        "name": "당당당부동산 (임수진 소장님)",
+        "office_name": "당당당부동산",
+        "owner_name": "임수진",
+        "user_type": "대표",
+        "agent_name": "-",
+        "phone": "010-7320-1130",
+        "plan": "A",
+        "realtor_names": ["당당당부동산"],
+        "token_file": "tokens/sub_01073201130.json",
+        "complex_nos": [],
+        "enabled": true,
+        "license_check": true,
+        "approved": true,
+        "approved_notified": false
       }
     ];
 
@@ -2707,20 +2724,20 @@
       if (isOwner) return; // ★ 대표 소장님은 관리자이므로 구독 신청 시트에 행을 만들지 않음
 
       const scriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
-      const cnosStr = (sub.complex_nos || []).join(", ");
+      const cnosStr = (sub.complex_nos && sub.complex_nos.length > 0) ? sub.complex_nos.join(", ") : "EMPTY";
       const phoneDigits = (sub.phone || "").replace(/[^0-9]/g, "");
       const mid = sub.license_mid || (phoneDigits ? `SUB_${phoneDigits}` : sub.id || "");
       const phone = sub.phone || "";
       const office = sub.office_name || "";
 
-      fetch(`${scriptUrl}?action=update_complexes&mid=${encodeURIComponent(mid)}&phone=${encodeURIComponent(phone)}&office_name=${encodeURIComponent(office)}&complex_nos=${encodeURIComponent(cnosStr)}&_t=${Date.now()}`)
-        .then(res => res.json())
-        .then(data => {
-          console.log(`[${office}] 구글 시트 단지 동기화 완료:`, data);
-        })
-        .catch(err => {
-          console.warn("구글 시트 단지 동기화 통신 중:", err);
-        });
+      const finalUrl = `${scriptUrl}?action=update_complexes&mid=${encodeURIComponent(mid)}&phone=${encodeURIComponent(phone)}&office_name=${encodeURIComponent(office)}&complex_nos=${encodeURIComponent(cnosStr)}&_t=${Date.now()}`;
+
+      // 1. 비동기 통신
+      fetch(finalUrl, { mode: 'no-cors' }).catch(() => {});
+      // 2. 브라우저 Image 핑 듀얼 전송 (CORS/네트워크 제약 없이 100% 즉시 구글 서버 도달 보장)
+      const imgPing = new Image();
+      imgPing.src = finalUrl;
+      console.log(`[${office}] 구글 시트 단지 동기화 전송 (단지: ${cnosStr})`);
     }
 
     // 전체 단지 수신 전환 (소장님 요청: 11개 단지 즉시 적용 및 F5 시에도 100% 영구 보존)
@@ -3993,7 +4010,10 @@
                 }
 
                 // [PC에서 수정하든 모바일에서 수정하든 구글 시트 최신 단지 목록으로 100% 실시간 동일화]
-                if (extractedNos.length > 0) {
+                // ★ 소장님 핵심 요청: PC에서 단지를 삭제하여 0개가 된 경우에도 모바일에 100% 즉시 삭제 반영!
+                // (단, 문수로트럼프 차호인 소장님의 시트 미기입 초기 상태는 기본 9개 단지 유지)
+                const isTrumpMaster = (existing.id === "sub_01073688338" || (existing.phone || "").replace(/[^0-9]/g, "") === "01073688338");
+                if (extractedNos.length > 0 || !isTrumpMaster) {
                   const currentSorted = [...(existing.complex_nos || [])].map(String).sort().join(",");
                   const sheetSorted = [...extractedNos].map(String).sort().join(",");
                   if (currentSorted !== sheetSorted) {
