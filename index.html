@@ -1254,6 +1254,7 @@
       <div class="form-group">
         <label class="form-label" for="phone" id="lblClientPhone">연락처 (휴대폰 번호) <span class="req">*</span></label>
         <input type="tel" id="phone" class="form-input" placeholder="예: 010-1234-5678" maxlength="13" inputmode="numeric" required>
+        <div id="phoneStatusMsg" style="margin-top:6px; font-size:12.5px; font-weight:700; display:none; line-height:1.4;"></div>
       </div>
     </section>
 
@@ -1665,12 +1666,27 @@
           if (old !== formatted) {
             this.value = formatted;
           }
+          if (this.id === 'phone') {
+            clearTimeout(duplicateCheckTimer);
+            duplicateCheckTimer = setTimeout(() => {
+              checkDuplicatePhoneRealtime(this.value);
+            }, 250);
+          }
+        });
+
+        el.addEventListener('blur', function() {
+          if (this.id === 'phone') {
+            checkDuplicatePhoneRealtime(this.value);
+          }
         });
 
         // 붙여넣기 자동 포맷
         el.addEventListener('paste', function() {
           setTimeout(() => {
             this.value = formatPhoneNumber(this.value);
+            if (this.id === 'phone') {
+              checkDuplicatePhoneRealtime(this.value);
+            }
           }, 0);
         });
       });
@@ -1687,8 +1703,73 @@
       }
     }
 
+    // [동일 전화번호 중복 등록 차단 시스템]
+    let existingSubscribersCache = [];
+    let isPhoneDuplicate = false;
+    let duplicateCheckTimer = null;
+
+    async function loadExistingSubscribers() {
+      try {
+        const url = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec?action=list&_t=" + Date.now();
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data && data.result === "OK" && Array.isArray(data.subscribers)) {
+          existingSubscribersCache = data.subscribers;
+        }
+      } catch (err) {
+        console.warn("구독자 목록 캐시 로드 중:", err);
+      }
+    }
+
+    async function checkDuplicatePhoneRealtime(phoneVal) {
+      const msgEl = document.getElementById('phoneStatusMsg');
+      const inputEl = document.getElementById('phone');
+      if (!msgEl || !inputEl) return;
+
+      const digits = (phoneVal || '').replace(/[^0-9]/g, '');
+      if (digits.length < 10) {
+        msgEl.style.display = 'none';
+        inputEl.style.borderColor = '';
+        inputEl.style.backgroundColor = '';
+        isPhoneDuplicate = false;
+        return;
+      }
+
+      // 1. 캐시가 비어있으면 먼저 로드
+      if (existingSubscribersCache.length === 0) {
+        await loadExistingSubscribers();
+      }
+
+      // 2. 캐시에서 전화번호 대조 (상태가 '삭제'가 아닌 활성/대기 계정)
+      const found = existingSubscribersCache.find(s => {
+        const sDigits = (s.phone || '').replace(/[^0-9]/g, '');
+        const stat = (s.status || '').trim();
+        const isDeleted = (stat === '삭제' || stat === 'DELETED');
+        return !isDeleted && sDigits === digits;
+      });
+
+      if (found) {
+        isPhoneDuplicate = true;
+        inputEl.style.borderColor = '#ef4444';
+        inputEl.style.backgroundColor = '#fef2f2';
+        const officeLabel = found.office_name ? `[${found.office_name}]` : '';
+        const statusLabel = (found.status === '대기중') ? '승인 대기 중' : '이미 등록 완료';
+        msgEl.style.display = 'block';
+        msgEl.style.color = '#dc2626';
+        msgEl.innerHTML = `❌ <b>이미 ${statusLabel}인 전화번호입니다. ${officeLabel}</b><br><span style="font-size:11.5px; font-weight:normal; color:#991b1b;">동일한 전화번호로는 중복 신청하실 수 없습니다. (문의: 태화강아이파크)</span>`;
+      } else {
+        isPhoneDuplicate = false;
+        inputEl.style.borderColor = '#86efac';
+        inputEl.style.backgroundColor = '#f0fdf4';
+        msgEl.style.display = 'block';
+        msgEl.style.color = '#16a34a';
+        msgEl.innerHTML = `✅ <b>신청 가능한 전화번호입니다.</b>`;
+      }
+    }
+
     // URL 파라미터에서 code 자동 추출 & 전화번호 포맷팅 초기화
     window.addEventListener('DOMContentLoaded', () => {
+      loadExistingSubscribers();
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       if (code) {
@@ -2269,6 +2350,21 @@
         return;
       }
       if (!phone) { alert("연락처를 입력해 주세요."); return; }
+
+      const digits = phone.replace(/[^0-9]/g, "");
+      if (digits.length < 10) {
+        alert("올바른 휴대폰 번호(10~11자리)를 입력해 주세요.");
+        document.getElementById('phone').focus();
+        return;
+      }
+
+      // ★ [동일 전화번호 중복 등록 차단: 이미 가입 또는 대기중인 번호이면 신청 원천 금지]
+      await checkDuplicatePhoneRealtime(phone);
+      if (isPhoneDuplicate) {
+        alert("⚠️ 이미 서비스에 등록(또는 승인 대기) 중인 전화번호입니다: " + phone + "\n\n동일한 전화번호로는 중복 신청하실 수 없습니다.\n자세한 문의는 대표 소장님(태화강아이파크)에게 연락해 주세요.");
+        document.getElementById('phone').focus();
+        return;
+      }
 
       // code= 파싱 (모바일에서 비워둔 경우 관리자 카톡 발송 안내로 유연 처리)
       let authCode = rawCode || "관리자_카톡_간편인증_요청";

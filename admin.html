@@ -3524,6 +3524,23 @@
       }
 
       const digits = phone.replace(/[^0-9]/g, "");
+      if (digits.length < 10) {
+        alert("올바른 휴대폰 번호를 입력해 주세요.");
+        document.getElementById("inpPhone").focus();
+        return;
+      }
+
+      const isDup = subscribersList.some(s => {
+        if (s.id === "owner") return false;
+        const sDigits = (s.phone || "").replace(/[^0-9]/g, "");
+        return sDigits && sDigits === digits;
+      });
+      if (isDup) {
+        alert("⚠️ 이미 등록되어 있는 전화번호입니다: " + phone + "\n동일한 전화번호로 중복 등록할 수 없습니다.");
+        document.getElementById("inpPhone").focus();
+        return;
+      }
+
       const newId = "sub_" + digits;
       const selectedArr = Array.from(selectedComplexNos);
 
@@ -3740,6 +3757,23 @@
       }
 
       const digits = phone.replace(/[^0-9]/g, "");
+      if (digits.length < 10) {
+        alert("올바른 휴대폰 번호를 입력해 주세요.");
+        document.getElementById("inpPhone").focus();
+        return;
+      }
+
+      const isDup = subscribersList.some(s => {
+        if (s.id === "owner") return false;
+        const sDigits = (s.phone || "").replace(/[^0-9]/g, "");
+        return sDigits && sDigits === digits;
+      });
+      if (isDup) {
+        alert("⚠️ 이미 등록되어 있는 전화번호입니다: " + phone + "\n동일한 전화번호로 중복 등록할 수 없습니다.");
+        document.getElementById("inpPhone").focus();
+        return;
+      }
+
       const newId = "sub_" + digits;
       const selectedArr = Array.from(selectedComplexNos);
 
