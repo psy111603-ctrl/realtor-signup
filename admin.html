@@ -1919,19 +1919,32 @@
       try { delSet = JSON.parse(localStorage.getItem("naver_deleted_subs") || "[]"); } catch(e){}
       if (!Array.isArray(delSet)) delSet = [];
 
+      // [과거 오염 영구 정화] 대표(차호인 소장님)와 소공이 상호명을 공유하므로, delSet에 잘못 들어간 '문수로트럼프' 및 차호인 소장님 번호는 강제 영구 제거!
+      delSet = delSet.filter(x => {
+        if (typeof x !== "string") return false;
+        if (x.includes("문수로트럼프") || x === "01073688338" || x === "SUB_01073688338" || x === "sub_01073688338") return false;
+        return true;
+      });
+      localStorage.setItem("naver_deleted_subs", JSON.stringify(delSet));
+
       subscribersList = subscribersList.filter(s => {
         if (s.id === "owner") return true;
-        const office = (s.office_name || s.name || "").trim();
         const phone = (s.phone || "").replace(/[^0-9]/g, "");
         const mid = (s.license_mid || (phone ? `SUB_${phone}` : s.id || "")).toUpperCase();
+        const office = (s.office_name || s.name || "").trim();
+
+        // ★ [문수로트럼프 차호인 소장님 계정 절대 보존]
+        if (s.id === "sub_01073688338" || phone === "01073688338" || mid === "SUB_01073688338") {
+          return true;
+        }
 
         // 1. 태화강아이파크 중복 가짜 계정 차단
         if (office.includes("태화강아이파크") || phone === "01000000000" || s.id === "sub_01000000000") {
           return false;
         }
 
-        // 2. 삭제된 블랙리스트 대조
-        if (delSet.includes(s.id) || delSet.includes(phone) || delSet.includes(`SUB_${phone}`) || delSet.includes(office) || (mid && delSet.includes(mid))) {
+        // 2. 삭제된 블랙리스트 대조 (고유 ID 및 전화번호로만 엄격 대조! 상호명으로는 절대 대조 안 함)
+        if (delSet.includes(s.id) || delSet.includes(phone) || delSet.includes(`SUB_${phone}`) || (mid && delSet.includes(mid))) {
           return false;
         }
 
@@ -1950,9 +1963,26 @@
         ownerSub.all_complexes = false;
       }
 
-      // 4. 문수로트럼프 차호인 소장님 계정 기본 단지 (미설정 시에만 초기 9개 단지 보장)
-      const trumpSub = subscribersList.find(s => s.id === "sub_01073688338" || (s.office_name && s.office_name.includes("문수로트럼프") && s.user_type !== "소공"));
-      if (trumpSub && (!trumpSub.complex_nos || trumpSub.complex_nos.length === 0)) {
+      // 4. 문수로트럼프 차호인 소장님(파트A) 계정 영구 보장 (모바일 등에서 누락 시 즉시 자동 복원)
+      let trumpSub = subscribersList.find(s => s.id === "sub_01073688338" || (s.phone && s.phone.replace(/[^0-9]/g, "") === "01073688338"));
+      if (!trumpSub) {
+        trumpSub = {
+          "id": "sub_01073688338",
+          "name": "문수로트럼프공인중개사사무소 (차호인 소장님)",
+          "office_name": "문수로트럼프공인중개사사무소",
+          "owner_name": "차호인",
+          "phone": "010-7368-8338",
+          "plan": "A",
+          "realtor_names": ["문수로트럼프공인중개사사무소"],
+          "token_file": "tokens/sub_01073688338.json",
+          "complex_nos": ["154078", "166019", "158599", "148021", "132391", "198037", "133528", "140153", "177817"],
+          "enabled": true,
+          "license_check": true,
+          "approved": true,
+          "approved_notified": true
+        };
+        subscribersList.push(trumpSub);
+      } else if (!trumpSub.complex_nos || trumpSub.complex_nos.length === 0) {
         trumpSub.complex_nos = ["154078", "166019", "158599", "148021", "132391", "198037", "133528", "140153", "177817"];
         trumpSub.all_complexes = false;
       }
@@ -2880,18 +2910,18 @@
           if (!Array.isArray(delSet)) delSet = [];
           if (targetId) delSet.push(targetId);
           if (digits) delSet.push(`SUB_${digits}`, digits);
-          if (office) delSet.push(office);
+          // ※ 주의: office(상호명)는 절대 넣지 않음! (대표와 소공이 상호명을 공유하므로 대표까지 삭제되는 버그 원천 방지)
           localStorage.setItem("naver_deleted_subs", JSON.stringify(Array.from(new Set(delSet))));
         } catch (eDel) {}
 
-        // 3. 로컬 관리 목록에서 완전 필터링 삭제 (ID, 연락처, 상호명 모두 대조)
+        // 3. 로컬 관리 목록에서 완전 필터링 삭제 (고유 ID와 연락처로만 엄격 대조!)
         subscribersList = subscribersList.filter(s => {
           if (s.id === "owner") return true;
+          // 문수로트럼프 차호인 소장님은 절대 삭제 보호
+          if (s.id === "sub_01073688338" || (s.phone && s.phone.replace(/[^0-9]/g, "") === "01073688338")) return true;
           if (s.id === targetId) return false;
           const sDigits = (s.phone || "").replace(/[^0-9]/g, "");
           if (digits && sDigits && sDigits === digits) return false;
-          const sOffice = (s.office_name || s.name || "").trim();
-          if (office && sOffice && sOffice === office) return false;
           return true;
         });
 
@@ -3919,13 +3949,14 @@
                 return;
               }
 
-              // 2. [타 구독자(문수로트럼프 등) PC <-> 모바일 실시간 양방향 동기화]
+              // 2. [타 구독자 PC <-> 모바일 실시간 양방향 동기화]
+              // ★ [주의] 상호명으로 매칭하면 대표와 소공이 상호명이 같아 대표까지 삭제되는 버그가 발생하므로,
+              // 반드시 고유 식별자인 전화번호(digits) 또는 기기번호(mid)로만 정확히 1:1 매칭합니다!
               let existing = subscribersList.find(s => {
                 if (s.id === "owner") return false;
                 const sDigits = (s.phone || "").replace(/[^0-9]/g, "");
-                const sOffice = (s.office_name || s.name || "").trim();
                 const sMid = (s.license_mid || (sDigits ? `SUB_${sDigits}` : s.id || "")).toUpperCase();
-                return (ssMid && sMid === ssMid) || (ssDigits && sDigits === ssDigits) || (ssOffice && sOffice === ssOffice);
+                return (ssMid && sMid === ssMid) || (ssDigits && sDigits === ssDigits);
               });
 
               const isPaused = (ss.status === "일시정지" || ss.status === "PAUSED" || ss.status === "중지");
@@ -3935,10 +3966,12 @@
               const isDeletedRow = (ss.status === "삭제" || ss.status === "DELETED" || ss.status === "폐업");
               let delSet = [];
               try { delSet = JSON.parse(localStorage.getItem("naver_deleted_subs") || "[]"); } catch (e) {}
-              const isBlacklisted = delSet.includes(ssDigits) || delSet.includes(`SUB_${ssDigits}`) || delSet.includes(ssOffice) || (ssMid && delSet.includes(ssMid));
+              // 고유 전화번호 및 mid로만 대조 (상호명 ssOffice는 절대 대조하지 않음!)
+              const isBlacklisted = delSet.includes(ssDigits) || delSet.includes(`SUB_${ssDigits}`) || (ssMid && delSet.includes(ssMid));
 
               if (isDeletedRow || isBlacklisted) {
-                if (existing) {
+                // 문수로트럼프 차호인 소장님(01073688338)은 절대 삭제 보호
+                if (existing && existing.id !== "sub_01073688338" && (existing.phone || "").replace(/[^0-9]/g, "") !== "01073688338") {
                   subscribersList = subscribersList.filter(s => s !== existing);
                   updatedCount++;
                 }
@@ -4007,16 +4040,21 @@
                 return false;
               }
 
-              // 3. 구글 시트에 존재하는지 대조 (시트에서 삭제된 부동산은 모바일 등 타 기기에서도 즉시 동시 자동 삭제!)
+              // 3. 문수로트럼프 차호인 소장님은 절대 보존 (영구 보호)
               const sDigits = (s.phone || "").replace(/[^0-9]/g, "");
-              const sOffice = (s.office_name || s.name || "").trim();
               const sMid = (s.license_mid || (sDigits ? `SUB_${sDigits}` : s.id || "")).toUpperCase();
+              if (s.id === "sub_01073688338" || sDigits === "01073688338" || sMid === "SUB_01073688338") {
+                return true;
+              }
 
+              // 4. 구글 시트에 존재하는지 대조 (시트에서 삭제된 부동산은 타 기기에서도 자동 삭제)
               const existsInSheet = sheetSubs.some(ss => {
                 const ssDigits = (ss.phone || "").replace(/[^0-9]/g, "");
-                const ssOffice = (ss.office_name || "").trim();
                 const ssMid = (ss.mid || "").trim().toUpperCase();
-                return (ssMid && sMid === ssMid) || (ssDigits && sDigits === ssDigits) || (ssOffice && sOffice === ssOffice);
+                const ssStatus = String(ss.status || "").trim();
+                const isDel = (ssStatus === "삭제" || ssStatus === "DELETED");
+                if (isDel) return false;
+                return (ssMid && sMid === ssMid) || (ssDigits && sDigits === ssDigits);
               });
 
               return existsInSheet;
