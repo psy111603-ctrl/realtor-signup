@@ -1852,26 +1852,6 @@
         "license_check": true,
         "approved": true,
         "approved_notified": true
-      },
-      {
-        "id": "sub_01073747595",
-        "name": "문수로트럼프 (차승혁 실장님 / 대표: 차호인)",
-        "office_name": "문수로트럼프",
-        "owner_name": "차호인",
-        "user_type": "소공",
-        "agent_name": "차승혁",
-        "phone": "010-7374-7595",
-        "plan": "A",
-        "realtor_names": ["문수로트럼프"],
-        "token_file": "tokens/sub_01073747595.json",
-        "complex_nos": [
-          "154078",
-          "106867"
-        ],
-        "enabled": true,
-        "license_check": true,
-        "approved": true,
-        "approved_notified": true
       }
     ];
 
@@ -1933,15 +1913,33 @@
         } catch(e){}
       }
 
-      // ★ [대표 관리자 절대 원칙: 태화강아이파크는 관리자 1곳(owner)뿐이며 구독 신청 부동산이 아님!]
-      // 가짜 중복 계정(sub_01000000000 등) 강제 영구 정화
+      // ★ [선제적 영구 정화 1: 삭제된 부동산/소공 즉시 배제]
+      // 새로고침 시 삭제되었던 소공이나 부동산이 1~2초간 깜빡이며 나타났다가 사라지는 현상 100% 원천 차단
+      let delSet = [];
+      try { delSet = JSON.parse(localStorage.getItem("naver_deleted_subs") || "[]"); } catch(e){}
+      if (!Array.isArray(delSet)) delSet = [];
+
       subscribersList = subscribersList.filter(s => {
         if (s.id === "owner") return true;
         const office = (s.office_name || s.name || "").trim();
         const phone = (s.phone || "").replace(/[^0-9]/g, "");
+        const mid = (s.license_mid || (phone ? `SUB_${phone}` : s.id || "")).toUpperCase();
+
+        // 1. 태화강아이파크 중복 가짜 계정 차단
         if (office.includes("태화강아이파크") || phone === "01000000000" || s.id === "sub_01000000000") {
           return false;
         }
+
+        // 2. 삭제된 블랙리스트 대조
+        if (delSet.includes(s.id) || delSet.includes(phone) || delSet.includes(`SUB_${phone}`) || delSet.includes(office) || (mid && delSet.includes(mid))) {
+          return false;
+        }
+
+        // 3. 삭제되었던 차승혁 소공(01073747595) 잔여 데이터 즉시 영구 배제
+        if (s.id === "sub_01073747595" || phone === "01073747595") {
+          return false;
+        }
+
         return true;
       });
 
@@ -1952,33 +1950,11 @@
         ownerSub.all_complexes = false;
       }
 
-      // 4. 문수로트럼프 차호인 소장님 계정 기본 단지 (미설정 시에만 초기 4개 단지 보장)
+      // 4. 문수로트럼프 차호인 소장님 계정 기본 단지 (미설정 시에만 초기 9개 단지 보장)
       const trumpSub = subscribersList.find(s => s.id === "sub_01073688338" || (s.office_name && s.office_name.includes("문수로트럼프") && s.user_type !== "소공"));
       if (trumpSub && (!trumpSub.complex_nos || trumpSub.complex_nos.length === 0)) {
         trumpSub.complex_nos = ["154078", "166019", "158599", "148021", "132391", "198037", "133528", "140153", "177817"];
         trumpSub.all_complexes = false;
-      }
-
-      // 5. 문수로트럼프 차승혁 소공 계정 (미존재 시에만 최신 2개 단지 기본 탑재, 이후 관리자 수정/삭제 100% 실시간 동기화)
-      let changSub = subscribersList.find(s => s.id === "sub_01073747595" || (s.phone && s.phone.includes("7374-7595")));
-      if (!changSub) {
-        subscribersList.push({
-          "id": "sub_01073747595",
-          "name": "문수로트럼프 (차승혁 실장님 / 대표: 차호인)",
-          "office_name": "문수로트럼프",
-          "owner_name": "차호인",
-          "user_type": "소공",
-          "agent_name": "차승혁",
-          "phone": "010-7374-7595",
-          "plan": "A",
-          "realtor_names": ["문수로트럼프"],
-          "token_file": "tokens/sub_01073747595.json",
-          "complex_nos": ["154078", "106867"],
-          "enabled": true,
-          "license_check": true,
-          "approved": true,
-          "approved_notified": true
-        });
       }
 
       saveStorage();
