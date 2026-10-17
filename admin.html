@@ -2748,10 +2748,13 @@
 
       if (confirm(`[${subName}] 부동산을 '등록 감시단지 전체 수신' 모드로 전환하시겠습니까?\n\n전환 시 현재 등록된 모든 감시단지(${monitoredList.length}개)의 알림을 일괄 수신하게 됩니다.`)) {
         sub.all_complexes = true;
+        sub.complex_nos = monitoredList.map(c => String(c.no));
         selectedSubComplexNo = null;
         saveStorage();
         renderSubscribersTable();
+        renderSubDetailPanel();
         showToast(`[${subName}] 전체 감시단지(${monitoredList.length}개) 일괄 수신 모드로 전환되었습니다! ☀️`, "🌟");
+        syncComplexesToGoogleSheet(sub);
       }
     }
 
@@ -2772,16 +2775,18 @@
         // 지정 단지 목록이 비어있으면 대표 또는 문수로트럼프 기본 단지 복원
         if (!sub.complex_nos || sub.complex_nos.length === 0) {
           if (sub.id === "owner") {
-            sub.complex_nos = ["154078", "166019", "158599", "148021", "132391", "198037", "133528", "140153", "177817", "180258"];
+            sub.complex_nos = monitoredList.map(c => String(c.no));
           } else if (sub.id === "sub_01073688338" || (sub.office_name && sub.office_name.includes("문수로트럼프"))) {
-            sub.complex_nos = ["154078", "166019", "158599", "148021"];
+            sub.complex_nos = ["154078", "166019", "158599", "148021", "132391", "198037", "133528", "140153", "177817"];
           }
         }
 
         selectedSubComplexNo = null;
         saveStorage();
         renderSubscribersTable();
+        renderSubDetailPanel();
         showToast(`[${sub.office_name}] 전체 수신이 해제되고 지정 단지(${sub.complex_nos ? sub.complex_nos.length : 0}개) 수신 모드로 전환되었습니다! 📍`, "✅");
+        syncComplexesToGoogleSheet(sub);
       }
     }
 
@@ -3984,7 +3989,15 @@
               let delSet = [];
               try { delSet = JSON.parse(localStorage.getItem("naver_deleted_subs") || "[]"); } catch (e) {}
               // 고유 전화번호 및 mid로만 대조 (상호명 ssOffice는 절대 대조하지 않음!)
-              const isBlacklisted = delSet.includes(ssDigits) || delSet.includes(`SUB_${ssDigits}`) || (ssMid && delSet.includes(ssMid));
+              let isBlacklisted = delSet.includes(ssDigits) || delSet.includes(`SUB_${ssDigits}`) || (ssMid && delSet.includes(ssMid));
+
+              // ★ [재신청 자동 해제] 예전에 삭제했던 번호라도 고객용 페이지에서 '신규 가입 신청'으로 다시 접수된 경우,
+              // 모바일의 과거 삭제 기록(블랙리스트)에서 자동으로 해제하여 모바일에도 정상 등록되도록 보장!
+              if (isBlacklisted && !isDeletedRow && (ss.memo || "").includes("신규 가입 신청")) {
+                delSet = delSet.filter(x => x !== ssDigits && x !== `SUB_${ssDigits}` && x !== ssMid);
+                try { localStorage.setItem("naver_deleted_subs", JSON.stringify(delSet)); } catch (e) {}
+                isBlacklisted = false;
+              }
 
               if (isDeletedRow || isBlacklisted) {
                 // 문수로트럼프 차호인 소장님(01073688338)은 절대 삭제 보호
@@ -4018,6 +4031,13 @@
                   const sheetSorted = [...extractedNos].map(String).sort().join(",");
                   if (currentSorted !== sheetSorted) {
                     existing.complex_nos = [...extractedNos];
+                    updatedCount++;
+                  }
+                  // ★ [모바일 <-> PC 단지 동기화 일치화]
+                  // 시트에 특정 단지 목록(예: 9개)이 명시되어 있다면, '전체 감시단지 수신(all_complexes)' 플래그를 false로 해제하여
+                  // PC 화면에서도 모바일과 동일하게 '9개 단지 지정 수신'으로 100% 동일하게 표시되도록 보장!
+                  if (extractedNos.length > 0 && existing.all_complexes === true) {
+                    existing.all_complexes = false;
                     updatedCount++;
                   }
                 }
