@@ -1798,7 +1798,10 @@
       { no: "133528", name: "태화강유보라팰라티움(주상복합)", district: "중구", dong: "우정동", enabled: true },
       { no: "140153", name: "유탑유블레스센트럴파크(주상복합)", district: "중구", dong: "우정동", enabled: true },
       { no: "177817", name: "우정동한양립스더센트럴", district: "중구", dong: "우정동", enabled: true },
-      { no: "180258", name: "번영로롯데캐슬센트럴스카이(주상복합)", district: "중구", dong: "복산동", enabled: true }
+      { no: "180258", name: "번영로롯데캐슬센트럴스카이(주상복합)", district: "중구", dong: "복산동", enabled: true },
+      { no: "192838", name: "한화포레나울산무거", district: "남구", dong: "무거동", enabled: true },
+      { no: "195457", name: "울산호수공원에일린의뜰1단지", district: "남구", dong: "야음동", enabled: true },
+      { no: "195458", name: "울산호수공원에일린의뜰2단지", district: "남구", dong: "야음동", enabled: true }
     ];
 
     let monitoredList = OWNER_DEFAULT_COMPLEXES.map(c => ({ ...c }));
@@ -2631,18 +2634,17 @@
       }
 
       // [단지 추가 상호 반영]
-      if (sub.id === "owner") {
-        if (!monitoredList.some(m => String(m.no) === cno)) {
-          monitoredList.push({
-            no: cno,
-            name: c.name,
-            district: c.district || "울산",
-            dong: c.dong || "",
-            enabled: true
-          });
-        }
+      if (!monitoredList.some(m => String(m.no) === cno)) {
+        monitoredList.push({
+          no: cno,
+          name: c.name,
+          district: c.district || "울산",
+          dong: c.dong || "",
+          enabled: true
+        });
         renderMonitoredGrid();
-      } else {
+      }
+      if (sub.id !== "owner") {
         sub.admin_customized = true;
       }
 
