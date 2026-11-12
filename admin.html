@@ -1367,7 +1367,7 @@
             </span>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
               <button class="btn-filter active" id="btnFilterAll" onclick="filterSubs('ALL')">🌟 전체</button>
-              <button class="btn-filter" id="btnFilterOwner" onclick="filterSubs('OWNER')" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d; font-weight:800;">👑 태화강아이파크 (대표)</button>
+              <button class="btn-filter" id="btnFilterOwner" onclick="filterSubs('OWNER')" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d; font-weight:800;">👑 화사부동산 (대표)</button>
               <button class="btn-filter" id="btnFilterA" onclick="filterSubs('A')">📱 파트A : 스마트폰</button>
               <button class="btn-filter" id="btnFilterB" onclick="filterSubs('B')">💻 파트B : PC설치</button>
             </div>
@@ -1400,7 +1400,7 @@
         <!-- 3. 선택 부동산의 신청 및 수신 단지 목록 (하단 상세 관리 패널) -->
         <div class="sub-detail-panel">
           <div id="lblSubDetailTitle" style="font-size:13px; font-weight:800; color:#0f172a; margin-bottom:8px; line-height:1.5;">
-            📍 [태화강아이파크공인중개사사무소 | 👑 대표 관리자 마스터] - ☀️ 등록 감시단지 전체 수신 모드 (총 10개 감시단지 실시간 전송)
+            📍 [화사부동산공인중개사사무소 | 👑 대표 관리자 마스터] - ☀️ 등록 감시단지 전체 수신 모드 (총 11개 감시단지 실시간 전송)
           </div>
 
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -1810,8 +1810,8 @@
     let subscribersList = [
       {
         "id": "owner",
-        "name": "태화강아이파크 (대표 소장님)",
-        "office_name": "태화강아이파크공인중개사사무소",
+        "name": "화사부동산 (대표 소장님)",
+        "office_name": "화사부동산공인중개사사무소",
         "owner_name": "대표 소장님",
         "phone": "-",
         "plan": "OWNER",
@@ -1959,8 +1959,8 @@
           return true;
         }
 
-        // 1. 태화강아이파크 중복 가짜 계정 차단
-        if (office.includes("태화강아이파크") || phone === "01000000000" || s.id === "sub_01000000000") {
+        // 1. 대표(화사부동산/태화강아이파크) 중복 가짜 계정 차단
+        if (office.includes("화사부동산") || office.includes("태화강아이파크") || phone === "01000000000" || s.id === "sub_01000000000") {
           return false;
         }
 
@@ -2132,7 +2132,7 @@
       document.getElementById("valPartB").innerText = cntB + "곳";
 
       const bAll = document.getElementById("btnFilterAll"); if (bAll) bAll.innerText = `🌟 전체 (${totS}곳)`;
-      const bOwn = document.getElementById("btnFilterOwner"); if (bOwn) bOwn.innerText = `👑 대표: 태화강아이파크 (1곳)`;
+      const bOwn = document.getElementById("btnFilterOwner"); if (bOwn) bOwn.innerText = `👑 대표: 화사부동산 (1곳)`;
       const bA = document.getElementById("btnFilterA"); if (bA) bA.innerText = `📱 파트A : 스마트폰 (${cntA}곳)`;
       const bB = document.getElementById("btnFilterB"); if (bB) bB.innerText = `💻 파트B : PC설치 (${cntB}곳)`;
     }
@@ -2341,9 +2341,9 @@
         });
       } else {
         if (isOwner) {
-          titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0369a1;">태화강아이파크 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 타 부동산(문수로트럼프 등)의 매물/단지와 100% 철저히 분리되어 관리됩니다. 여기서 단지를 제외해도 타 부동산에는 전혀 영향을 주지 않습니다.</span>`;
+          titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0369a1;">화사부동산 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 타 부동산(문수로트럼프 등)의 매물/단지와 100% 철저히 분리되어 관리됩니다. 여기서 단지를 제외해도 타 부동산에는 전혀 영향을 주지 않습니다.</span>`;
         } else {
-          titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0284c7;">${officeName} 전용 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 태화강아이파크의 매물/단지와 100% 철저히 분리되어 있습니다. 여기서 단지를 제외해도 태화강아이파크의 매물/단지는 일절 삭제되지 않고 100% 안전하게 유지됩니다.</span>`;
+          titleEl.innerHTML = `📍 [${officeName} | ${planStr}] - <b style="color:#0284c7;">${officeName} 전용 수신 단지 목록 (총 ${cNos.length}개 단지 지정 수신)</b><br><span style="font-size:11.5px; color:#64748b; font-weight:normal;">💡 화사부동산의 매물/단지와 100% 철저히 분리되어 있습니다. 여기서 단지를 제외해도 화사부동산의 매물/단지는 일절 삭제되지 않고 100% 안전하게 유지됩니다.</span>`;
         }
 
         if (cNos.length === 0) {
@@ -2682,11 +2682,11 @@
 
       // 소장님 요청: 부동산별 매물은 철저히 별개이므로 어떤 부동산에서 제외되는지 명확히 확인
       const confirmMsg = isOwner
-        ? `[태화강아이파크(대표)] 수신 목록에서\n[${selectedSubComplexNo} ${targetName}] 단지를 제외하시겠습니까?\n\n(※ 타 부동산(문수로트럼프 등)에는 전혀 영향을 주지 않습니다)`
-        : `정말로 [${subName}] 부동산의 수신 목록에서\n[${selectedSubComplexNo} ${targetName}] 단지를 제외하시겠습니까?\n\n(※ 태화강아이파크 및 타 부동산의 매물/단지는 일절 삭제되지 않고 100% 안전하게 유지됩니다)`;
+        ? `[화사부동산(대표)] 수신 목록에서\n[${selectedSubComplexNo} ${targetName}] 단지를 제외하시겠습니까?\n\n(※ 타 부동산(문수로트럼프 등)에는 전혀 영향을 주지 않습니다)`
+        : `정말로 [${subName}] 부동산의 수신 목록에서\n[${selectedSubComplexNo} ${targetName}] 단지를 제외하시겠습니까?\n\n(※ 화사부동산 및 타 부동산의 매물/단지는 일절 삭제되지 않고 100% 안전하게 유지됩니다)`;
 
       if (confirm(confirmMsg)) {
-        // [철저 분리 원칙: 타 부동산의 단지 목록에 태화강아이파크의 monitoredList를 섞거나 복사하지 않음]
+        // [철저 분리 원칙: 타 부동산의 단지 목록에 화사부동산의 monitoredList를 섞거나 복사하지 않음]
         if (sub.all_complexes === true) {
           sub.all_complexes = false;
           if (isOwner) {
@@ -2701,12 +2701,12 @@
         sub.complex_nos = currentList;
 
         if (isOwner) {
-          // 태화강아이파크(대표) 본인 단지 제외 시에만 상단 감시 목록(monitoredList)에서도 동시 제외
+          // 화사부동산(대표) 본인 단지 제외 시에만 상단 감시 목록(monitoredList)에서도 동시 제외
           monitoredList = monitoredList.filter(m => String(m.no).trim() !== String(selectedSubComplexNo).trim());
           renderMonitoredGrid();
         } else {
           // ★ [철저 분리 원칙 100% 보장]
-          // 타 부동산(문수로트럼프 등)일 때는 태화강아이파크(monitoredList 및 owner)는 절대 단 1개도 건드리지 않음!
+          // 타 부동산(문수로트럼프 등)일 때는 화사부동산(monitoredList 및 owner)는 절대 단 1개도 건드리지 않음!
           sub.admin_customized = true;
         }
 
@@ -2730,7 +2730,7 @@
       const phoneDigits = (sub.phone || "").replace(/[^0-9]/g, "");
       const mid = isOwner ? "OWNER" : (sub.license_mid || (phoneDigits ? `SUB_${phoneDigits}` : sub.id || ""));
       const phone = isOwner ? "010-0000-0000" : (sub.phone || "");
-      const office = isOwner ? "태화강아이파크공인중개사사무소" : (sub.office_name || "");
+      const office = isOwner ? "화사부동산공인중개사사무소" : (sub.office_name || "");
 
       const finalUrl = `${scriptUrl}?action=update_complexes&mid=${encodeURIComponent(mid)}&phone=${encodeURIComponent(phone)}&office_name=${encodeURIComponent(office)}&complex_nos=${encodeURIComponent(cnosStr)}&_t=${Date.now()}`;
 
@@ -2811,7 +2811,7 @@
         const digits = (sub.phone || "").replace(/[^0-9]/g, "");
         const subMid = isOwner ? "OWNER" : (sub.license_mid || (digits ? `SUB_${digits}` : (sub.id || "").toUpperCase()));
         const phone = isOwner ? "010-0000-0000" : digits;
-        const office = isOwner ? "태화강아이파크공인중개사사무소" : (sub.office_name || sub.name || "");
+        const office = isOwner ? "화사부동산공인중개사사무소" : (sub.office_name || sub.name || "");
 
         const googleScriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
         const params = new URLSearchParams({
@@ -3502,7 +3502,7 @@
 
       saveStorage();
       renderMonitoredGrid();
-      showToast(`선택하신 ${addedCnt}개 단지가 실시간 감시 및 태화강아이파크 수신 목록에 추가되었습니다!`, "🎉");
+      showToast(`선택하신 ${addedCnt}개 단지가 실시간 감시 및 화사부동산 수신 목록에 추가되었습니다!`, "🎉");
       selectTab("tabComplexes");
     }
 
@@ -3541,7 +3541,7 @@
       document.getElementById("inpDirectComplex").value = "";
       saveStorage();
       renderMonitoredGrid();
-      showToast(`[${cname}] 단지가 실시간 감시 및 태화강아이파크 수신 목록에 등록되었습니다!`, "🚀");
+      showToast(`[${cname}] 단지가 실시간 감시 및 화사부동산 수신 목록에 등록되었습니다!`, "🚀");
       selectTab("tabComplexes");
     }
 
@@ -3941,9 +3941,9 @@
                 }
               }
 
-              const isOwnerRow = (ssMid === "OWNER" || ssOffice.indexOf("태화강아이파크") !== -1);
+              const isOwnerRow = (ssMid === "OWNER" || ssOffice.indexOf("화사부동산") !== -1 || ssOffice.indexOf("태화강아이파크") !== -1);
 
-              // 1. [대표 소장님(태화강아이파크) PC <-> 모바일 실시간 양방향 동기화]
+              // 1. [대표 소장님(화사부동산) PC <-> 모바일 실시간 양방향 동기화]
               if (isOwnerRow) {
                 const ownerSub = subscribersList.find(s => s.id === "owner");
                 if (ownerSub) {
@@ -4043,7 +4043,7 @@
                     updatedCount++;
                   }
                 }
-              } else if (ssOffice && ssOffice !== "대표 소장님" && ssOffice.indexOf("태화강아이파크") === -1 && ssDigits !== "01000000000" && ssMid !== "OWNER") {
+              } else if (ssOffice && ssOffice !== "대표 소장님" && ssOffice.indexOf("화사부동산") === -1 && ssOffice.indexOf("태화강아이파크") === -1 && ssDigits !== "01000000000" && ssMid !== "OWNER") {
                 // 시트에만 있고 로컬에 없는 신규 신청자 자동 동기화 추가 (삭제된 적 없는 신규 신청자만)
                 const newId = ssDigits ? `sub_${ssDigits}` : `sub_${Date.now()}`;
                 if (!delSet.includes(newId)) {
@@ -4075,10 +4075,10 @@
               // 1. 대표 관리자 마스터(owner)는 절대 안전 영구 보존
               if (s.id === "owner") return true;
 
-              // 2. 태화강아이파크 중복 가짜 계정 제외
+              // 2. 대표(화사부동산/태화강아이파크) 중복 가짜 계정 제외
               const office = (s.office_name || s.name || "").trim();
               const phone = (s.phone || "").replace(/[^0-9]/g, "");
-              if (office.includes("태화강아이파크") || phone === "01000000000" || s.id === "sub_01000000000") {
+              if (office.includes("화사부동산") || office.includes("태화강아이파크") || phone === "01000000000" || s.id === "sub_01000000000") {
                 return false;
               }
 
