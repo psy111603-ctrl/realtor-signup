@@ -1825,7 +1825,8 @@
           "133528",
           "140153",
           "177817",
-          "180258"
+          "180258",
+          "192838"
         ],
         "enabled": true,
         "approved": true,
@@ -2719,18 +2720,17 @@
       }
     }
 
-    // [모바일 <-> PC 실시간 동기화 통신 함수: 타 부동산 구글 시트 양방향 직결 (대표는 장부 등록 제외)]
+    // [모바일 <-> PC 실시간 양방향 동기화 통신 함수: 대표 및 타 부동산 구글 시트 양방향 직결]
     function syncComplexesToGoogleSheet(sub) {
       if (!sub) return;
       const isOwner = (sub.id === "owner" || sub.plan === "OWNER");
-      if (isOwner) return; // ★ 대표 소장님은 관리자이므로 구독 신청 시트에 행을 만들지 않음
 
       const scriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
       const cnosStr = (sub.complex_nos && sub.complex_nos.length > 0) ? sub.complex_nos.join(", ") : "EMPTY";
       const phoneDigits = (sub.phone || "").replace(/[^0-9]/g, "");
-      const mid = sub.license_mid || (phoneDigits ? `SUB_${phoneDigits}` : sub.id || "");
-      const phone = sub.phone || "";
-      const office = sub.office_name || "";
+      const mid = isOwner ? "OWNER" : (sub.license_mid || (phoneDigits ? `SUB_${phoneDigits}` : sub.id || ""));
+      const phone = isOwner ? "010-0000-0000" : (sub.phone || "");
+      const office = isOwner ? "태화강아이파크공인중개사사무소" : (sub.office_name || "");
 
       const finalUrl = `${scriptUrl}?action=update_complexes&mid=${encodeURIComponent(mid)}&phone=${encodeURIComponent(phone)}&office_name=${encodeURIComponent(office)}&complex_nos=${encodeURIComponent(cnosStr)}&_t=${Date.now()}`;
 
@@ -2804,20 +2804,20 @@
       const newStatus = sub.enabled ? "승인" : "일시정지";
       showToast(`[${sub.office_name || sub.name}] 상태가 [${sub.enabled ? "정상 가동" : "일시 정지"}]으로 변경되었습니다. (클라우드 동기화)`, sub.enabled ? "▶️" : "⏸️");
 
-      // [클라우드/구글 시트 실시간 양방향 동기화] PC든 모바일이든 가동 상태(정상가동/일시정지) 100% 동일 반영 (대표는 장부 등록 제외)
+      // [클라우드/구글 시트 실시간 양방향 동기화] PC든 모바일이든 가동 상태(정상가동/일시정지) 100% 동일 반영
       try {
         const isOwner = (sub.id === "owner" || sub.plan === "OWNER");
-        if (isOwner) return; // ★ 대표 소장님은 관리자이므로 구글 시트 구독자 장부에 전송하지 않음
 
         const digits = (sub.phone || "").replace(/[^0-9]/g, "");
-        const subMid = sub.license_mid || (digits ? `SUB_${digits}` : (sub.id || "").toUpperCase());
-        const office = sub.office_name || sub.name || "";
+        const subMid = isOwner ? "OWNER" : (sub.license_mid || (digits ? `SUB_${digits}` : (sub.id || "").toUpperCase()));
+        const phone = isOwner ? "010-0000-0000" : digits;
+        const office = isOwner ? "태화강아이파크공인중개사사무소" : (sub.office_name || sub.name || "");
 
         const googleScriptUrl = "https://script.google.com/macros/s/AKfycbz9RY9lVimhRvNMgA0tCdm8f8qg2N96BxC9EUvp5z6aDl_FaE1FQWgasa7VKmNPoYmFrA/exec";
         const params = new URLSearchParams({
           action: "update_status",
           mid: subMid,
-          phone: digits,
+          phone: phone,
           office_name: office,
           status: newStatus,
           _t: String(Date.now())
