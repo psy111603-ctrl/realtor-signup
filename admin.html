@@ -1787,7 +1787,7 @@
       showToast("구글 스프레드시트 연동 주소가 저장되었습니다!", "📊");
     }
 
-    // [철저 분리 원칙] 대표(태화강아이파크) 고유 10개 감시 단지 상수
+    // [철저 분리 원칙] 대표(화사부동산) 고유 10개 감시 단지 상수
     const OWNER_DEFAULT_COMPLEXES = [
       { no: "154078", name: "옥동경남아너스빌ubc", district: "남구", dong: "옥동", enabled: true },
       { no: "166019", name: "힐스테이트문수로센트럴", district: "남구", dong: "신정동", enabled: true },
@@ -1902,7 +1902,7 @@
     let dialogSelectedComplex = null;
 
     function initStorage() {
-      // 1. 대표(태화강아이파크) 실시간 감시 단지 로드 (관리자가 수정한 추가/삭제 상태 100% 영구 보존)
+      // 1. 대표(화사부동산) 실시간 감시 단지 로드 (관리자가 수정한 추가/삭제 상태 100% 영구 보존)
       const savedM = localStorage.getItem("naver_admin_monitored");
       if (savedM) {
         try {

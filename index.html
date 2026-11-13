@@ -1458,7 +1458,7 @@
         <div class="lock-icon">🔒</div>
         <div class="lock-title">사무실 PC 설치 프로그램 다운로드가 잠겨 있습니다</div>
         <p class="lock-desc">
-          대표 소장님(태화강아이파크)의 <b>정식 라이선스 승인 완료</b> 후 잠금이 자동으로 해제되며 프로그램을 다운로드할 수 있습니다.<br>
+          대표 소장님(화사부동산)의 <b>정식 라이선스 승인 완료</b> 후 잠금이 자동으로 해제되며 프로그램을 다운로드할 수 있습니다.<br>
           먼저 위의 1~3번 정보를 작성하시고 아래 <b>[🚀 구독 신청 완료하기]</b> 버튼을 눌러 승인을 요청해 주세요.
         </p>
         <div class="check-license-bar">
@@ -1889,7 +1889,7 @@
         } else {
           msgEl.style.color = '#ea580c';
           const stat = (data && data.status) ? data.status : '승인 대기중';
-          msgEl.innerHTML = `⚠️ 현재 상태: <b>[${stat}]</b><br>대표 관리자(태화강아이파크)의 승인이 아직 완료되지 않았습니다.<br>신청서를 먼저 제출하시거나 소장님께 승인을 요청해 주세요.`;
+          msgEl.innerHTML = `⚠️ 현재 상태: <b>[${stat}]</b><br>대표 관리자(화사부동산)의 승인이 아직 완료되지 않았습니다.<br>신청서를 먼저 제출하시거나 소장님께 승인을 요청해 주세요.`;
         }
       } catch (err) {
         // 네트워크 제한 시 대체 확인 처리
@@ -2361,7 +2361,7 @@
       // ★ [동일 전화번호 중복 등록 차단: 이미 가입 또는 대기중인 번호이면 신청 원천 금지]
       await checkDuplicatePhoneRealtime(phone);
       if (isPhoneDuplicate) {
-        alert("⚠️ 이미 서비스에 등록(또는 승인 대기) 중인 전화번호입니다: " + phone + "\n\n동일한 전화번호로는 중복 신청하실 수 없습니다.\n자세한 문의는 대표 소장님(태화강아이파크)에게 연락해 주세요.");
+        alert("⚠️ 이미 서비스에 등록(또는 승인 대기) 중인 전화번호입니다: " + phone + "\n\n동일한 전화번호로는 중복 신청하실 수 없습니다.\n자세한 문의는 대표 소장님(화사부동산)에게 연락해 주세요.");
         document.getElementById('phone').focus();
         return;
       }
@@ -2429,7 +2429,7 @@
           • 신청 유형: <span style="color:#0284c7; font-weight:800;">${planName}</span><br>
           • 선택 단지: 총 <b>${selectedList.length + customComplexes.length}개</b> 단지<br><br>
           💬 <b>대표님 카카오톡으로 가입 신청 접수 알림이 발송되었습니다.</b><br>
-          대표 관리자(태화강아이파크)에게 신청서가 성공적으로 접수되었습니다.<br><br>
+          대표 관리자(화사부동산)에게 신청서가 성공적으로 접수되었습니다.<br><br>
           승인 완료 즉시 대표님의 스마트폰 카카오톡으로 실시간 맞춤 매물 알림이 시작됩니다!
         `;
       }
